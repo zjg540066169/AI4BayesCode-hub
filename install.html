@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Install · AI4BayesCode</title>
-  <meta name="description" content="Install AI4BayesCode — as a skill for an AI coding agent (Claude Code, Codex, Cursor, …), or as an R / Python package." />
+  <meta name="description" content="Install AI4BayesCode — as a skill for a coding agent (Claude Code, Codex, Cursor, …), or as an R / Python package." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -46,13 +46,13 @@
     <p class="eyebrow">Installation</p>
     <h2 class="mt-1">Get AI4BayesCode running.</h2>
     <p class="subtitle mt-1" style="max-width:44rem;">
-      Two ways to use it. Drive it from an <strong>AI coding assistant</strong> (install
+      Two ways to use it. Drive it from a <strong>coding agent</strong> (install
       it as a skill, then describe your model in plain English), or install the
       <strong>R / Python package</strong> and call it from code. Pick one:
     </p>
 
     <div class="toggle">
-      <button class="btn btn--primary toggle__btn" data-target="llm">AI coding agent</button>
+      <button class="btn btn--primary toggle__btn" data-target="llm">Coding agent</button>
       <button class="btn toggle__btn" data-target="pkg">R / Python package</button>
     </div>
   </section>
@@ -62,11 +62,10 @@
 <section class="section toggle-panel" data-panel="llm">
   <div class="container">
     <p class="subtitle install__note" style="font-style:italic;">
-      You need an <strong>AI coding assistant</strong> — a tool that can open the files on
-      your computer and run programs for you, such as <strong>Claude Code</strong>,
-      <strong>Cursor</strong>, or <strong>Codex</strong>. An ordinary chat like
-      <strong>ChatGPT</strong> or <strong>Gemini</strong> won&rsquo;t work — it can only talk
-      to you; it can&rsquo;t open your files or run the code it writes.
+      AI4BayesCode runs through a <strong>coding agent</strong> — for example
+      <strong>Claude Code</strong>, <strong>Cursor</strong>, or <strong>Codex</strong>. A
+      chat-only LLM like <strong>ChatGPT</strong> can&rsquo;t be used, because the agent needs
+      to work with files on your computer and run code to validate the sampler it builds.
     </p>
     <p class="subtitle install__note">
       The repository root <em>is</em> the skill package — install it once, reload, then
@@ -95,20 +94,20 @@ rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.codex/skills/
       </div>
 
       <div class="install__card" data-cat="emp">
-        <div class="install__lang">Other code agent</div>
+        <div class="install__lang">Other coding agent</div>
 <pre><span class="com"># clone the repo (no skills dir needed)</span>
 git clone https://github.com/zjg540066169/AI4BayesCode.git
 
-<span class="com"># then tell your AI assistant:</span>
+<span class="com"># then tell your coding agent:</span>
 Read AI4BayesCode/start.md first,
 then: &lt;your model description&gt;</pre>
-        <p class="install__note" style="margin-top:.75rem;">No slash command — Cursor, Windsurf, Cline, aider, or any AI coding agent (one with local-file &amp; code access) launches by reading <code>start.md</code>, which routes you to generate-vs-design and loads the rest on demand.</p>
+        <p class="install__note" style="margin-top:.75rem;">No slash command — Cursor, Windsurf, Cline, aider, or any coding agent (one with local-file &amp; code access) launches by reading <code>start.md</code>, which routes you to generate-vs-design and loads the rest on demand.</p>
       </div>
     </div>
 
     <p class="subtitle install__note">
       <strong>After install</strong> — launch it: the slash command in Claude Code / Codex,
-      or tell any other code agent to <em>"Read AI4BayesCode/start.md first"</em>. It first
+      or tell any other coding agent to <em>"Read AI4BayesCode/start.md first"</em>. It first
       asks what you want to
       do: <strong>generate a sampler</strong> (compose existing blocks for your model) or
       <strong>design a new block</strong> (build a new sampling primitive). Choose
@@ -116,7 +115,7 @@ then: &lt;your model description&gt;</pre>
       (spell Greek out: <code>beta</code>, <code>sigma</code>):
     </p>
 <pre class="code-block"><span class="com"># Claude Code: /AI4BayesCode    ·    Codex: /Ai4bayescode</span>
-<span class="com"># Cursor / other code agent: "Read AI4BayesCode/start.md first"</span>
+<span class="com"># Cursor / other coding agent: "Read AI4BayesCode/start.md first"</span>
 <span class="com"># then choose "generate a sampler", and describe the model:</span>
 y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
     <p class="subtitle install__note">
