@@ -3,19 +3,21 @@ Version: 0.1.0
 Date: 2026-06-30
 Title: Nearest-Neighbor Gaussian Process spatial regression sampler
 Description: Fits Bayesian Gaussian spatial regression with a Nearest-Neighbor
- Gaussian Process (NNGP) random effect, y_i ~ N(x_i' beta + w_i, tau^2), where the
- spatial effects follow the sparse NNGP approximation w_i | w_N(i) ~ N(b_i' w_N(i),
- f_i) built from an exponential covariance sigma^2 exp(-phi d) over each location's m
- nearest neighbors (KD-tree neighbor search). The coefficients beta take a
- weakly-informative Gaussian prior, the nugget tau^2 and partial sill sigma^2
- Inverse-Gamma priors, and the decay phi a domain-scaled uniform prior. Replaces the
- dense n-by-n GP covariance with a sparse neighbor-based approximation, scaling
- Gaussian-process spatial modeling to large point-referenced datasets. The effects w
- (block sparse-Cholesky draw), coefficients beta and nugget tau^2 are sampled by
- conjugate Gibbs steps; the partial sill sigma^2 and decay phi are updated jointly (a
- sigma^2-marginalized slice on phi then a conjugate sigma^2 draw), and an exact
- parameter-expansion level shift improves intercept mixing. Datta, Banerjee, Finley
- and Gelfand (2016) <doi:10.1080/01621459.2015.1044091>; Finley et al. (2019)
+ Gaussian Process (NNGP) random effect,
+ \(y_i \sim \mathcal{N}(x_i^\top \beta + w_i, \tau^2)\), where the spatial effects
+ follow the sparse NNGP approximation
+ \(w_i \mid w_{N(i)} \sim \mathcal{N}(b_i^\top w_{N(i)}, f_i)\) built from an
+ exponential covariance \(\sigma^2 \exp(-\phi d)\) over each location's m nearest
+ neighbors (KD-tree neighbor search). The coefficients \(\beta\) take a
+ weakly-informative Gaussian prior, the nugget \(\tau^2\) and partial sill
+ \(\sigma^2\) Inverse-Gamma priors, and the decay \(\phi\) a domain-scaled uniform
+ prior. It replaces the dense \(n \times n\) GP covariance with a sparse
+ neighbor-based approximation, scaling Gaussian-process spatial modeling to large
+ point-referenced datasets. The effects \(w\), coefficients \(\beta\) and nugget
+ \(\tau^2\) are sampled by conjugate Gibbs steps. The partial sill \(\sigma^2\) and
+ decay \(\phi\) are updated jointly, and an exact parameter-expansion level shift
+ improves intercept mixing. Datta, Banerjee, Finley and Gelfand (2016)
+ <doi:10.1080/01621459.2015.1044091>. Finley et al. (2019)
  <doi:10.1080/10618600.2018.1537924>.
 Author: Jungang Zou
 Maintainer: Jungang Zou <jz3183@cumc.columbia.edu>

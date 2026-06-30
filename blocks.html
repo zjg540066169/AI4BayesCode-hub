@@ -571,6 +571,15 @@ my_block/
     return f;
   }
 
+  function katexel(el){
+    if (el && window.renderMathInElement) {
+      try { window.renderMathInElement(el, { delimiters: [
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ], throwOnError: false }); } catch (e) {}
+    }
+  }
+
   var modal = document.getElementById('bmodal');
   var body  = modal ? modal.querySelector('.bmodal__body') : null;
   function closeModal(){ if (!modal) return; modal.classList.add('is-hidden'); body.innerHTML = ''; }
@@ -637,6 +646,7 @@ my_block/
     if (contrib) h += installHTML(b.name);
 
     body.innerHTML = h;
+    katexel(body);
     modal.classList.remove('is-hidden');
 
     if (exFile) {
@@ -693,6 +703,7 @@ my_block/
     } else {
       shown.slice().sort(byName).forEach(function (b) { coreGrid.appendChild(mini(b, 'core')); });
     }
+    katexel(coreGrid);
   }
   if (coreGrid) {
     var cs = document.getElementById('core-search');
@@ -728,6 +739,7 @@ my_block/
     else arr.sort(byName);
     contribGrid.innerHTML = '';
     arr.forEach(function (b) { contribGrid.appendChild(mini(b, 'contrib')); });
+    katexel(contribGrid);
   }
   function renderContrib(){
     if (!contribGrid) return;
