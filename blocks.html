@@ -82,6 +82,16 @@
     .bsearch { width:100%; max-width:30rem; margin:1.5rem 0 0; padding:.6rem .9rem;
                border:1px solid rgb(var(--ink) / .2); border-radius:10px; font:inherit;
                font-size:.95rem; background:#fff; color:rgb(var(--ink)); box-sizing:border-box; }
+    .bsort { display:flex; align-items:center; gap:.4rem; margin-top:.9rem; flex-wrap:wrap; }
+    .bsort__label { font-size:.74rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+                    color:rgb(var(--ink-faint)); margin-right:.2rem; }
+    .bsort__btn { font:inherit; font-size:.85rem; padding:.3rem .85rem; border-radius:99px;
+                  border:1px solid rgb(var(--ink) / .18); background:none; color:rgb(var(--ink-soft)); cursor:pointer; }
+    .bsort__btn.is-active { color:#fff; background:rgb(var(--accent)); border-color:rgb(var(--accent)); }
+    .bgroup-h { grid-column:1 / -1; font-family:'Lora',serif; font-size:1.05rem; font-weight:600;
+                color:rgb(var(--ink)); margin:1.2rem 0 .1rem; padding-bottom:.4rem;
+                border-bottom:1px solid rgb(var(--ink) / .12); }
+    .bgroup-h:first-child { margin-top:.2rem; }
     .bgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(15rem,1fr));
              gap:.9rem; margin-top:1.5rem; align-items:start; }
     .bmini { text-align:left; border:1px solid rgb(var(--ink) / .14); border-radius:12px;
@@ -289,6 +299,11 @@
       full description and a reference example.
     </p>
     <input id="core-search" class="bsearch" type="search" placeholder="Search core blocks..." aria-label="Search core blocks" />
+    <div id="core-sort" class="bsort">
+      <span class="bsort__label">Sort</span>
+      <button class="bsort__btn is-active" type="button" data-sort="name">By name</button>
+      <button class="bsort__btn" type="button" data-sort="group">By function</button>
+    </div>
     <div id="core-grid" class="bgrid"><p class="bgrid__empty">Loading...</p></div>
   </div>
 </section>
@@ -297,9 +312,9 @@
 <section class="section subpanel is-hidden" data-panel="contrib" style="padding-top:1.5rem;">
   <div class="container">
     <p class="subtitle" style="max-width:46rem;">
-      Community blocks, reviewed and published to the hub. This grid is built automatically from
-      the <code>registry/</code> folder. Open a block for its description, a reference example,
-      its skill files, and how to install it.
+      No system can ship every sampler a model might need. AI4BayesCode is extensible: you can
+      contribute your own block, and download and install any block here into your own copy. To
+      design and submit one, see the <a class="accent" href="#upload">Block upload</a> tab.
     </p>
     <div id="contrib-grid" class="bgrid"><p class="bgrid__empty">Loading...</p></div>
   </div>
@@ -649,19 +664,42 @@ my_block/
 
   // ---- core grid (from window.CORE_BLOCKS, loaded by assets/blocks-data.js) ----
   var coreGrid = document.getElementById('core-grid');
+  var GROUP_ORDER = ['Generic transition kernels','Discrete-latent Gibbs','Continuous-conjugate Gibbs',
+    'Data-augmentation Gibbs','Trans-dimensional MH','Bayesian graphical models','Tree-ensemble priors',
+    'Variational inference','Tools and helpers'];
+  var coreSort = 'name';
+  function byName(a, b){ return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; }
   function renderCore(filter){
     if (!coreGrid) return;
     var data = window.CORE_BLOCKS || [];
     var f = (filter || '').toLowerCase();
-    coreGrid.innerHTML = '';
     var shown = data.filter(function (b) {
       return !f || ((b.name + ' ' + (b.summary || '') + ' ' + (b.title || '')).toLowerCase().indexOf(f) >= 0); });
+    coreGrid.innerHTML = '';
     if (!shown.length) { coreGrid.innerHTML = '<p class="bgrid__empty">No blocks match.</p>'; return; }
-    shown.forEach(function (b) { coreGrid.appendChild(mini(b, 'core')); });
+    if (coreSort === 'group') {
+      GROUP_ORDER.forEach(function (g) {
+        var inG = shown.filter(function (b) { return b.group === g; }).sort(byName);
+        if (!inG.length) return;
+        var h = document.createElement('h3'); h.className = 'bgroup-h'; h.textContent = g;
+        coreGrid.appendChild(h);
+        inG.forEach(function (b) { coreGrid.appendChild(mini(b, 'core')); });
+      });
+    } else {
+      shown.slice().sort(byName).forEach(function (b) { coreGrid.appendChild(mini(b, 'core')); });
+    }
   }
   if (coreGrid) {
     var cs = document.getElementById('core-search');
     if (cs) cs.addEventListener('input', function () { renderCore(this.value); });
+    var sortBox = document.getElementById('core-sort');
+    if (sortBox) sortBox.querySelectorAll('.bsort__btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        coreSort = btn.getAttribute('data-sort');
+        sortBox.querySelectorAll('.bsort__btn').forEach(function (x) { x.classList.toggle('is-active', x === btn); });
+        renderCore(cs ? cs.value : '');
+      });
+    });
     if (window.CORE_BLOCKS) renderCore('');
     else document.addEventListener('DOMContentLoaded', function () { renderCore(''); });
   }
