@@ -76,21 +76,21 @@
       An LLM-driven system that builds <em class="font-display" style="font-style:italic;color:rgb(var(--accent))">complete</em> MCMC samplers from a model spec.
     </h2>
     <p class="subtitle mt-1" style="max-width: 46rem;">
-      Rather than asking a language model to write a sampler from scratch, where complex algorithms quietly go wrong, AI4BayesCode decomposes the model into modular blocks and binds each to a built-in sampling component.
+      You describe a Bayesian model in plain language. AI4BayesCode assembles the sampler from tested, built-in components instead of writing the MCMC code from scratch, composes them into a single chain, and validates the result before you ever run it.
     </p>
 
     <div class="features-v mt-3">
       <article class="feature-v" data-cat="param">
-        <h3 class="feature-v__tagline">From a plain-language description to a runnable sampler.</h3>
-        <p class="feature-v__desc">AI4BayesCode parses your model description, decomposes it into modular blocks, and assigns each block to a built-in sampling component (<code>wrapper · block · kernel</code>). You write the model. The system writes (and validates) the sampler.</p>
+        <h3 class="feature-v__tagline">From a plain-language model to a runnable sampler.</h3>
+        <p class="feature-v__desc">Describe your model in words, with its likelihood and priors. AI4BayesCode parses the description, picks the right built-in samplers, and hands you compiled code you can run from R, Python, or C++. You write the model, it writes the sampler.</p>
       </article>
       <article class="feature-v" data-cat="semi">
-        <h3 class="feature-v__tagline">Stateful blocks that compose without reinitialising.</h3>
-        <p class="feature-v__desc">Every block exposes the same <code>set_current</code> / <code>step</code> / <code>get_current</code> interface. Embed a BART ensemble or NUTS chain inside a larger MCMC, propagate updated inputs through a shared pool, and continue sampling, with no warm-up reset and no lost adaptation.</p>
+        <h3 class="feature-v__tagline">Stateful blocks that compose into larger models.</h3>
+        <p class="feature-v__desc">Each block keeps its own state and shares the same <code>set_current</code> / <code>step</code> / <code>get_current</code> interface. Put a BART ensemble or a NUTS chain inside a bigger MCMC, feed it updated values from the other blocks, and it keeps sampling without starting over. Pieces built separately combine into one chain.</p>
       </article>
       <article class="feature-v" data-cat="emp">
-        <h3 class="feature-v__tagline">Catches errors before you ever read the trace.</h3>
-        <p class="feature-v__desc">Semantic checks at parse time catch mis-specified priors and support mismatches before code is generated. Runtime checks compute <code>R-hat</code>, <code>ESS</code>, divergences, and posterior-predictive <em>p</em>-values automatically, with diagnostics attached to every chain.</p>
+        <h3 class="feature-v__tagline">Systematic validation, before and after.</h3>
+        <p class="feature-v__desc">Before writing any code, AI4BayesCode confirms it parsed the model you meant. After, it checks the sampler compiles, screens the code for silent bugs, and runs it on simulated data to confirm it recovers the right posterior, reporting <code>R-hat</code>, <code>ESS</code>, and posterior-predictive checks.</p>
       </article>
     </div>
   </div>
