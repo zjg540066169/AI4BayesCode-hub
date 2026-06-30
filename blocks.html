@@ -353,7 +353,10 @@ my_block/
   var fileInput = document.getElementById('dz-file'),
       browse = document.getElementById('dz-browse'),
       out = document.getElementById('dz-out'),
-      REPO = 'zjg540066169/AI4BayesCode-hub';
+      REPO = 'zjg540066169/AI4BayesCode-hub',
+      // Cloudflare Worker (see worker/) that commits the bundle + opens the review issue.
+      // After deploying it, paste its URL here, e.g. https://ai4bayescode-submit.<account>.workers.dev
+      SUBMIT_ENDPOINT = 'https://ai4bayescode-submit.jungang-zou.workers.dev';
 
   function esc(s){ return (s || '').replace(/[<>&]/g, function (c) {
     return { '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c]; }); }
@@ -415,19 +418,48 @@ my_block/
       html += '</div>';
     }
     if (allOk) {
-      var body = 'Block submission: **' + name + '**\n\n' +
-        (man.Title ? man.Title + '\n\n' : '') +
-        'Author: ' + (man.Author || '') + '\nLicense: ' + (man.License || '') + '\n\n' +
-        'Checks passed in the browser:\n- [x] manifest.dcf\n- [x] ' + name + '.hpp\n- [x] skills/\n- [x] test_' + name + '.cpp\n\n' +
-        '**Please drag your `' + name + '.zip` into this issue to attach it.**';
-      var url = 'https://github.com/' + REPO + '/issues/new?labels=block-submission&title=' +
-        encodeURIComponent('Block submission: ' + name) + '&body=' + encodeURIComponent(body);
-      html += '<a class="btn btn--primary" href="' + url + '" target="_blank" rel="noopener">Submit for review on GitHub</a>' +
-        '<p class="dz-preview" style="margin:.75rem 0 0;">Then drag your <code>' + esc(name) + '.zip</code> into the issue to attach it.</p>';
+      html += '<button class="btn btn--primary" id="dz-submit">Submit for review</button>' +
+        '<p class="dz-preview" id="dz-submit-note" style="margin:.75rem 0 0;">One click. We commit your bundle and open a review issue for you, no manual upload.</p>';
     } else {
       html += '<p class="dz-preview">Add the missing files and zip the whole folder again. The folder name and the <code>Block:</code> field in <code>manifest.dcf</code> must match.</p>';
     }
     out.innerHTML = html;
+    var submitBtn = document.getElementById('dz-submit');
+    if (submitBtn) submitBtn.addEventListener('click', function () { submitBlock(name, man, f, submitBtn); });
+  }
+
+  function submitBlock(name, man, file, btn){
+    if (/REPLACE-WITH-YOUR-WORKER/.test(SUBMIT_ENDPOINT)) {
+      var n0 = document.getElementById('dz-submit-note');
+      if (n0) n0.innerHTML = '<span style="color:rgb(var(--c-emp))">Submission endpoint is not configured yet.</span>';
+      return;
+    }
+    var note = document.getElementById('dz-submit-note');
+    btn.disabled = true; btn.textContent = 'Submitting...';
+    if (note) note.textContent = 'Uploading the bundle and opening a review issue...';
+    var meta = 'Title: ' + (man.Title || '') + '\nAuthor: ' + (man.Author || '') +
+      '\nLicense: ' + (man.License || '') + (man.Description ? '\n\n' + man.Description : '');
+    var fd = new FormData();
+    fd.append('name', name);
+    fd.append('meta', meta);
+    fd.append('file', file, name + '.zip');
+    fetch(SUBMIT_ENDPOINT, { method: 'POST', body: fd })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok && res.j && res.j.issueUrl) {
+          btn.outerHTML = '<a class="btn btn--primary" href="' + res.j.issueUrl +
+            '" target="_blank" rel="noopener">✓ Submitted. View issue #' + res.j.issueNumber + '</a>';
+          if (note) note.textContent = 'Thanks. Your bundle is in for review.';
+        } else {
+          btn.disabled = false; btn.textContent = 'Submit for review';
+          var msg = (res.j && res.j.error) ? res.j.error : 'Submission failed.';
+          if (note) note.innerHTML = '<span style="color:rgb(var(--c-emp))">' + esc(msg) + '</span>';
+        }
+      })
+      .catch(function () {
+        btn.disabled = false; btn.textContent = 'Submit for review';
+        if (note) note.innerHTML = '<span style="color:rgb(var(--c-emp))">Could not reach the submission service. Try again in a moment.</span>';
+      });
   }
 
   browse.addEventListener('click', function () { fileInput.click(); });
