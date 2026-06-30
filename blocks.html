@@ -647,6 +647,13 @@ my_block/
     if (meta.length) h += '<dl class="bc-meta">' + meta.map(function (m) {
       return '<dt>' + m[0] + '</dt><dd>' + m[1] + '</dd>'; }).join('') + '</dl>';
 
+    if (contrib && (b.Skill || b.ValidationSkill)) {
+      h += '<div class="bskills">'
+        + (b.Skill ? '<button class="btn" type="button" data-skill="' + esc(b.Skill) + '">View skill</button>' : '')
+        + (b.ValidationSkill ? '<button class="btn" type="button" data-skill="' + esc(b.ValidationSkill) + '">View validation skill</button>' : '')
+        + '</div><div class="bskilltext is-hidden"><pre class="code-block" id="bskill-pre"></pre></div>';
+    }
+
     var ed = exampleData(b, contrib);
     if (ed) {
       h += '<div class="bex"><h4>Example</h4>'
@@ -656,12 +663,6 @@ my_block/
     }
 
     if (contrib) h += installHTML(b.name);
-    if (contrib && (b.Skill || b.ValidationSkill)) {
-      h += '<div class="bskills">'
-        + (b.Skill ? '<button class="btn" type="button" data-skill="' + esc(b.Skill) + '">View skill</button>' : '')
-        + (b.ValidationSkill ? '<button class="btn" type="button" data-skill="' + esc(b.ValidationSkill) + '">View validation skill</button>' : '')
-        + '</div><div class="bskilltext is-hidden"><pre class="code-block" id="bskill-pre"></pre></div>';
-    }
 
     body.innerHTML = h;
     katexel(body);
