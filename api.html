@@ -52,10 +52,18 @@
 
     <!-- ===== left side nav ===== -->
     <aside class="api__nav">
+      <div class="api__nav-group">Quickstart</div>
+      <ul>
+        <li><a href="#quickstart">a worked example</a></li>
+      </ul>
+
       <div class="api__nav-group">The package</div>
       <ul>
         <li><a href="#set_key">set_key</a></li>
+        <li><a href="#key_status">key_status</a></li>
+        <li><a href="#models">models</a></li>
         <li><a href="#generate">generate</a></li>
+        <li><a href="#prompt">prompt</a></li>
         <li><a href="#source">source</a></li>
         <li><a href="#doc">doc</a></li>
         <li><a href="#example">example</a></li>
@@ -84,32 +92,67 @@
     <!-- ===== main column ===== -->
     <main>
 
+      <article class="api__section" id="quickstart">
+        <h2>A worked example</h2>
+        <p>The whole flow in R: set your key once, describe the model, compile, run, and read it back. Python is identical, with <code>AI4BayesCode.</code> in front of the package calls and <code>m.method()</code> on the sampler.</p>
+        <pre class="api__sig">library(AI4BayesCode)
+
+ai4bayescode_set_key("sk-ant-...")                     # once per session
+ai4bayescode_generate("y ~ N(X b, sigma^2), ...",      # writes ./generated/MyModel.cpp
+                      output_path = "./generated")
+ai4bayescode_source("./generated/MyModel.cpp")         # compiles + loads MyModel
+ai4bayescode_doc(MyModel)                              # what does the constructor want?
+
+m &lt;- new(MyModel, y, X, seed = 1L, keep_history = TRUE)
+m$step(2000)                                           # burn-in
+m$step(8000)                                           # record
+hist &lt;- m$get_history()                                # named list of matrices
+
+ai4b_diagnose(hist)                                    # R-hat / ESS table + trace, ACF, density
+plot_dag(m)                                            # model DAG</pre>
+      </article>
+
       <article class="api__section" id="set_key">
         <h2>The package</h2>
-        <p>Five functions take you from a model description to a running sampler: set your key once, <code>generate</code> the sampler, <code>source</code> it to compile, then run. The R names are <code>ai4bayescode_*</code>; the Python module mirrors them under <code>AI4BayesCode.*</code>.</p>
+        <p>These functions take you from a model description to a running sampler. Every R name carries the <code>ai4bayescode_</code> prefix; the Python module mirrors them under <code>AI4BayesCode.</code>.</p>
 
         <h3>set_key</h3>
-        <p>Store your LLM provider key for the session. Providers are <code>anthropic</code>, <code>openai</code>, and <code>google</code>. Check what is set with <code>key_status()</code> and list the available models with <code>models()</code>.</p>
+        <p>Store your LLM provider key for the session. Providers are <code>anthropic</code>, <code>openai</code>, and <code>google</code>.</p>
         <pre class="api__sig">R       ai4bayescode_set_key(key, provider = "anthropic")
 Python  AI4BayesCode.set_key(key, provider="anthropic")</pre>
 
+        <h3 id="key_status">key_status</h3>
+        <p>Report which provider keys are set this session.</p>
+        <pre class="api__sig">R       ai4bayescode_key_status()
+Python  AI4BayesCode.key_status()</pre>
+
+        <h3 id="models">models</h3>
+        <p>List the supported LLMs (name, provider, and effort levels) you can pass to <code>generate</code>.</p>
+        <pre class="api__sig">R       ai4bayescode_models()
+Python  AI4BayesCode.models()</pre>
+
         <h3 id="generate">generate</h3>
-        <p>Parse and validate the model description, then write a sampler <code>.cpp</code> to <code>output_path</code>. A validate-then-repair loop (up to <code>max_attempts</code>) keeps iterating until the emitted code compiles and passes the checks. Pass <code>API_key</code> here, or set it once with <code>set_key</code>.</p>
+        <p>Parse and validate the model description, then write a sampler <code>.cpp</code> to <code>output_path</code>. A validate-then-repair loop (up to <code>max_attempts</code>) keeps going until the code compiles and passes the checks. Pass <code>API_key</code> here, or set it once with <code>set_key</code>.</p>
         <pre class="api__sig">R       ai4bayescode_generate(model_description, LLM = "claude-opus-4-8",
           effort = "high", output_path = "./generated", API_key = NULL)
 Python  AI4BayesCode.generate(model_description, LLM="claude-opus-4-8",
           effort="high", output_path="./generated", API_key=None)</pre>
         <dl class="api__params">
           <dt>model_description</dt> <dd>Plain-language model spec (text, or a path to a <code>.txt</code>).</dd>
-          <dt>LLM, effort</dt>       <dd>Which model writes the sampler, and how hard it thinks. See <code>models()</code>.</dd>
+          <dt>LLM, effort</dt>       <dd>Which model writes the sampler, and how hard it thinks. See <code>ai4bayescode_models()</code>.</dd>
           <dt>output_path</dt>       <dd>Where the generated <code>.cpp</code> is written.</dd>
           <dt>API_key</dt>           <dd>Provider key for this call. Optional if you used <code>set_key</code>.</dd>
         </dl>
 
+        <h3 id="prompt">prompt</h3>
+        <p>Build (and, interactively, confirm) the code-generation prompt without calling the LLM. Useful to inspect or hand-edit what <code>generate</code> would send.</p>
+        <pre class="api__sig">R       ai4bayescode_prompt(model_description)
+Python  AI4BayesCode.prompt(model_description)</pre>
+
         <h3 id="source">source</h3>
         <p>Compile the generated <code>.cpp</code> against the bundled library and load it, with no paths to configure. After it returns, the sampler class is available: <code>new(MyModel, ...)</code> in R, <code>mod.MyModel(...)</code> in Python.</p>
-        <pre class="api__sig">R       ai4bayescode_source(code, rebuild = FALSE)
-Python  AI4BayesCode.source(code, rebuild=False)</pre>
+        <pre class="api__sig">R       ai4bayescode_source("./generated/MyModel.cpp")
+Python  AI4BayesCode.source("./generated/MyModel.cpp")</pre>
 
         <h3 id="doc">doc</h3>
         <p>Print a usage card for a compiled sampler: the constructor arguments with their types and defaults, the model description, and the available methods. It answers &ldquo;what does the constructor want?&rdquo;.</p>
@@ -117,64 +160,73 @@ Python  AI4BayesCode.source(code, rebuild=False)</pre>
 Python  AI4BayesCode.doc(MyModel)</pre>
 
         <h3 id="example">example</h3>
-        <p>Compile and load a bundled example by name, a one-line way to see a working sampler. <code>list_examples()</code> shows the full set. Python ships the same examples; load one with <code>source</code>.</p>
+        <p>Compile and load a bundled example by name, a one-line way to see a working sampler.</p>
         <pre class="api__sig">R       ai4bayescode_example("GaussianLocationScale")</pre>
+        <p>The remaining helpers list and report: <code>ai4bayescode_list_examples()</code>, <code>ai4bayescode_list_skills()</code>, and <code>ai4bayescode_version()</code>.</p>
       </article>
 
       <article class="api__section" id="ctor">
         <h2>The generated sampler</h2>
-        <p>Once <code>source</code> (or <code>example</code>) has loaded a sampler class, build it with your data and drive it through a small stateful interface. Every block, every composite, and the top-level sampler expose the same methods, so a composite is indistinguishable from a single block.</p>
+        <p>Once <code>source</code> (or <code>example</code>) has loaded a sampler class, build it with your data and drive it through a small stateful interface. Every block, every composite, and the top-level sampler expose the same methods. In R they are <code>m$method()</code>; in Python, <code>m.method()</code>.</p>
 
         <h3>constructor</h3>
-        <p>Build the sampler with your data. <code>seed</code> fixes the RNG; <code>keep_history = TRUE</code> records every draw (otherwise only the latest draw is kept). Run <code>doc()</code> to see the exact arguments for your model.</p>
+        <p>Build the sampler with your data. The arguments depend on the model, so run <code>ai4bayescode_doc(MyModel)</code> to see them. <code>seed</code> fixes the RNG; <code>keep_history = TRUE</code> records every draw (otherwise only the latest is kept).</p>
         <pre class="api__sig">R       m &lt;- new(MyModel, y, X, seed = 1L, keep_history = TRUE)
 Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
 
         <h3 id="step">step</h3>
-        <p>Run <code>n</code> MCMC iterations, advancing the chain in place. Call it repeatedly, for example a burn-in pass followed by a recording pass.</p>
-        <pre class="api__sig">R   m$step(n)          Python   m.step(n)</pre>
+        <p>Run <code>n</code> sweeps, advancing the chain in place. One call does the whole run, no R-side loop. A common pattern is a burn-in pass then a recording pass.</p>
+        <pre class="api__sig">m$step(2000)    # burn-in
+m$step(8000)    # record        Python:  m.step(2000); m.step(8000)</pre>
 
         <h3 id="get_current">get_current</h3>
-        <p>The current draw as a named list (R) or dict (Python) of parameter values on the natural scale. Does not advance the chain.</p>
-        <pre class="api__sig">R   m$get_current()    Python   m.get_current()</pre>
+        <p>The current draw as a named list (R) or dict (Python), keyed by parameter. Does not advance the chain.</p>
+        <pre class="api__sig">cur &lt;- m$get_current()
+cur$sigma          # one parameter   ·   Python:  m.get_current()["sigma"]</pre>
 
         <h3 id="set_current">set_current</h3>
-        <p>Overwrite the current parameter values, to warm-start from a previous run or a user-supplied initial value. Does not reset adaptation.</p>
-        <pre class="api__sig">R   m$set_current(params)    Python   m.set_current(params)</pre>
+        <p>Overwrite current values from a named list, to warm-start from a previous run or a chosen starting point. Keys are parameter names (and, for some blocks, the data they condition on).</p>
+        <pre class="api__sig">m$set_current(list(sigma = 1.0, beta = b0))
+# Python:  m.set_current({"sigma": 1.0, "beta": b0})</pre>
 
         <h3 id="get_history">get_history</h3>
-        <p>All stored draws as a named map <code>{parameter: matrix of shape (n_draws x dim)}</code>. With history off, it returns the current draw as a one-row matrix. Feed it straight to <code>ai4b_diagnose()</code>.</p>
-        <pre class="api__sig">R   hist &lt;- m$get_history()    Python   hist = m.get_history()</pre>
+        <p>All stored draws as a named list of matrices, each <code>(n_draws &times; dim)</code>. Feed it straight to <code>ai4b_diagnose()</code>.</p>
+        <pre class="api__sig">hist &lt;- m$get_history()
+dim(hist$beta)     # n_draws x p     ·   Python:  hist = m.get_history()</pre>
 
         <h3 id="predict_at">predict_at</h3>
-        <p>Posterior-predictive draws at new inputs, using the recorded chain.</p>
-        <pre class="api__sig">R   m$predict_at(new_data)    Python   m.predict_at(new_data)</pre>
+        <p>Posterior-predictive draws at new inputs, using the recorded chain. Pass the new data as a named list (column-major flattened where the constructor took a matrix). Returns a named list; does not mutate state.</p>
+        <pre class="api__sig">pred &lt;- m$predict_at(list(X = X_new))
+# Python:  pred = m.predict_at({"X": X_new})</pre>
 
         <h3 id="get_dag">get_dag</h3>
-        <p>The model&rsquo;s dependency graph (nodes, edges, and plates) as data. <code>plot_dag()</code> reads this to draw the figure.</p>
-        <pre class="api__sig">R   m$get_dag()    Python   m.get_dag()</pre>
+        <p>The model&rsquo;s dependency graph as data (a named list of edges). <code>plot_dag()</code> reads this to draw the figure.</p>
+        <pre class="api__sig">m$get_dag()        # Python:  m.get_dag()</pre>
 
         <h3 id="readapt">readapt_NUTS</h3>
-        <p>Re-tune the NUTS step size and mass matrix without advancing the chain, useful when the target geometry shifts mid-run. NUTS-family blocks only; other blocks are skipped.</p>
-        <pre class="api__sig">R   m$readapt_NUTS()    Python   m.readapt_NUTS()</pre>
+        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain, useful when the geometry shifts mid-run. <code>reset = TRUE</code> restarts dual-averaging. NUTS-family blocks only; others are skipped.</p>
+        <pre class="api__sig">m$readapt_NUTS(500)               # n adaptation iterations
+m$readapt_NUTS(500, reset = TRUE)
+# Python:  m.readapt_NUTS(500, reset=True)</pre>
       </article>
 
       <article class="api__section" id="diagnose">
         <h2>Diagnostics &amp; DAG</h2>
-        <p>These helpers sit between the two layers. They take what a sampler produces, its history and its structure, and turn it into convergence diagnostics and figures. They ship with the package, so a generated runner calls the same functions by name.</p>
+        <p>These helpers sit between the two layers: they take what a sampler produces, its history and its structure, and turn it into convergence diagnostics and figures. They ship with the package, so a generated runner calls the same functions by name.</p>
 
         <h3>ai4b_diagnose</h3>
-        <p>Model-independent posterior diagnostics from <code>get_history()</code>: a summary table with R-hat and bulk / tail ESS, plus a trace, autocorrelation, and density plot.</p>
-        <pre class="api__sig">R       ai4b_diagnose(hist, plot = TRUE)
-Python  AI4BayesCode.ai4b_diagnose(hist)</pre>
+        <p>From <code>get_history()</code>: a summary table (R-hat, bulk / tail ESS) plus a trace, autocorrelation, and density plot. The one call to sanity-check a run.</p>
+        <pre class="api__sig">ai4b_diagnose(m$get_history())            # table + plots
+# Python:  AI4BayesCode.ai4b_diagnose(m.get_history())</pre>
 
         <h3 id="plot_dag">plot_dag</h3>
-        <p>Draw the model as a DAG (a plate diagram) straight from the sampler, reading its <code>get_dag()</code> under the hood. Leave <code>out_path</code> empty to show it, or pass a path to write a PNG.</p>
-        <pre class="api__sig">R       plot_dag(model, plate = TRUE, out_path = NULL)
-Python  AI4BayesCode.plot_dag(model, plate=True, out_path=None)</pre>
+        <p>Draw the model as a plate DAG straight from the sampler, reading its <code>get_dag()</code> under the hood. Leave <code>out_path</code> empty to show it, or pass a path to write a PNG.</p>
+        <pre class="api__sig">plot_dag(m)                               # show
+plot_dag(m, out_path = "dag.png")         # write a PNG
+# Python:  AI4BayesCode.plot_dag(m, out_path="dag.png")</pre>
 
         <h3 id="run_chains">run_chains</h3>
-        <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. Companions: <code>AI4BayesCode_rhat_summary()</code> in R; <code>rhat()</code>, <code>ess_bulk()</code>, <code>ess_tail()</code> in Python.</p>
+        <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. Convergence companions: <code>AI4BayesCode_rhat_summary()</code> in R; <code>rhat()</code>, <code>ess_bulk()</code>, <code>ess_tail()</code> in Python.</p>
         <pre class="api__sig">R       AI4BayesCode_run_chains(model_ctor, ...)
 Python  AI4BayesCode.run_chains(factory, ...)</pre>
       </article>
