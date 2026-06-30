@@ -10,7 +10,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
   <style>
+    .model-tex .katex-display { text-align:left; margin:.4rem 0 0; }
+    .model-tex .katex { font-size:1em; }
     .subtabs { display:flex; gap:.15rem; flex-wrap:wrap; margin:1.5rem 0 0;
                border-bottom:1px solid rgb(var(--ink) / .12); }
     .subtab { font-family:inherit; font-size:.92rem; font-weight:500;
@@ -79,7 +85,8 @@
 
     <p class="subtitle mt-1" style="max-width:46rem;">
       The three tiers separate the model from the math. The <strong>wrapper</strong>
-      decomposes the parsed model into modular units and assembles the result into runnable
+      decomposes the parsed model into modular units (a parameter or a small group of them)
+      and assembles the result into runnable
       code. The <strong>block tier</strong> maps each unit to a built-in block and is the
       unit of sampling. The <strong>kernel tier</strong> provides the generic, reusable
       algorithms the blocks call. Because the AI only works at the block tier, the
@@ -165,26 +172,34 @@
       <article class="example" data-cat="param">
         <div class="example__side example__side--prompt">
           <p class="example__label">Model</p>
-<pre class="code-block">y_i | β, σ  ~  Normal(X_iᵀβ, σ²)
-γ_j | π     ~  Bernoulli(π)
-β_j = 0                 if γ_j = 0   <span class="com">(Dirac spike)</span>
-β_j ~ Laplace(0, b·σ)   if γ_j = 1   <span class="com">(Laplace slab)</span>
-b   ~  Gamma(α_b, β_b)
-π   ~  Beta(1, 1)
-σ   ~  1/σ              <span class="com">(Jeffreys)</span></pre>
+          <div class="model-tex">
+            \[
+            \begin{aligned}
+            y_i \mid \beta, \sigma &\sim \mathcal{N}(X_i^\top \beta,\ \sigma^2) \\
+            \gamma_j \mid \pi &\sim \mathrm{Bernoulli}(\pi) \\
+            \beta_j &= 0 \quad \text{if } \gamma_j = 0 \\
+            \beta_j &\sim \mathrm{Laplace}(0,\ b\,\sigma) \quad \text{if } \gamma_j = 1 \\
+            b &\sim \mathrm{Gamma}(\alpha_b, \beta_b) \\
+            \pi &\sim \mathrm{Beta}(1, 1) \\
+            \sigma &\propto 1/\sigma
+            \end{aligned}
+            \]
+          </div>
         </div>
         <div class="example__side example__side--code">
           <p class="example__label">Block assignment</p>
 <pre class="code-block"><span class="com"># each unit maps to a built-in block</span>
 (β, γ)  ->  <span class="fn">rjmcmc_block</span>      <span class="com"># coupled, trans-dim</span>
 (σ, b)  ->  <span class="fn">nuts_block</span>        <span class="com"># the scales, via NUTS</span>
-π       ->  <span class="fn">beta_gibbs_block</span>  <span class="com"># conjugate Beta</span>
-
-<span class="com"># nuts_block calls the kernel tier:</span>
-<span class="com">#   NUTS built on mcmclib</span></pre>
+π       ->  <span class="fn">beta_gibbs_block</span>  <span class="com"># conjugate Beta</span></pre>
         </div>
       </article>
     </div>
+
+    <p class="subtitle mt-1" style="max-width:46rem;">
+      Each block calls a kernel-tier engine. The <code>nuts_block</code> runs NUTS built on
+      kernels vendored from <a class="accent" href="https://mcmclib.readthedocs.io/en/latest/" target="_blank" rel="noopener">mcmclib</a>, a C++ MCMC library.
+    </p>
 
   </div>
 </section>
