@@ -99,15 +99,19 @@ https://github.com/zjg540066169/AI4BayesCode/blob/main/AI_AGENT_INSTALL.md</pre>
     </div>
 
     <p class="subtitle install__note">
-      <strong>After install</strong> — type the slash command, then describe your model in
-      plain typeable text (spell Greek out: <code>beta</code>, <code>sigma</code>):
+      <strong>After install</strong> — type the slash command. It first asks what you want to
+      do: <strong>generate a sampler</strong> (compose existing blocks for your model) or
+      <strong>design a new block</strong> (build a new sampling primitive). Choose
+      <strong>generate a sampler</strong>, then describe your model in plain typeable text
+      (spell Greek out: <code>beta</code>, <code>sigma</code>):
     </p>
-<pre class="code-block"><span class="com"># in Claude Code: /AI4BayesCode   ·   in Codex: /Ai4bayescode</span>
+<pre class="code-block"><span class="com"># Claude Code: /AI4BayesCode    ·    Codex: /Ai4bayescode</span>
+<span class="com"># then choose "generate a sampler", and describe the model:</span>
 y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
     <p class="subtitle install__note">
-      It composes existing blocks into a validated sampler — or say
-      <em>"design a new block"</em> to build a new primitive. Pure-C++ users need only a
-      C++17 compiler; the bundled <code>include/</code> headers are the install.
+      The block-design flow is the other path — for building a new sampling primitive when
+      no existing block fits. Pure-C++ users need only a C++17 compiler; the bundled
+      <code>include/</code> headers are the install.
     </p>
   </div>
 </section>
