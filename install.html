@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en" data-cat="param">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install · AI4BayesCode</title>
+  <meta name="description" content="Install AI4BayesCode — as an AI agent skill (Claude Code, Codex, or any LLM assistant), or as an R / Python package." />
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .toggle { display:inline-flex; gap:.5rem; margin-top:1.5rem; }
+    .toggle-panel.is-hidden { display:none; }
+    .install__note { max-width:44rem; margin-top:1.25rem; }
+    .install__note code { font-family:'IBM Plex Mono',monospace; font-size:.85em; }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="site-nav">
+  <div class="container site-nav__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="assets/logo.svg" alt="" />
+      <span>
+        AI4BayesCode
+        <span class="brand__sub">Modular Stateful Samplers</span>
+      </span>
+    </a>
+    <ul class="site-nav__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="install.html" class="is-active">Install</a></li>
+      <li><a href="blocks.html">Blocks</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="teams.html">Team</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode" class="hide-on-small">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== INSTALL ===== -->
+<header class="container">
+  <section class="section">
+    <p class="eyebrow">Installation</p>
+    <h2 class="mt-1">Get AI4BayesCode running.</h2>
+    <p class="subtitle mt-1" style="max-width:44rem;">
+      Two ways to use it. Drive it from an <strong>AI coding assistant</strong> (install
+      it as a skill, then describe your model in plain English), or install the
+      <strong>R / Python package</strong> and call it from code. Pick one:
+    </p>
+
+    <div class="toggle">
+      <button class="btn btn--primary toggle__btn" data-target="llm">LLM agent skill</button>
+      <button class="btn toggle__btn" data-target="pkg">R / Python package</button>
+    </div>
+  </section>
+</header>
+
+<!-- ===== LLM PANEL ===== -->
+<section class="section toggle-panel" data-panel="llm">
+  <div class="container">
+    <p class="subtitle install__note">
+      The repository root <em>is</em> the skill package. Install it once for your
+      assistant, reload, then type the slash command and describe your model.
+    </p>
+
+    <div class="install mt-3">
+      <div class="install__card" data-cat="param">
+        <div class="install__lang">Claude Code</div>
+<pre><span class="com"># clone, then copy into the skills dir</span>
+git clone https://github.com/zjg540066169/AI4BayesCode.git
+cd AI4BayesCode
+mkdir -p ~/.claude/skills
+rsync -a --exclude <span class="lit">'.git/'</span> ./ ~/.claude/skills/AI4BayesCode/</pre>
+        <p class="install__note" style="margin-top:.75rem;">Reload Claude Code, then type <code>/AI4BayesCode</code>.</p>
+      </div>
+
+      <div class="install__card" data-cat="semi">
+        <div class="install__lang">Codex</div>
+<pre><span class="com"># clone, then copy into the codex skills dir</span>
+git clone https://github.com/zjg540066169/AI4BayesCode.git
+cd AI4BayesCode
+mkdir -p ~/.codex/skills
+rsync -a --exclude <span class="lit">'.git/'</span> ./ ~/.codex/skills/AI4BayesCode/</pre>
+        <p class="install__note" style="margin-top:.75rem;">Restart Codex, then type <code>/Ai4bayescode</code> <span class="muted">(Codex lowercases the skill name, so only the first letter is capitalized)</span>.</p>
+      </div>
+
+      <div class="install__card" data-cat="emp">
+        <div class="install__lang">Other LLM</div>
+<pre><span class="com"># paste this to any AI coding assistant</span>
+Please install AI4BayesCode by following
+this guide, without overwriting files
+without backup:
+https://github.com/zjg540066169/AI4BayesCode/blob/main/AI_AGENT_INSTALL.md</pre>
+        <p class="install__note" style="margin-top:.75rem;">Your assistant reads the guide and installs the skill itself.</p>
+      </div>
+    </div>
+
+    <p class="subtitle install__note">
+      <strong>After install</strong> — type the slash command, then describe your model in
+      plain typeable text (spell Greek out: <code>beta</code>, <code>sigma</code>):
+    </p>
+<pre class="code-block"><span class="com"># in Claude Code: /AI4BayesCode   ·   in Codex: /Ai4bayescode</span>
+y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
+    <p class="subtitle install__note">
+      It composes existing blocks into a validated sampler — or say
+      <em>"design a new block"</em> to build a new primitive. Pure-C++ users need only a
+      C++17 compiler; the bundled <code>include/</code> headers are the install.
+    </p>
+  </div>
+</section>
+
+<!-- ===== R / PYTHON PANEL ===== -->
+<section class="section toggle-panel is-hidden" data-panel="pkg">
+  <div class="container">
+    <p class="subtitle install__note">
+      The same library ships as installable <strong>R</strong> and <strong>Python</strong>
+      packages — self-contained (C++ headers + skill corpus travel inside). Describe the
+      model in plain text and <code>generate()</code> writes and validates the sampler.
+    </p>
+
+    <div class="install mt-3">
+      <div class="install__card" data-cat="param">
+        <div class="install__lang">R</div>
+<pre><span class="com"># needs a C++17 compiler + Rcpp, RcppArmadillo</span>
+remotes::install_github(
+  <span class="lit">"zjg540066169/AI4BayesCode"</span>, subdir = <span class="lit">"r-pkg"</span>)
+
+library(AI4BayesCode)
+ai4bayescode_generate(
+  <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)</pre>
+      </div>
+
+      <div class="install__card" data-cat="semi">
+        <div class="install__lang">Python</div>
+<pre><span class="com"># Python >= 3.11; a C++ compiler; brew install armadillo</span>
+pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.git#subdirectory=python"</span>
+
+<span class="com"># then, in Python:</span>
+import AI4BayesCode
+AI4BayesCode.generate(
+    <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)</pre>
+      </div>
+    </div>
+
+    <p class="subtitle install__note">
+      <code>generate()</code> uses an LLM (Claude <em>or</em> OpenAI) to write the sampler;
+      pass your key with <code>API_key=</code> or set it once with <code>set_key()</code>.
+      Or run a built-in: <code>ai4bayescode_example("GaussianLocationScale")</code>.
+    </p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-foot">
+  <div class="container site-foot__inner">
+    <div>
+      <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
+      <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers. STAI-X 2026.</p>
+      <p style="margin-top:1rem;">
+        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;·&nbsp;
+        <a class="accent" href="blocks.html">Blocks</a> &nbsp;·&nbsp;
+        <a class="accent" href="api.html">API</a> &nbsp;·&nbsp;
+        <a class="accent" href="teams.html">Team</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.toggle__btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var target = b.getAttribute('data-target');
+      document.querySelectorAll('.toggle__btn').forEach(function (x) {
+        x.classList.toggle('btn--primary', x === b);
+      });
+      document.querySelectorAll('.toggle-panel').forEach(function (p) {
+        p.classList.toggle('is-hidden', p.getAttribute('data-panel') !== target);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
