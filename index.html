@@ -104,113 +104,66 @@
     <p class="eyebrow">Examples</p>
     <h2 class="mt-1">From description to runnable chain.</h2>
     <p class="subtitle mt-1" style="max-width: 44rem;">
-      You write the model in natural language, with priors and likelihood. AI4BayesCode builds the sampler, validates it, compiles it to C++, and ships R and Python bindings. Below are three short prompts and the samplers they produce.
+      You write the model in natural language, with priors and likelihood. AI4BayesCode builds the sampler, validates it, compiles it to C++, and ships R and Python bindings. Below are two short prompts and the samplers they produce.
     </p>
 
     <div class="examples mt-3">
 
-      <!-- example 1 -->
+      <!-- example 1: linear regression -->
       <article class="example" data-cat="param">
         <div class="example__side example__side--prompt">
           <p class="example__label">Natural-language prompt</p>
           <p class="example__prompt-body">
-            I have <em>n</em> observations of a continuous response <em>y</em> and
-            a design matrix <em>X</em>. Fit a Bayesian linear regression with a
-            <em>horseshoe</em> prior on the regression coefficients and a
-            half-Cauchy prior on the residual scale.
+            Bayesian linear regression, y ~ N(Xbeta, sigma^2). Normal prior on beta,
+            half-Cauchy on sigma.
           </p>
           <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
-          <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;">
-            nuts_block(β, log τ)<br>
-            half_cauchy_block(σ)
+          <p class="muted" style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.7;">
+            joint_nuts_block(beta, sigma)
           </p>
         </div>
         <div class="example__side example__side--code">
           <p class="example__label">Generated R interface</p>
-<pre class="code-block"><span class="com"># pre-generation: model parsed + checked</span>
-<span class="kw">library</span>(<span class="ty">AI4BayesCode</span>)
+<pre class="code-block"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
+<span class="fn">ai4bayescode_generate</span>(
+  <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-cauchy on sigma"</span>,
+  classname = <span class="lit">"BayesLinReg"</span>, output_path = <span class="lit">"./generated"</span>)
+<span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
 
-<span class="fn">m</span> &lt;- <span class="fn">build_sampler</span>(
-  description = readLines(<span class="lit">"prompt.txt"</span>),
-  data        = list(y = y, X = X)
-)
-
-<span class="com"># stateful interface: same on every block</span>
-<span class="fn">m</span>$<span class="fn">step</span>(n_burn = <span class="lit">2000</span>)
-<span class="fn">m</span>$<span class="fn">step</span>(n_keep = <span class="lit">4000</span>)
-trace &lt;- <span class="fn">m</span>$<span class="fn">get_history</span>()
-
-<span class="com"># post-generation diagnostics auto-attached</span>
-<span class="fn">m</span>$<span class="fn">diagnosis</span>      <span class="com"># R-hat, ESS, divergences</span>
-<span class="fn">m</span>$<span class="fn">diagnosis_plot</span> <span class="com"># trace + density grid</span></pre>
+m &lt;- <span class="fn">new</span>(BayesLinReg, y, X, seed = <span class="lit">1L</span>, keep_history = <span class="kw">TRUE</span>)
+m$<span class="fn">step</span>(<span class="lit">10000</span>)
+<span class="fn">ai4b_diagnose</span>(m$<span class="fn">get_history</span>())   <span class="com"># R-hat, ESS, trace + density</span></pre>
         </div>
       </article>
 
-      <!-- example 2 -->
+      <!-- example 2: spike-laplace -->
       <article class="example" data-cat="semi">
         <div class="example__side example__side--prompt">
           <p class="example__label">Natural-language prompt</p>
           <p class="example__prompt-body">
-            Spike-and-slab regression with <em>Dirac</em> spike at zero and a
-            Laplace slab. Sample the inclusion indicators <em>γ</em> and the
-            coefficients <em>β</em> jointly via reversible-jump MCMC.
+            Spike-and-slab regression. beta_j ~ Laplace(b*sigma) if gamma_j = 1, else 0.
+            gamma_j ~ Bernoulli(pi), pi ~ Beta(1, 1).
           </p>
           <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
-          <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;">
-            rjmcmc_block(β, γ)<br>
-            inverse_gamma_block(σ²)<br>
-            beta_block(τ²)
+          <p class="muted" style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.7;">
+            rjmcmc_block(beta, gamma)<br>
+            joint_nuts_block(sigma, b)<br>
+            beta_gibbs_block(pi)
           </p>
         </div>
         <div class="example__side example__side--code">
           <p class="example__label">Generated R interface</p>
-<pre class="code-block"><span class="com"># trans-dimensional sampler from a 4-line description</span>
-<span class="fn">m</span> &lt;- <span class="fn">build_sampler</span>(
-  description = <span class="lit">"spike-and-slab regression ..."</span>,
-  data        = list(y = y, X = X),
-  validate    = <span class="kw">TRUE</span>
-)
+<pre class="code-block"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
+<span class="fn">ai4bayescode_generate</span>(
+  <span class="lit">"spike and slab, beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1)"</span>,
+  classname = <span class="lit">"SpikeLaplace"</span>, output_path = <span class="lit">"./generated"</span>)
+<span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
 
-<span class="com"># model averaging is automatic</span>
-<span class="fn">m</span>$<span class="fn">step</span>(n_burn = <span class="lit">4000</span>)
-<span class="fn">m</span>$<span class="fn">step</span>(n_keep = <span class="lit">4000</span>)
+m &lt;- <span class="fn">new</span>(SpikeLaplace, y, X, seed = <span class="lit">1L</span>, keep_history = <span class="kw">TRUE</span>)
+m$<span class="fn">step</span>(<span class="lit">10000</span>)
 
-inc &lt;- colMeans(<span class="fn">m</span>$<span class="fn">get_history</span>()$gamma)
-<span class="fn">plot</span>(inc, type = <span class="lit">"h"</span>,
-     ylab = <span class="lit">"posterior inclusion probability"</span>)</pre>
-        </div>
-      </article>
-
-      <!-- example 3 -->
-      <article class="example" data-cat="emp">
-        <div class="example__side example__side--prompt">
-          <p class="example__label">Natural-language prompt</p>
-          <p class="example__prompt-body">
-            Three-state Poisson hidden Markov model. Time series <em>y<sub>1:T</sub></em>
-            with state-specific Poisson rates ordered ascending and a sticky
-            transition matrix. Sample the hidden states with
-            forward-filter backward-sample.
-          </p>
-          <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
-          <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;">
-            hmm_block(z, FFBS)<br>
-            dirichlet_gibbs_block(A, π)<br>
-            gamma_gibbs_block(λ)
-          </p>
-        </div>
-        <div class="example__side example__side--code">
-          <p class="example__label">Generated R interface</p>
-<pre class="code-block"><span class="com"># composite block: HMM nested inside the outer chain</span>
-<span class="fn">m</span> &lt;- <span class="fn">build_sampler</span>(
-  description = <span class="lit">"3-state Poisson HMM ..."</span>,
-  data        = list(y = y, K = <span class="lit">3</span>)
-)
-
-<span class="fn">m</span>$<span class="fn">step</span>(n_burn = <span class="lit">1500</span>)
-<span class="fn">m</span>$<span class="fn">step</span>(n_keep = <span class="lit">2000</span>)
-
-<span class="com"># exact forward-backward state marginals available</span>
-gamma_smooth &lt;- <span class="fn">m</span>$<span class="fn">state_marginals</span>()</pre>
+inc &lt;- <span class="fn">colMeans</span>(m$<span class="fn">get_history</span>()$gamma)   <span class="com"># posterior inclusion probabilities</span>
+<span class="fn">ai4b_diagnose</span>(m$<span class="fn">get_history</span>())</pre>
         </div>
       </article>
 
