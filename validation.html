@@ -53,6 +53,10 @@
       stages. Before any code is written it confirms the model is the one you meant. After,
       it checks that the sampler compiles, reads correctly, and recovers the right posterior.
     </p>
+    <p class="hero__lede" style="margin-top:1rem; font-size:1.02rem; color:rgb(var(--ink-soft));">
+      No automated check catches every bug. Validation raises the floor, and because
+      AI4BayesCode runs inside a coding agent, you can keep digging after the sampler is generated.
+    </p>
   </section>
 </header>
 
@@ -143,6 +147,12 @@
     <p class="subtitle" style="max-width:46rem; margin-top:2rem;">
       The two stages work together: the first makes sure the right model is being fit, and the
       second makes sure the sampler fits it correctly.
+    </p>
+    <p class="subtitle" style="max-width:46rem; margin-top:1rem;">
+      Even so, no validation catches every bug. That is why AI4BayesCode runs inside a coding
+      agent: when the sampler is generated, the conversation does not end. You can keep going and
+      ask the agent to probe edge cases, read through the code with you, and hunt down anything
+      the automated checks missed.
     </p>
   </div>
 </section>
