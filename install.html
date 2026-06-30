@@ -143,8 +143,10 @@ remotes::install_github(
   <span class="lit">"zjg540066169/AI4BayesCode"</span>, subdir = <span class="lit">"r-pkg"</span>)
 
 library(AI4BayesCode)
+ai4bayescode_set_key(<span class="lit">"sk-ant-..."</span>)   <span class="com"># set your LLM key once</span>
 ai4bayescode_generate(
-  <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)</pre>
+  <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)
+<span class="com"># or inline: ai4bayescode_generate(..., API_key = "sk-ant-...")</span></pre>
       </div>
 
       <div class="install__card" data-cat="semi">
@@ -154,15 +156,19 @@ pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.
 
 <span class="com"># then, in Python:</span>
 import AI4BayesCode
+AI4BayesCode.set_key(<span class="lit">"sk-ant-..."</span>)   <span class="com"># set your LLM key once</span>
 AI4BayesCode.generate(
-    <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)</pre>
+    <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)
+<span class="com"># or inline: AI4BayesCode.generate(..., API_key="sk-ant-...")</span></pre>
       </div>
     </div>
 
     <p class="subtitle install__note">
-      <code>generate()</code> uses an LLM (Claude <em>or</em> OpenAI) to write the sampler;
-      pass your key with <code>API_key=</code> or set it once with <code>set_key()</code>.
-      Or run a built-in: <code>ai4bayescode_example("GaussianLocationScale")</code>.
+      <code>ai4bayescode_generate()</code> (R) / <code>AI4BayesCode.generate()</code> (Python)
+      uses an LLM (Claude <em>or</em> OpenAI) to write the sampler. Set your key once with
+      <code>ai4bayescode_set_key()</code> / <code>AI4BayesCode.set_key()</code>, or pass
+      <code>API_key=</code> to <code>generate()</code> directly. Or run a built-in example:
+      <code>ai4bayescode_example("GaussianLocationScale")</code>.
     </p>
   </div>
 </section>
