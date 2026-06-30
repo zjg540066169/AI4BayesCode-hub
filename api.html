@@ -98,8 +98,9 @@
         <pre class="api__sig">library(AI4BayesCode)
 
 ai4bayescode_set_key("sk-ant-...")                     # store your LLM key once per session
-ai4bayescode_generate("y ~ N(X b, sigma^2), ...",      # writes ./generated/MyModel.cpp
-                      output_path = "./generated")
+ai4bayescode_generate(                                 # writes ./generated/MyModel.cpp
+  "y ~ N(X beta, sigma^2), beta ~ N(0, 10^2), sigma ~ HalfCauchy(0, 1)",
+  output_path = "./generated")
 ai4bayescode_source("./generated/MyModel.cpp")         # compiles + loads MyModel
 ai4bayescode_doc(MyModel)                              # what does the constructor want?
 
@@ -192,7 +193,7 @@ Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
 
         <h3 id="set_current">set_current</h3>
         <p>Overwrite current values from a named list, to warm-start from a previous run or a chosen starting point. Keys are parameter names (and, for some blocks, the data they condition on).</p>
-        <pre class="api__sig">m$set_current(list(name = value, ...))   # e.g. list(sigma = 1.0)   ·   Python: m.set_current({"name": value})</pre>
+        <pre class="api__sig">m$set_current(list(sigma = 1.0, beta = b0))   # warm-start named parameters   ·   Python: m.set_current({"sigma": 1.0, "beta": b0})</pre>
 
         <h3 id="get_history">get_history</h3>
         <p>All stored draws as a named list of matrices, each <code>(n_draws &times; dim)</code>. Feed it straight to <code>ai4b_diagnose()</code>.</p>
@@ -200,14 +201,14 @@ Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
 
         <h3 id="predict_at">predict_at</h3>
         <p>Posterior-predictive draws at new inputs, using the recorded chain. Pass the new data as a named list (column-major flattened where the constructor took a matrix). Returns a named list and does not mutate state.</p>
-        <pre class="api__sig">m$predict_at(new_data)   # e.g. list(X = X_new)   ·   Python: m.predict_at({"X": X_new})</pre>
+        <pre class="api__sig">m$predict_at(list(X = X_new))   # posterior-predictive at new inputs   ·   Python: m.predict_at({"X": X_new})</pre>
 
         <h3 id="get_dag">get_dag</h3>
         <p>The model&rsquo;s dependency graph as data (a named list of edges). <code>plot_dag()</code> reads this to draw the figure.</p>
         <pre class="api__sig">m$get_dag()        # the model DAG as data   ·   Python: m.get_dag()</pre>
 
         <h3 id="readapt">readapt_NUTS</h3>
-        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain, useful when the geometry shifts mid-run. <code>reset = TRUE</code> restarts dual-averaging. NUTS-family blocks only, others are skipped.</p>
+        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. NUTS-family blocks only, others are skipped.</p>
         <pre class="api__sig">m$readapt_NUTS(n, reset = FALSE)   # re-tune for n iterations   ·   Python: m.readapt_NUTS(n)</pre>
       </article>
 
