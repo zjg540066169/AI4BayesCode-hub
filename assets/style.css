@@ -410,6 +410,12 @@ a.hero__meta-item:hover strong {
 .code-block .lit   { color: rgb(var(--c-emp)); }
 .code-block .com   { color: rgb(var(--ink-faint)); font-style: italic; }
 .code-block .fn    { color: rgb(var(--c-param)); }
+.code-block.is-hidden { display: none; }
+.lang-toggle { display: inline-flex; gap: .3rem; }
+.lang-btn { font: inherit; font-size: .85rem; font-weight: 500; padding: .3rem .9rem;
+            border-radius: 99px; border: 1px solid rgb(var(--ink) / .18);
+            background: none; color: rgb(var(--ink-soft)); cursor: pointer; }
+.lang-btn.is-active { color: #fff; background: rgb(var(--accent)); border-color: rgb(var(--accent)); }
 
 /* ----- install ----- */
 .install {

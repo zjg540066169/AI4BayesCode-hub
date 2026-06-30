@@ -107,7 +107,12 @@
       You write the model in natural language, with priors and likelihood. AI4BayesCode builds the sampler, validates it, compiles it to C++, and ships R and Python bindings. Below are two short prompts and the samplers they produce.
     </p>
 
-    <div class="examples mt-3">
+    <div class="lang-toggle" id="lang-toggle" style="margin-top:1.5rem;">
+      <button type="button" class="lang-btn is-active" data-lang="r">R</button>
+      <button type="button" class="lang-btn" data-lang="py">Python</button>
+    </div>
+
+    <div class="examples" style="margin-top:1.5rem;">
 
       <!-- example 1: linear regression -->
       <article class="example" data-cat="param">
@@ -123,8 +128,8 @@
           </p>
         </div>
         <div class="example__side example__side--code">
-          <p class="example__label">Generated R interface</p>
-<pre class="code-block"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
+          <p class="example__label">Generated interface</p>
+<pre class="code-block" data-lang="r"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
 <span class="fn">ai4bayescode_generate</span>(
   <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-normal on sigma"</span>,
   classname = <span class="lit">"BayesLinReg"</span>, output_path = <span class="lit">"./generated"</span>)
@@ -141,6 +146,22 @@ m &lt;- <span class="fn">new</span>(BayesLinReg, y, X, seed = <span class="lit">
 m$<span class="fn">step</span>(<span class="lit">10000</span>)
 hist &lt;- m$<span class="fn">get_history</span>()           <span class="com"># named list of matrices</span>
 cur  &lt;- m$<span class="fn">get_current</span>()           <span class="com"># current draw</span></pre>
+<pre class="code-block is-hidden" data-lang="py"><span class="kw">import</span> <span class="ty">AI4BayesCode</span>
+<span class="ty">AI4BayesCode</span>.<span class="fn">generate</span>(
+  <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-normal on sigma"</span>,
+  classname=<span class="lit">"BayesLinReg"</span>, output_path=<span class="lit">"./generated"</span>)
+mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
+
+<span class="com"># run several chains and check convergence (the usual workflow)</span>
+runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
+  <span class="kw">lambda</span> s: mod.<span class="fn">BayesLinReg</span>(y, X, seed=s, keep_history=<span class="kw">True</span>), seeds=<span class="fn">range</span>(<span class="lit">4</span>))
+<span class="ty">AI4BayesCode</span>.<span class="fn">ai4b_diagnose</span>(runs[<span class="lit">0</span>])      <span class="com"># R-hat, ESS, trace, ACF, density</span>
+
+<span class="com"># optional: stateful usage, drive a single chain yourself</span>
+m = mod.<span class="fn">BayesLinReg</span>(y, X, seed=<span class="lit">1</span>, keep_history=<span class="kw">True</span>)
+m.<span class="fn">step</span>(<span class="lit">10000</span>)
+hist = m.<span class="fn">get_history</span>()              <span class="com"># dict of arrays</span>
+cur  = m.<span class="fn">get_current</span>()              <span class="com"># current draw</span></pre>
         </div>
       </article>
 
@@ -160,8 +181,8 @@ cur  &lt;- m$<span class="fn">get_current</span>()           <span class="com">#
           </p>
         </div>
         <div class="example__side example__side--code">
-          <p class="example__label">Generated R interface</p>
-<pre class="code-block"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
+          <p class="example__label">Generated interface</p>
+<pre class="code-block" data-lang="r"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
 <span class="fn">ai4bayescode_generate</span>(
   <span class="lit">"spike and slab, beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1)"</span>,
   classname = <span class="lit">"SpikeLaplace"</span>, output_path = <span class="lit">"./generated"</span>)
@@ -179,6 +200,23 @@ m$<span class="fn">set_current</span>(<span class="fn">list</span>(sigma = <span
 m$<span class="fn">step</span>(<span class="lit">2000</span>); m$<span class="fn">readapt_NUTS</span>(<span class="lit">500</span>)    <span class="com"># warm up, then re-tune NUTS</span>
 m$<span class="fn">step</span>(<span class="lit">10000</span>)
 <span class="fn">ai4b_diagnose</span>(m$<span class="fn">get_history</span>())</pre>
+<pre class="code-block is-hidden" data-lang="py"><span class="kw">import</span> <span class="ty">AI4BayesCode</span>
+<span class="ty">AI4BayesCode</span>.<span class="fn">generate</span>(
+  <span class="lit">"spike and slab, beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1)"</span>,
+  classname=<span class="lit">"SpikeLaplace"</span>, output_path=<span class="lit">"./generated"</span>)
+mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
+
+<span class="com"># run several chains and check convergence (the usual workflow)</span>
+runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
+  <span class="kw">lambda</span> s: mod.<span class="fn">SpikeLaplace</span>(y, X, seed=s, keep_history=<span class="kw">True</span>), seeds=<span class="fn">range</span>(<span class="lit">4</span>))
+inc = runs[<span class="lit">0</span>][<span class="lit">"gamma"</span>].<span class="fn">mean</span>(axis=<span class="lit">0</span>)        <span class="com"># posterior inclusion probabilities</span>
+
+<span class="com"># optional: stateful usage, drive one chain with full control</span>
+m = mod.<span class="fn">SpikeLaplace</span>(y, X, seed=<span class="lit">1</span>, keep_history=<span class="kw">True</span>)
+m.<span class="fn">set_current</span>({<span class="lit">"sigma"</span>: <span class="lit">1.0</span>})           <span class="com"># warm-start a parameter</span>
+m.<span class="fn">step</span>(<span class="lit">2000</span>); m.<span class="fn">readapt_NUTS</span>(<span class="lit">500</span>)        <span class="com"># warm up, then re-tune NUTS</span>
+m.<span class="fn">step</span>(<span class="lit">10000</span>)
+<span class="ty">AI4BayesCode</span>.<span class="fn">ai4b_diagnose</span>(m.<span class="fn">get_history</span>())</pre>
         </div>
       </article>
 
@@ -226,6 +264,24 @@ m$<span class="fn">step</span>(<span class="lit">10000</span>)
     </div>
   </div>
 </footer>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('lang-toggle');
+    if (!toggle) return;
+    toggle.querySelectorAll('.lang-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var lang = btn.getAttribute('data-lang');
+        toggle.querySelectorAll('.lang-btn').forEach(function (x) {
+          x.classList.toggle('is-active', x === btn);
+        });
+        document.querySelectorAll('.code-block[data-lang]').forEach(function (p) {
+          p.classList.toggle('is-hidden', p.getAttribute('data-lang') !== lang);
+        });
+      });
+    });
+  })();
+</script>
 
 </body>
 </html>
