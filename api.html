@@ -200,7 +200,7 @@ Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
         <pre class="api__sig">m$get_history()        # named list of (n_draws x dim) matrices   ·   Python: m.get_history()</pre>
 
         <h3 id="predict_at">predict_at</h3>
-        <p>Posterior-predictive draws at new inputs, using the recorded chain. Pass the new data as a named list (column-major flattened where the constructor took a matrix). Returns a named list and does not mutate state.</p>
+        <p>Posterior-predictive draws at new inputs, using the recorded chain. Pass the new data as a named list (column-major flattened where the constructor took a matrix). Prediction follows the model&rsquo;s DAG: a quantity is drawn once all of its parents are known, so an incomplete list still predicts the branches whose inputs are complete (partial prediction), and an empty list predicts from the fitted parameters alone. Returns a named list and does not mutate state.</p>
         <pre class="api__sig">m$predict_at(list(X = X_new))   # posterior-predictive at new inputs   ·   Python: m.predict_at({"X": X_new})</pre>
 
         <h3 id="get_dag">get_dag</h3>
