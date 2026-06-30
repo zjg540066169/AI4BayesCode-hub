@@ -73,8 +73,8 @@
 
     <p class="subtitle" style="max-width:46rem;">
       AI4BayesCode never asks the AI to write a sampler from scratch. Every sampler is
-      composed from pre-validated built-in blocks, so the AI only describes the model and
-      picks blocks, not the algorithm.
+      composed from pre-validated built-in blocks, so the AI only decomposes the described
+      model into modular units and picks a built-in block for each unit.
     </p>
 
     <figure class="tier-fig">
@@ -145,11 +145,12 @@
     </figure>
 
     <p class="subtitle" style="max-width:46rem;">
-      The three tiers separate the model from the math. The <strong>block tier</strong>
-      carries the model-specific target and is the unit of sampling. The
-      <strong>kernel tier</strong> provides the generic, reusable algorithms. The
-      <strong>wrapper</strong> assembles both into runnable code. Because the AI only
-      works at the block tier, the generated code stays reliable.
+      The three tiers separate the model from the math. The <strong>wrapper</strong>
+      decomposes the parsed model into modular units and assembles the result into runnable
+      code. The <strong>block tier</strong> maps each unit to a built-in block and is the
+      unit of sampling. The <strong>kernel tier</strong> provides the generic, reusable
+      algorithms the blocks call. Because the AI only works at the block tier, the
+      generated code stays reliable.
     </p>
 
   </div>
