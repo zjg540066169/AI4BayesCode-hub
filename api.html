@@ -99,7 +99,7 @@
 
 ai4bayescode_set_key("sk-ant-...")                     # store your LLM key once per session
 ai4bayescode_generate(                                 # writes ./generated/MyModel.cpp
-  "y ~ N(X beta, sigma^2), beta ~ N(0, 10^2), sigma ~ HalfCauchy(0, 1)",
+  "y ~ N(X beta, sigma^2), beta ~ N(0, 10^2), sigma ~ HalfNormal(0, 1)",
   output_path = "./generated")
 ai4bayescode_source("./generated/MyModel.cpp")         # compiles + loads MyModel
 ai4bayescode_doc(MyModel)                              # what does the constructor want?

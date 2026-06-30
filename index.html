@@ -115,7 +115,7 @@
           <p class="example__label">Natural-language prompt</p>
           <p class="example__prompt-body">
             Bayesian linear regression, y ~ N(Xbeta, sigma^2). Normal prior on beta,
-            half-Cauchy on sigma.
+            half-Normal on sigma.
           </p>
           <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
           <p class="muted" style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.7;">
@@ -126,7 +126,7 @@
           <p class="example__label">Generated R interface</p>
 <pre class="code-block"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
 <span class="fn">ai4bayescode_generate</span>(
-  <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-cauchy on sigma"</span>,
+  <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-normal on sigma"</span>,
   classname = <span class="lit">"BayesLinReg"</span>, output_path = <span class="lit">"./generated"</span>)
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
 
