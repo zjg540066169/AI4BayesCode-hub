@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validation · AI4BayesCode</title>
+  <meta name="description" content="AI4BayesCode validates generated samplers in two stages: pre-generation confirms the model is the one you meant, post-generation checks the sampler compiles, reads correctly, and recovers the right posterior." />
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container site-nav__inner">
+    <a class="brand" href="https://github.com/zjg540066169/AI4BayesCode" target="_blank" rel="noopener">
+      <img class="brand__logo" src="assets/logo.svg" alt="" />
+      <span>AI4BayesCode<span class="brand__sub">Validated Modular Stateful Samplers</span></span>
+    </a>
+    <ul class="site-nav__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="install.html">Install</a></li>
+      <li><a href="tutorial.html">Tutorial</a></li>
+      <li><a href="blocks.html">Blocks</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="teams.html">Team</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode/issues" class="hide-on-small">Issues</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode" class="hide-on-small">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="container">
+  <section class="hero" style="padding-bottom:1.5rem;">
+    <p class="eyebrow hero__eyebrow">Reliability</p>
+    <h1 class="hero__title">Validation.</h1>
+    <p class="hero__lede">
+      A generated sampler is only useful if it is correct. AI4BayesCode validates in two
+      stages. Before any code is written it confirms the model is the one you meant. After,
+      it checks that the sampler compiles, reads correctly, and recovers the right posterior.
+    </p>
+  </section>
+</header>
+
+<hr class="divider" />
+
+<!-- ===== STAGE 1: PRE-GENERATION ===== -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Stage 1</p>
+    <h2 class="mt-1">Before generation: get the model right.</h2>
+    <p class="subtitle mt-1" style="max-width:46rem;">
+      Most errors start in the model, not the code. Before generating anything, AI4BayesCode
+      makes the parsed model explicit and asks you to confirm it.
+    </p>
+
+    <div class="features-v mt-3">
+      <article class="feature-v" data-cat="param">
+        <h3 class="feature-v__tagline">Prior completion.</h3>
+        <p class="feature-v__desc">If a prior is missing, the system offers clear options: fixed values, default weakly-informative priors, or literature-informed priors found through an LLM-assisted search. Nothing is left implicit.</p>
+      </article>
+      <article class="feature-v" data-cat="semi">
+        <h3 class="feature-v__tagline">You confirm the model.</h3>
+        <p class="feature-v__desc">It shows three views to review: the model formulas (the parsed likelihood and priors), a DAG of the dependencies, and a summary table. When something is ambiguous, such as two parameterizations of the same distribution, it asks before continuing.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ===== STAGE 2: POST-GENERATION ===== -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Stage 2</p>
+    <h2 class="mt-1">After generation: check the sampler.</h2>
+    <p class="subtitle mt-1" style="max-width:46rem;">
+      Once the sampler is written, it runs a three-layer pipeline, cheapest first. If a layer
+      fails, the system revises the code from the accumulated feedback and tries again, up to a
+      set limit.
+    </p>
+
+    <div class="feature-grid mt-3">
+      <article class="feature" data-cat="param">
+        <h3>1 &middot; Syntax</h3>
+        <p>The generated C++ has to compile. The compiler does this for free. If it does not build, the system fixes the code and retries.</p>
+      </article>
+      <article class="feature" data-cat="semi">
+        <h3>2 &middot; Semantic</h3>
+        <p>Twenty-five static checks for bugs that compile and run but still give a wrong posterior: distribution parameterization, dimension mismatch, Jacobian handling, dependency consistency, update logic, gradient correctness, and more.</p>
+      </article>
+      <article class="feature" data-cat="emp">
+        <h3>3 &middot; Runtime</h3>
+        <p>The sampler is run on data simulated under the target model. A quick smoke test, then two-chain R-hat and ESS to ask whether it converges, then posterior checks with Bayesian p-values and PSIS-LOO to ask whether it converges to the right posterior.</p>
+      </article>
+    </div>
+
+    <p class="subtitle" style="max-width:46rem; margin-top:2rem;">
+      The two stages work together: the first makes sure the right model is being fit, and the
+      second makes sure the sampler fits it correctly.
+    </p>
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="container site-foot__inner">
+    <div>
+      <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
+      <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers.</p>
+      <p style="margin-top:1rem;">
+        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="index.html">Home</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="blocks.html">Blocks</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="api.html">API</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
