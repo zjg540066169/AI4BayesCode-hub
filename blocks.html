@@ -77,6 +77,15 @@
       model into modular units and picks a built-in block for each unit.
     </p>
 
+    <p class="subtitle mt-1" style="max-width:46rem;">
+      The three tiers separate the model from the math. The <strong>wrapper</strong>
+      decomposes the parsed model into modular units and assembles the result into runnable
+      code. The <strong>block tier</strong> maps each unit to a built-in block and is the
+      unit of sampling. The <strong>kernel tier</strong> provides the generic, reusable
+      algorithms the blocks call. Because the AI only works at the block tier, the
+      generated code stays reliable.
+    </p>
+
     <figure class="tier-fig">
       <svg viewBox="0 0 760 392" role="img" aria-label="Three-tier architecture of AI4BayesCode">
         <defs>
@@ -108,8 +117,8 @@
 
         <!-- B: block (emphasized) -->
         <text x="38" y="222" style="fill:rgb(var(--accent));font-size:14px;font-weight:700">Tier B &middot; Block</text>
-        <text x="38" y="240" style="fill:rgb(var(--ink));font-size:11px">Pre-validated built-in sampling blocks: NUTS, joint NUTS, Gibbs,</text>
-        <text x="38" y="256" style="fill:rgb(var(--ink));font-size:11px">RJMCMC, BART, and more. The unit of sampling.</text>
+        <text x="38" y="240" style="fill:rgb(var(--ink));font-size:11px">Pre-validated built-in sampling blocks: NUTS, Gibbs, RJMCMC,</text>
+        <text x="38" y="256" style="fill:rgb(var(--ink));font-size:11px">BART, and more. The unit of sampling.</text>
 
         <!-- C: kernel -->
         <text x="38" y="332" style="fill:rgb(var(--ink));font-size:13.5px;font-weight:700">Tier C &middot; Kernel</text>
@@ -144,14 +153,38 @@
       <figcaption>The three-tier architecture. Tier B, the block tier, is the unit of sampling.</figcaption>
     </figure>
 
-    <p class="subtitle" style="max-width:46rem;">
-      The three tiers separate the model from the math. The <strong>wrapper</strong>
-      decomposes the parsed model into modular units and assembles the result into runnable
-      code. The <strong>block tier</strong> maps each unit to a built-in block and is the
-      unit of sampling. The <strong>kernel tier</strong> provides the generic, reusable
-      algorithms the blocks call. Because the AI only works at the block tier, the
-      generated code stays reliable.
+    <p class="eyebrow mt-3">An example</p>
+    <h2 class="mt-1" style="font-size:1.25rem;">Spike-and-slab regression with a Laplace slab.</h2>
+    <p class="subtitle mt-1" style="max-width:46rem;">
+      A model that is awkward for a single gradient-based sampler. The Dirac spike forces
+      exact zeros through discrete indicators, and the Laplace slab resists marginalization.
+      AI4BayesCode splits it across built-in blocks.
     </p>
+
+    <div class="examples mt-3">
+      <article class="example" data-cat="param">
+        <div class="example__side example__side--prompt">
+          <p class="example__label">Model</p>
+<pre class="code-block">y_i | β, σ  ~  Normal(X_iᵀβ, σ²)
+γ_j | π     ~  Bernoulli(π)
+β_j = 0                 if γ_j = 0   <span class="com">(Dirac spike)</span>
+β_j ~ Laplace(0, b·σ)   if γ_j = 1   <span class="com">(Laplace slab)</span>
+b   ~  Gamma(α_b, β_b)
+π   ~  Beta(1, 1)
+σ   ~  1/σ              <span class="com">(Jeffreys)</span></pre>
+        </div>
+        <div class="example__side example__side--code">
+          <p class="example__label">Block assignment</p>
+<pre class="code-block"><span class="com"># each unit maps to a built-in block</span>
+(β, γ)  ->  <span class="fn">rjmcmc_block</span>      <span class="com"># coupled, trans-dim</span>
+(σ, b)  ->  <span class="fn">nuts_block</span>        <span class="com"># the scales, via NUTS</span>
+π       ->  <span class="fn">beta_gibbs_block</span>  <span class="com"># conjugate Beta</span>
+
+<span class="com"># nuts_block calls the kernel tier:</span>
+<span class="com">#   NUTS built on mcmclib</span></pre>
+        </div>
+      </article>
+    </div>
 
   </div>
 </section>
