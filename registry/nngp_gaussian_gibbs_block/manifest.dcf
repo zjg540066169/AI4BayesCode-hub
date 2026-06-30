@@ -17,6 +17,7 @@ Description: Fits Bayesian Gaussian spatial regression with a Nearest-Neighbor
  and Gelfand (2016) <doi:10.1080/01621459.2015.1044091>; Finley et al. (2019)
  <doi:10.1080/10618600.2018.1537924>.
 Author: Jungang Zou
+Maintainer: Jungang Zou <jz3183@cumc.columbia.edu>
 License: GPL-3.0-or-later
 EngineKind: mcmc
 ConstraintKinds: none
