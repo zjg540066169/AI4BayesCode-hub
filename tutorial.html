@@ -4,39 +4,27 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tutorial · AI4BayesCode</title>
-  <meta name="description" content="A step-by-step guide to generating samplers and designing blocks with AI4BayesCode." />
+  <meta name="description" content="Tutorial for AI4BayesCode. Coming soon." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/style.css" />
-  <style>
-    .steps { list-style:none; counter-reset:s; padding:0; margin:2rem 0 0; max-width:44rem; }
-    .steps li { counter-increment:s; position:relative; padding:0 0 1.4rem 2.6rem; line-height:1.55; }
-    .steps li::before { content:counter(s); position:absolute; left:0; top:-.1rem;
-      width:1.7rem; height:1.7rem; border-radius:50%; background:rgb(var(--accent) / .12);
-      color:rgb(var(--accent)); font-weight:700; font-size:.85rem;
-      display:flex; align-items:center; justify-content:center; }
-    .steps li strong { color:rgb(var(--ink)); }
-    .coming { display:inline-block; font-size:.72rem; font-weight:600; letter-spacing:.04em;
-      text-transform:uppercase; color:rgb(var(--accent));
-      border:1px solid rgb(var(--accent) / .35); border-radius:99px; padding:.2rem .7rem; }
-  </style>
 </head>
 <body>
 
 <nav class="site-nav">
   <div class="container site-nav__inner">
-    <a class="brand" href="index.html">
+    <a class="brand" href="https://github.com/zjg540066169/AI4BayesCode" target="_blank" rel="noopener">
       <img class="brand__logo" src="assets/logo.svg" alt="" />
       <span>AI4BayesCode<span class="brand__sub">Validated Modular Stateful Samplers</span></span>
     </a>
     <ul class="site-nav__links">
       <li><a href="index.html">Home</a></li>
       <li><a href="install.html">Install</a></li>
+      <li><a href="tutorial.html" class="is-active">Tutorial</a></li>
       <li><a href="blocks.html">Blocks</a></li>
       <li><a href="api.html">API</a></li>
-      <li><a href="tutorial.html" class="is-active">Tutorial</a></li>
       <li><a href="teams.html">Team</a></li>
       <li><a href="https://github.com/zjg540066169/AI4BayesCode/issues" class="hide-on-small">Issues</a></li>
       <li><a href="https://github.com/zjg540066169/AI4BayesCode" class="hide-on-small">GitHub</a></li>
@@ -45,40 +33,12 @@
 </nav>
 
 <header class="container">
-  <section class="hero" style="padding-bottom:1.5rem;">
+  <section class="hero">
     <p class="eyebrow hero__eyebrow">Tutorial</p>
     <h1 class="hero__title">Tutorial.</h1>
-    <p class="hero__lede">
-      A step-by-step walk-through of generating a sampler from a plain-language model, and
-      of designing your own block. <span class="coming">Full guide coming soon</span>
-    </p>
+    <p class="hero__lede">Coming soon.</p>
   </section>
 </header>
-
-<hr class="divider" />
-
-<section class="section">
-  <div class="container">
-    <p class="eyebrow">What it will cover</p>
-    <ol class="steps">
-      <li><strong>Install AI4BayesCode</strong> for your coding agent, or as an R or Python
-        package. See the <a class="accent" href="install.html">Install</a> page.</li>
-      <li><strong>Describe your model</strong> in plain language, with its likelihood and priors.</li>
-      <li><strong>Answer the setup questions</strong> and confirm the parsed model before any
-        code is written.</li>
-      <li><strong>Get a validated sampler</strong> and run it, with R-hat, ESS, and diagnostic
-        plots attached to every chain.</li>
-      <li><strong>Design and share a new block</strong> when no built-in block fits. See the
-        <a class="accent" href="blocks.html">Blocks</a> page for the architecture and upload.</li>
-    </ol>
-
-    <p class="subtitle" style="max-width:44rem; margin-top:2rem;">
-      Until the full guide lands, the <a class="accent" href="install.html">Install</a> page
-      gets you running, and <a class="accent" href="blocks.html">Blocks</a> covers the
-      three-tier architecture and how to contribute.
-    </p>
-  </div>
-</section>
 
 <footer class="site-foot">
   <div class="container site-foot__inner">
