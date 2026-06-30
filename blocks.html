@@ -114,6 +114,14 @@
     .bex { margin-top:1.4rem; border-top:1px solid rgb(var(--ink) / .1); padding-top:1.2rem; }
     .bex h4 { font-size:.95rem; margin:0 0 .55rem; color:rgb(var(--ink)); }
     .bex pre { margin:0; max-height:22rem; overflow:auto; font-size:.78rem; line-height:1.5; }
+    .bex-intro { color:rgb(var(--ink-soft)); margin:0 0 1rem; line-height:1.6; }
+    .bex-tabs { display:flex; gap:.15rem; border-bottom:1px solid rgb(var(--ink) / .12); margin-bottom:.8rem; }
+    .bex-tab { font:inherit; font-size:.88rem; font-weight:500; padding:.4rem .9rem; border:none;
+               background:none; color:rgb(var(--ink-faint)); cursor:pointer;
+               border-bottom:2px solid transparent; margin-bottom:-1px; }
+    .bex-tab:hover { color:rgb(var(--ink)); }
+    .bex-tab.is-active { color:rgb(var(--accent)); border-bottom-color:rgb(var(--accent)); }
+    .bex-pane.is-hidden { display:none; }
     .bskills { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.3rem; }
     .bskills .btn { font-size:.85rem; padding:.4rem .9rem; cursor:pointer; }
     .bskilltext { margin-top:.9rem; }
@@ -603,6 +611,35 @@ my_block/
       + '/tree/main/registry/' + esc(name) + '" target="_blank" rel="noopener">Browse the bundle</a> on GitHub.</p></div></div>';
   }
 
+  function exampleData(b, contrib){
+    if (contrib) {
+      if (!b.ExampleModel || !b.ExampleDesc) return null;
+      return { model: b.ExampleModel, desc: b.ExampleDesc, intro: b.ExampleIntro || '', contrib: true, name: b.name };
+    }
+    if (!b.example_model || !b.example_desc) return null;
+    return { model: b.example_model, desc: b.example_desc, intro: b.example_intro || '', contrib: false };
+  }
+  function exampleCode(ed){
+    var M = ed.model, desc = ed.desc;
+    var r = 'library(AI4BayesCode)\n'
+      + (ed.contrib ? 'ai4bayescode_install_block("' + ed.name + '")\n' : '')
+      + 'ai4bayescode_generate("' + desc + '",\n'
+      + '                      classname = "' + M + '", output_path = "./generated")\n'
+      + 'ai4bayescode_source("./generated/' + M + '.cpp")\n'
+      + 'm <- new(' + M + ', <your data>, seed = 1L, keep_history = TRUE)   # ai4bayescode_doc(' + M + ') lists the arguments\n'
+      + 'm$step(10000)\n'
+      + 'ai4b_diagnose(m$get_history())';
+    var py = 'import AI4BayesCode\n'
+      + (ed.contrib ? 'AI4BayesCode.install_block("' + ed.name + '")\n' : '')
+      + 'AI4BayesCode.generate("' + desc + '",\n'
+      + '                      classname="' + M + '", output_path="./generated")\n'
+      + 'mod = AI4BayesCode.source("./generated/' + M + '.cpp")\n'
+      + 'm = mod.' + M + '(<your data>, seed=1, keep_history=True)   # AI4BayesCode.doc lists the arguments\n'
+      + 'm.step(10000)\n'
+      + 'AI4BayesCode.ai4b_diagnose(m.get_history())';
+    return { r: r, py: py };
+  }
+
   function openModal(b, kind){
     if (!modal) return;
     var contrib = kind === 'contrib';
@@ -634,8 +671,16 @@ my_block/
     if (meta.length) h += '<dl class="bc-meta">' + meta.map(function (m) {
       return '<dt>' + m[0] + '</dt><dd>' + m[1] + '</dd>'; }).join('') + '</dl>';
 
-    var exFile = contrib ? b.Example : b.example;
-    if (exFile) h += '<div class="bex"><h4>Reference example</h4><pre class="code-block" id="bex-pre">Loading the example...</pre></div>';
+    var ed = exampleData(b, contrib);
+    if (ed) {
+      var code = exampleCode(ed);
+      h += '<div class="bex"><h4>Example</h4>'
+        + (ed.intro ? '<p class="bex-intro">' + esc(ed.intro) + '</p>' : '')
+        + '<div class="bex-tabs"><button class="bex-tab is-active" type="button" data-lang="r">R</button>'
+        + '<button class="bex-tab" type="button" data-lang="py">Python</button></div>'
+        + '<pre class="code-block bex-pane" data-lang="r">' + esc(code.r) + '</pre>'
+        + '<pre class="code-block bex-pane is-hidden" data-lang="py">' + esc(code.py) + '</pre></div>';
+    }
 
     if (contrib && (b.Skill || b.ValidationSkill)) {
       h += '<div class="bskills">'
@@ -649,12 +694,13 @@ my_block/
     katexel(body);
     modal.classList.remove('is-hidden');
 
-    if (exFile) {
-      var url = contrib ? ('registry/' + b.name + '/' + exFile) : (RAWLIB + 'examples/' + exFile);
-      fetch(url).then(function (r) { return r.ok ? r.text() : Promise.reject(); })
-        .then(function (t) { var p = document.getElementById('bex-pre'); if (p) p.textContent = t; })
-        .catch(function () { var p = document.getElementById('bex-pre'); if (p) p.textContent = 'Could not load the example here. Browse it on GitHub.'; });
-    }
+    body.querySelectorAll('.bex-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var lang = btn.getAttribute('data-lang');
+        body.querySelectorAll('.bex-tab').forEach(function (x) { x.classList.toggle('is-active', x === btn); });
+        body.querySelectorAll('.bex-pane').forEach(function (p) { p.classList.toggle('is-hidden', p.getAttribute('data-lang') !== lang); });
+      });
+    });
     body.querySelectorAll('[data-skill]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var file = btn.getAttribute('data-skill');
