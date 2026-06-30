@@ -131,8 +131,14 @@
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
 
 m &lt;- <span class="fn">new</span>(BayesLinReg, y, X, seed = <span class="lit">1L</span>, keep_history = <span class="kw">TRUE</span>)
-m$<span class="fn">step</span>(<span class="lit">10000</span>)
-<span class="fn">ai4b_diagnose</span>(m$<span class="fn">get_history</span>())   <span class="com"># R-hat, ESS, trace + density</span></pre>
+m$<span class="fn">step</span>(<span class="lit">10000</span>)            <span class="com"># advance the chain</span>
+cur  &lt;- m$<span class="fn">get_current</span>()  <span class="com"># current draw, a named list</span>
+hist &lt;- m$<span class="fn">get_history</span>()  <span class="com"># full trace, named list of matrices</span>
+<span class="fn">ai4b_diagnose</span>(hist)      <span class="com"># R-hat, ESS, trace + density</span>
+
+<span class="com"># or run several chains in parallel for cross-chain R-hat / ESS</span>
+runs &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
+  <span class="kw">function</span>(s) <span class="fn">new</span>(BayesLinReg, y, X, seed = s, keep_history = <span class="kw">TRUE</span>), n_chains = <span class="lit">4</span>)</pre>
         </div>
       </article>
 
@@ -160,7 +166,10 @@ m$<span class="fn">step</span>(<span class="lit">10000</span>)
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
 
 m &lt;- <span class="fn">new</span>(SpikeLaplace, y, X, seed = <span class="lit">1L</span>, keep_history = <span class="kw">TRUE</span>)
-m$<span class="fn">step</span>(<span class="lit">10000</span>)
+m$<span class="fn">set_current</span>(<span class="fn">list</span>(sigma = <span class="lit">1.0</span>))   <span class="com"># warm-start a parameter</span>
+m$<span class="fn">step</span>(<span class="lit">2000</span>)                       <span class="com"># warm up</span>
+m$<span class="fn">readapt_NUTS</span>(<span class="lit">500</span>)                <span class="com"># re-tune NUTS step size + mass matrix</span>
+m$<span class="fn">step</span>(<span class="lit">10000</span>)                      <span class="com"># keep sampling</span>
 
 inc &lt;- <span class="fn">colMeans</span>(m$<span class="fn">get_history</span>()$gamma)   <span class="com"># posterior inclusion probabilities</span>
 <span class="fn">ai4b_diagnose</span>(m$<span class="fn">get_history</span>())</pre>
