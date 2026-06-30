@@ -183,6 +183,14 @@ AI4BayesCode.generate(
       <code>API_key=</code> to <code>generate()</code> directly. Or run a built-in example:
       <code>ai4bayescode_example("GaussianLocationScale")</code>.
     </p>
+
+    <p class="subtitle install__note">
+      <code>generate()</code> saves the sampler as a <code>.cpp</code> file. Load it with
+      <code>ai4bayescode_source()</code> / <code>AI4BayesCode.source()</code> — it compiles
+      against the bundled library, with no paths to configure — then run
+      <code>ai4bayescode_doc()</code> / <code>AI4BayesCode.doc()</code> to print a usage card:
+      what the sampler takes as input and how to call it.
+    </p>
   </div>
 </section>
 

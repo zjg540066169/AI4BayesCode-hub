@@ -48,7 +48,7 @@
       and C++.
     </p>
     <div class="hero__cta">
-      <a class="btn btn--primary" href="#install">Get started</a>
+      <a class="btn btn--primary" href="install.html">Get started</a>
       <a class="btn" href="blocks.html">Explore blocks</a>
       <a class="btn" href="api.html">Read the API</a>
     </div>
@@ -209,55 +209,6 @@ gamma_smooth &lt;- <span class="fn">m</span>$<span class="fn">state_marginals</s
         </div>
       </article>
 
-    </div>
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- ===== INSTALL ===== -->
-<section class="section" id="install">
-  <div class="container">
-    <p class="eyebrow">Installation</p>
-    <h2 class="mt-1">One core, three front-ends.</h2>
-    <p class="subtitle mt-1" style="max-width: 44rem;">
-      The sampler core is C++ for speed; native R and Python interfaces share the same stateful blocks so trace handling, diagnostics, and composition are identical across languages.
-    </p>
-
-    <div class="install mt-3">
-      <div class="install__card" data-cat="param">
-        <div class="install__lang">R</div>
-<pre><span class="com"># from CRAN (planned)</span>
-install.packages(<span class="lit">"AI4BayesCode"</span>)
-
-<span class="com"># or from source</span>
-devtools::install_github(
-  <span class="lit">"ai4bayescode/AI4BayesCode"</span>
-)
-library(AI4BayesCode)</pre>
-      </div>
-      <div class="install__card" data-cat="semi">
-        <div class="install__lang">Python</div>
-<pre><span class="com"># planned release</span>
-pip install ai4bayescode
-
-<span class="com"># importable agent + sampler</span>
-from ai4bayescode \
-    import build_sampler
-
-m = build_sampler(<span class="lit">"prompt.txt"</span>,
-                  data=data)</pre>
-      </div>
-      <div class="install__card" data-cat="emp">
-        <div class="install__lang">C++</div>
-<pre><span class="com">// header-only core</span>
-#include &lt;ai4bayescode.hpp&gt;
-
-auto m = build_sampler(
-    spec, data);
-m.step(n_burn=2000);
-m.step(n_keep=4000);</pre>
-      </div>
     </div>
   </div>
 </section>
