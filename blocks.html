@@ -14,9 +14,29 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
           onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <style>
     .model-tex .katex-display { text-align:left; margin:.4rem 0 0; }
     .model-tex .katex { font-size:1em; }
+    .dz { border:2px dashed rgb(var(--ink) / .25); border-radius:12px; padding:2.25rem 1.5rem;
+          text-align:center; margin-top:1.5rem; max-width:46rem;
+          transition:border-color .15s, background .15s; }
+    .dz.is-over { border-color:rgb(var(--accent)); background:rgb(var(--accent) / .05); }
+    .dz-msg { margin:0; color:rgb(var(--ink-soft)); }
+    .dz-link { font:inherit; color:rgb(var(--accent)); background:none; border:none; padding:0;
+               cursor:pointer; text-decoration:underline; }
+    .dz-out.is-hidden { display:none; }
+    .dz-out { max-width:46rem; margin-top:1.25rem; border:1px solid rgb(var(--ink) / .12);
+              border-radius:12px; padding:1.5rem; }
+    .dz-status { font-weight:600; margin:0 0 .75rem; }
+    .dz-status.ok  { color:rgb(var(--c-semi)); }
+    .dz-status.bad { color:rgb(var(--c-emp)); }
+    .dz-checks { list-style:none; margin:0 0 1rem; padding:0;
+                 font-family:'IBM Plex Mono',monospace; font-size:.85rem; line-height:1.9; }
+    .dz-checks li.ok::before  { content:'\2713\00a0\00a0'; color:rgb(var(--c-semi)); font-weight:700; }
+    .dz-checks li.bad::before { content:'\2717\00a0\00a0'; color:rgb(var(--c-emp)); font-weight:700; }
+    .dz-preview { font-size:.9rem; color:rgb(var(--ink-soft)); margin:0 0 1rem; line-height:1.5; }
+    .dz-preview strong { color:rgb(var(--ink)); }
     .subtabs { display:flex; gap:.15rem; flex-wrap:wrap; margin:1.5rem 0 0;
                border-bottom:1px solid rgb(var(--ink) / .12); }
     .subtab { font-family:inherit; font-size:.92rem; font-weight:500;
@@ -49,7 +69,9 @@
       <li><a href="install.html">Install</a></li>
       <li><a href="blocks.html" class="is-active">Blocks</a></li>
       <li><a href="api.html">API</a></li>
+      <li><a href="tutorial.html">Tutorial</a></li>
       <li><a href="teams.html">Team</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode/issues" class="hide-on-small">Issues</a></li>
       <li><a href="https://github.com/zjg540066169/AI4BayesCode" class="hide-on-small">GitHub</a></li>
     </ul>
   </div>
@@ -68,7 +90,7 @@
       <button class="subtab is-active" data-target="arch">Three-tier architecture</button>
       <button class="subtab" data-target="core">Core blocks</button>
       <button class="subtab" data-target="contrib">Contributed blocks</button>
-      <button class="subtab" data-target="design">Block design</button>
+      <button class="subtab" data-target="upload">Block upload</button>
     </div>
   </section>
 </header>
@@ -190,14 +212,14 @@
           <p class="example__label">Block assignment</p>
 <pre class="code-block"><span class="com"># each unit maps to a built-in block</span>
 (β, γ)  ->  <span class="fn">rjmcmc_block</span>      <span class="com"># coupled, trans-dim</span>
-(σ, b)  ->  <span class="fn">nuts_block</span>        <span class="com"># the scales, via NUTS</span>
+(σ, b)  ->  <span class="fn">joint_nuts_block</span>  <span class="com"># the scales, via NUTS</span>
 π       ->  <span class="fn">beta_gibbs_block</span>  <span class="com"># conjugate Beta</span></pre>
         </div>
       </article>
     </div>
 
     <p class="subtitle mt-1" style="max-width:46rem;">
-      Each block calls a kernel-tier engine. The <code>nuts_block</code> runs NUTS built on
+      Each block calls a kernel-tier engine. The <code>joint_nuts_block</code> runs NUTS built on
       kernels vendored from <a class="accent" href="https://mcmclib.readthedocs.io/en/latest/" target="_blank" rel="noopener">mcmclib</a>, a C++ MCMC library.
     </p>
 
@@ -233,27 +255,35 @@
   </div>
 </section>
 
-<!-- ===== PANEL: BLOCK DESIGN ===== -->
-<section class="section subpanel is-hidden" data-panel="design" style="padding-top:1.5rem;">
+<!-- ===== PANEL: BLOCK UPLOAD ===== -->
+<section class="section subpanel is-hidden" data-panel="upload" style="padding-top:1.5rem;">
   <div class="container">
     <p class="subtitle" style="max-width:46rem;">
-      A new block is one self-contained folder you can build, validate, and share. The
-      folder holds everything the system and the website need.
+      A block is one self-contained folder, built with the AI4BayesCode block-design flow.
+      A full design tutorial is coming. Here is what a bundle holds, and how to submit one.
     </p>
-    <pre class="code-block" style="max-width:40rem;"><span class="com"># a block bundle</span>
+    <pre class="code-block" style="max-width:42rem;"><span class="com"># a block bundle, zip the whole folder</span>
 my_block/
-  manifest.dcf          <span class="com"># name, title, description, when to use</span>
-  my_block.hpp          <span class="com"># the block itself</span>
-  examples/Model.cpp    <span class="com"># at least one reference example</span>
-  skills/my_block.md    <span class="com"># the AI skill: when to use, config</span>
-  test_my_block.cpp     <span class="com"># a passing library test</span></pre>
-    <div class="placeholder">
-      <span class="tag">Tutorial coming</span>
-      <p class="subtitle" style="margin:0;">
-        A full tutorial and a CRAN-style upload are on the way. For now, build a bundle with
-        the AI4BayesCode block-design flow and contribute it by pull request.
-      </p>
+  manifest.dcf          <span class="com"># required: name, title, description, when to use</span>
+  my_block.hpp          <span class="com"># required: the block itself</span>
+  skills/my_block.md    <span class="com"># required: the AI skill</span>
+  test_my_block.cpp     <span class="com"># required: a passing library test</span>
+  examples/  vendor/    <span class="com"># optional</span></pre>
+
+    <h2 class="mt-3" style="font-size:1.25rem;">Upload a block</h2>
+    <p class="subtitle mt-1" style="max-width:46rem;">
+      Zip the whole bundle folder and drop it below. We check it right here in your browser,
+      then you submit it for review as a GitHub issue. Once accepted, it appears under
+      Contributed blocks.
+    </p>
+
+    <div id="dz" class="dz">
+      <input type="file" id="dz-file" accept=".zip,application/zip" hidden>
+      <p class="dz-msg">Drop your <code>&lt;block&gt;.zip</code> here, or
+        <button type="button" id="dz-browse" class="dz-link">browse</button>.</p>
     </div>
+
+    <div id="dz-out" class="dz-out is-hidden"></div>
   </div>
 </section>
 
@@ -284,6 +314,101 @@ my_block/
       });
     });
   });
+</script>
+
+<script>
+(function () {
+  var dz = document.getElementById('dz');
+  if (!dz) return;
+  var fileInput = document.getElementById('dz-file'),
+      browse = document.getElementById('dz-browse'),
+      out = document.getElementById('dz-out'),
+      REPO = 'zjg540066169/AI4BayesCode-hub';
+
+  function esc(s){ return (s || '').replace(/[<>&]/g, function (c) {
+    return { '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c]; }); }
+
+  function parseDcf(t){
+    var f = {}, k = null;
+    t.split(/\r?\n/).forEach(function (l) {
+      var m = l.match(/^([A-Za-z][A-Za-z0-9_]*):\s?(.*)$/);
+      if (m) { k = m[1]; f[k] = m[2]; }
+      else if (k && /^\s+/.test(l)) { f[k] += ' ' + l.trim(); }
+      else { k = null; }
+    });
+    return f;
+  }
+
+  function handle(f){
+    if (!f) return;
+    out.className = 'dz-out';
+    if (!/\.zip$/i.test(f.name)) { out.innerHTML = '<p class="dz-status bad">✗ Please drop a .zip file.</p>'; return; }
+    if (typeof JSZip === 'undefined') { out.innerHTML = '<p class="dz-status">Zip reader still loading, try again in a moment.</p>'; return; }
+    out.innerHTML = '<p class="dz-status">Reading ' + esc(f.name) + ' ...</p>';
+    JSZip.loadAsync(f).then(function (zip) {
+      var paths = Object.keys(zip.files);
+      var manPath = paths.filter(function (p) {
+        return /(^|\/)manifest\.dcf$/.test(p) && !zip.files[p].dir; })[0];
+      if (!manPath) { render(null, null, paths, zip, f); return; }
+      var prefix = manPath.slice(0, manPath.length - 'manifest.dcf'.length);
+      zip.files[manPath].async('string').then(function (txt) {
+        render(parseDcf(txt), prefix, paths, zip, f);
+      });
+    }).catch(function () { out.innerHTML = '<p class="dz-status bad">Could not read that zip.</p>'; });
+  }
+
+  function render(man, prefix, paths, zip, f){
+    var name = man && man.Block ? man.Block.trim()
+             : (prefix ? prefix.replace(/\/$/, '').split('/').pop()
+                       : f.name.replace(/\.zip$/i, ''));
+    function isFile(p){ return paths.indexOf(p) >= 0 && !(zip.files[p] && zip.files[p].dir); }
+    function hasDir(d){ return paths.some(function (p) {
+      return p.indexOf(d) === 0 && p.length > d.length && !(zip.files[p] && zip.files[p].dir); }); }
+    var pre = prefix || '';
+    var checks = [
+      { label: 'manifest.dcf', ok: !!man },
+      { label: name + '.hpp', ok: man != null && isFile(pre + name + '.hpp') },
+      { label: 'skills/', ok: man != null && hasDir(pre + 'skills/') },
+      { label: 'test_' + name + '.cpp', ok: man != null && isFile(pre + 'test_' + name + '.cpp') }
+    ];
+    var allOk = checks.every(function (c) { return c.ok; });
+    var html = '<p class="dz-status ' + (allOk ? 'ok' : 'bad') + '">' +
+      (allOk ? '✓ ' : '✗ ') + '<strong>' + esc(name) + '</strong> ' +
+      (allOk ? 'looks valid.' : 'is missing required files.') + '</p>';
+    html += '<ul class="dz-checks">' + checks.map(function (c) {
+      return '<li class="' + (c.ok ? 'ok' : 'bad') + '">' + esc(c.label) + '</li>'; }).join('') + '</ul>';
+    if (man) {
+      html += '<div class="dz-preview">';
+      if (man.Title) html += '<p><strong>' + esc(man.Title) + '</strong></p>';
+      if (man.Description) { var d = man.Description; if (d.length > 240) d = d.slice(0, 240) + '...'; html += '<p>' + esc(d) + '</p>'; }
+      if (man.License) html += '<p>License: ' + esc(man.License) + '</p>';
+      html += '</div>';
+    }
+    if (allOk) {
+      var body = 'Block submission: **' + name + '**\n\n' +
+        (man.Title ? man.Title + '\n\n' : '') +
+        'Author: ' + (man.Author || '') + '\nLicense: ' + (man.License || '') + '\n\n' +
+        'Checks passed in the browser:\n- [x] manifest.dcf\n- [x] ' + name + '.hpp\n- [x] skills/\n- [x] test_' + name + '.cpp\n\n' +
+        '**Please drag your `' + name + '.zip` into this issue to attach it.**';
+      var url = 'https://github.com/' + REPO + '/issues/new?labels=block-submission&title=' +
+        encodeURIComponent('Block submission: ' + name) + '&body=' + encodeURIComponent(body);
+      html += '<a class="btn btn--primary" href="' + url + '" target="_blank" rel="noopener">Submit for review on GitHub</a>' +
+        '<p class="dz-preview" style="margin:.75rem 0 0;">Then drag your <code>' + esc(name) + '.zip</code> into the issue to attach it.</p>';
+    } else {
+      html += '<p class="dz-preview">Add the missing files and zip the whole folder again. The folder name and the <code>Block:</code> field in <code>manifest.dcf</code> must match.</p>';
+    }
+    out.innerHTML = html;
+  }
+
+  browse.addEventListener('click', function () { fileInput.click(); });
+  fileInput.addEventListener('change', function () { handle(fileInput.files[0]); });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add('is-over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove('is-over'); }); });
+  dz.addEventListener('drop', function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) handle(e.dataTransfer.files[0]); });
+})();
 </script>
 
 </body>
