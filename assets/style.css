@@ -388,6 +388,15 @@ a.hero__meta-item:hover strong {
   color: rgb(var(--ink-faint));
   margin-bottom: .75rem;
 }
+.example__codehead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .85rem;
+}
+.example__codehead .example__label { margin-bottom: 0; }
+.example__codehead .lang-btn { font-size: .72rem; padding: .16rem .7rem; }
 .example__prompt-body {
   font-family: 'Lora', Georgia, serif;
   font-size: 1.02rem;

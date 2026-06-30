@@ -85,8 +85,12 @@
         <p class="feature-v__desc">Describe your model in words, with its likelihood and priors. AI4BayesCode parses the description, picks the right built-in samplers, and hands you compiled code you can run from R, Python, or C++. You write the model, it writes the sampler.</p>
       </article>
       <article class="feature-v" data-cat="semi">
-        <h3 class="feature-v__tagline">Stateful blocks that compose into larger models.</h3>
-        <p class="feature-v__desc">Each block keeps its own state and shares the same <code>set_current</code> / <code>step</code> / <code>get_current</code> interface. Put a BART ensemble or a NUTS chain inside a bigger MCMC, feed it updated values from the other blocks, and it keeps sampling without starting over. Pieces built separately combine into one chain.</p>
+        <h3 class="feature-v__tagline">Blocks built separately, running as one chain.</h3>
+        <p class="feature-v__desc">Every sampling block keeps its own state behind one shared interface, <code>set_current</code>, <code>step</code>, and <code>get_current</code>. Because of that, blocks written separately by different people fit together inside a larger MCMC and run as a single coherent chain. The same design makes models fast to build, so you can reshape one and try it without rewriting the sampler.</p>
+      </article>
+      <article class="feature-v" data-cat="prob">
+        <h3 class="feature-v__tagline">New models mean a new block, not a rewrite.</h3>
+        <p class="feature-v__desc">Supporting a new kind of model means adding one block, so new models come online quickly instead of forcing a rewrite of the system. The block library is open, and you can contribute your own to widen the set of models the system can build. A contributed block behaves like a built-in one and composes with the rest.</p>
       </article>
       <article class="feature-v" data-cat="emp">
         <h3 class="feature-v__tagline">Systematic validation, before and after.</h3>
@@ -107,11 +111,6 @@
       You write the model in natural language, with priors and likelihood. AI4BayesCode builds the sampler, validates it, compiles it to C++, and ships R and Python bindings. Below are two short prompts and the samplers they produce.
     </p>
 
-    <div class="lang-toggle" id="lang-toggle" style="margin-top:1.5rem;">
-      <button type="button" class="lang-btn is-active" data-lang="r">R</button>
-      <button type="button" class="lang-btn" data-lang="py">Python</button>
-    </div>
-
     <div class="examples" style="margin-top:1.5rem;">
 
       <!-- example 1: linear regression -->
@@ -128,7 +127,13 @@
           </p>
         </div>
         <div class="example__side example__side--code">
-          <p class="example__label">Generated interface</p>
+          <div class="example__codehead">
+            <p class="example__label">Generated interface</p>
+            <div class="lang-toggle" data-lang-toggle>
+              <button type="button" class="lang-btn is-active" data-lang="r">R</button>
+              <button type="button" class="lang-btn" data-lang="py">Python</button>
+            </div>
+          </div>
 <pre class="code-block" data-lang="r"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
 <span class="fn">ai4bayescode_generate</span>(
   <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-normal on sigma"</span>,
@@ -181,7 +186,13 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
           </p>
         </div>
         <div class="example__side example__side--code">
-          <p class="example__label">Generated interface</p>
+          <div class="example__codehead">
+            <p class="example__label">Generated interface</p>
+            <div class="lang-toggle" data-lang-toggle>
+              <button type="button" class="lang-btn is-active" data-lang="r">R</button>
+              <button type="button" class="lang-btn" data-lang="py">Python</button>
+            </div>
+          </div>
 <pre class="code-block" data-lang="r"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
 <span class="fn">ai4bayescode_generate</span>(
   <span class="lit">"spike and slab, beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1)"</span>,
@@ -267,16 +278,19 @@ m.<span class="fn">step</span>(<span class="lit">10000</span>)
 
 <script>
   (function () {
-    var toggle = document.getElementById('lang-toggle');
-    if (!toggle) return;
-    toggle.querySelectorAll('.lang-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var lang = btn.getAttribute('data-lang');
-        toggle.querySelectorAll('.lang-btn').forEach(function (x) {
-          x.classList.toggle('is-active', x === btn);
-        });
-        document.querySelectorAll('.code-block[data-lang]').forEach(function (p) {
-          p.classList.toggle('is-hidden', p.getAttribute('data-lang') !== lang);
+    // Per-example language toggle: each example switches its own code only.
+    document.querySelectorAll('[data-lang-toggle]').forEach(function (toggle) {
+      var scope = toggle.closest('.example');
+      if (!scope) return;
+      toggle.querySelectorAll('.lang-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var lang = btn.getAttribute('data-lang');
+          toggle.querySelectorAll('.lang-btn').forEach(function (x) {
+            x.classList.toggle('is-active', x === btn);
+          });
+          scope.querySelectorAll('.code-block[data-lang]').forEach(function (p) {
+            p.classList.toggle('is-hidden', p.getAttribute('data-lang') !== lang);
+          });
         });
       });
     });
