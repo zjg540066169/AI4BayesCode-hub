@@ -117,7 +117,8 @@
     .bex-intro { color:rgb(var(--ink-soft)); margin:0 0 1rem; line-height:1.6; }
     .bex-lang { font-size:.74rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
                 color:rgb(var(--ink-faint)); margin:0 0 .4rem; }
-    .bskills { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.3rem; }
+    .bskills { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.3rem;
+               border-top:1px solid rgb(var(--ink) / .1); padding-top:1.2rem; }
     .bskills .btn { font-size:.85rem; padding:.4rem .9rem; cursor:pointer; }
     .bskilltext { margin-top:.9rem; }
     .bskilltext.is-hidden { display:none; }
@@ -654,13 +655,13 @@ my_block/
         + '<pre class="code-block" id="bex-r">' + (ed.r ? esc(ed.r) : 'Loading the example...') + '</pre></div>';
     }
 
+    if (contrib) h += installHTML(b.name);
     if (contrib && (b.Skill || b.ValidationSkill)) {
       h += '<div class="bskills">'
         + (b.Skill ? '<button class="btn" type="button" data-skill="' + esc(b.Skill) + '">View skill</button>' : '')
         + (b.ValidationSkill ? '<button class="btn" type="button" data-skill="' + esc(b.ValidationSkill) + '">View validation skill</button>' : '')
         + '</div><div class="bskilltext is-hidden"><pre class="code-block" id="bskill-pre"></pre></div>';
     }
-    if (contrib) h += installHTML(b.name);
 
     body.innerHTML = h;
     katexel(body);
