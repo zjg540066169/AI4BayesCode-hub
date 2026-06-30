@@ -272,21 +272,24 @@
       and Python packages do not include it.
     </p>
     <p class="subtitle mt-1" style="max-width:46rem;">
-      A block is one self-contained folder, built with the AI4BayesCode block-design flow.
-      A full design tutorial is coming. Here is what a bundle holds, and how to submit one.
+      When the design flow finishes, your block is one self-contained folder that looks
+      roughly like this. To submit it, zip the whole folder into a single <code>.zip</code>
+      and upload it below. One naming rule: the block name cannot match any existing core
+      or contributed block.
     </p>
-    <pre class="code-block" style="max-width:42rem;"><span class="com"># a block bundle, zip the whole folder</span>
+    <pre class="code-block" style="max-width:42rem;"><span class="com"># the block folder produced by the design flow</span>
 my_block/
-  manifest.dcf          <span class="com"># required: name, title, description, when to use</span>
+  manifest.dcf          <span class="com"># required: name, description, when to use</span>
   my_block.hpp          <span class="com"># required: the block itself</span>
   skills/my_block.md    <span class="com"># required: the AI skill</span>
   test_my_block.cpp     <span class="com"># required: a passing library test</span>
-  examples/  vendor/    <span class="com"># optional</span></pre>
+  examples/Model.cpp    <span class="com"># required: a runnable C++ demo</span>
+  vendor/               <span class="com"># optional: vendored third-party code</span></pre>
 
     <h2 class="mt-3" style="font-size:1.25rem;">Upload a block</h2>
     <p class="subtitle mt-1" style="max-width:46rem;">
-      Zip the whole bundle folder and drop it below. We check it right here in your browser,
-      then you submit it for review as a GitHub issue. Once accepted, it appears under
+      Drop your <code>.zip</code> below. We check it right here in your browser, then you
+      submit it for review as a GitHub issue. Once accepted, it appears under
       Contributed blocks.
     </p>
 
@@ -316,17 +319,31 @@ my_block/
 </footer>
 
 <script>
+  function activateSubtab(t) {
+    var found = false;
+    document.querySelectorAll('.subtab').forEach(function (x) {
+      var on = x.getAttribute('data-target') === t;
+      x.classList.toggle('is-active', on);
+      if (on) found = true;
+    });
+    if (!found) return;
+    document.querySelectorAll('.subpanel').forEach(function (p) {
+      p.classList.toggle('is-hidden', p.getAttribute('data-panel') !== t);
+    });
+  }
   document.querySelectorAll('.subtab').forEach(function (b) {
     b.addEventListener('click', function () {
       var t = b.getAttribute('data-target');
-      document.querySelectorAll('.subtab').forEach(function (x) {
-        x.classList.toggle('is-active', x === b);
-      });
-      document.querySelectorAll('.subpanel').forEach(function (p) {
-        p.classList.toggle('is-hidden', p.getAttribute('data-panel') !== t);
-      });
+      activateSubtab(t);
+      history.replaceState(null, '', '#' + t);
     });
   });
+  function syncSubtabFromHash() {
+    var h = (location.hash || '').replace('#', '');
+    if (h) activateSubtab(h);
+  }
+  syncSubtabFromHash();
+  window.addEventListener('hashchange', syncSubtabFromHash);
 </script>
 
 <script>
