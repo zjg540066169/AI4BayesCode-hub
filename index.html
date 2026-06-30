@@ -73,10 +73,10 @@
   <div class="container">
     <p class="eyebrow">What it is</p>
     <h2 class="mt-1" style="max-width: 38rem;">
-      An LLM-driven system that builds <em class="font-display" style="font-style:italic;color:rgb(var(--accent))">complete</em> MCMC samplers from a model spec.
+      An LLM-driven system that builds <em class="font-display" style="font-style:italic;color:rgb(var(--accent))">complete</em> MCMC samplers from a model specification.
     </h2>
     <p class="subtitle mt-1" style="max-width: 46rem;">
-      You describe a Bayesian model in plain language. AI4BayesCode assembles the sampler from tested, built-in components instead of writing the MCMC code from scratch, composes them into a single chain, and validates the result before you ever run it.
+      You describe a Bayesian model in plain language. Instead of writing the MCMC code from scratch, AI4BayesCode assembles the sampler from tested, built-in components and validates it before you run it.
     </p>
 
     <div class="features-v mt-3">
@@ -89,8 +89,8 @@
         <p class="feature-v__desc">Each block holds its own state behind one shared interface. <code>set_current</code> takes the latest values from the other blocks, <code>step</code> advances the chain, and <code>get_current</code> passes its state back. So a block placed inside a larger MCMC keeps what it has learned and keeps sampling instead of reinitializing, the way a BART ensemble holds onto its trees rather than rebuilding them each sweep. Because every block works this way, components built separately, even by different contributors, compose coherently into one chain, and you can build and explore models fast.</p>
       </article>
       <article class="feature-v" data-cat="prob">
-        <h3 class="feature-v__tagline">New models mean a new block, not a rewrite.</h3>
-        <p class="feature-v__desc">Supporting a new kind of model means adding one block, so new models come online quickly instead of forcing a rewrite of the system. The block library is open, and you can contribute your own to widen the set of models the system can build. A contributed block behaves like a built-in one and composes with the rest.</p>
+        <h3 class="feature-v__tagline">New models come online fast, and you can add your own.</h3>
+        <p class="feature-v__desc">New kinds of models can be supported quickly by adding a block, so the system keeps up with new methods instead of lagging behind them. The block library is open, so you can contribute your own blocks, and the set of models AI4BayesCode can build grows with the community. A contributed block behaves like a built-in one and composes with the rest.</p>
       </article>
       <article class="feature-v" data-cat="emp">
         <h3 class="feature-v__tagline">Systematic validation, before and after.</h3>

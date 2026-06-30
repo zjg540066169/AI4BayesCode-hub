@@ -425,6 +425,9 @@ a.hero__meta-item:hover strong {
             border-radius: 99px; border: 1px solid rgb(var(--ink) / .18);
             background: none; color: rgb(var(--ink-soft)); cursor: pointer; }
 .lang-btn.is-active { color: #fff; background: rgb(var(--accent)); border-color: rgb(var(--accent)); }
+/* Per-example code toggle: fixed colors per language, not per example. */
+.example__codehead .lang-btn.is-active[data-lang="r"]  { background: rgb(var(--c-prob)); border-color: rgb(var(--c-prob)); }
+.example__codehead .lang-btn.is-active[data-lang="py"] { background: rgb(var(--c-semi)); border-color: rgb(var(--c-semi)); }
 
 /* ----- install ----- */
 .install {
