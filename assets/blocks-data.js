@@ -10,8 +10,7 @@ window.CORE_BLOCKS = [
     "example": "BartNoise.cpp",
     "group": "Tree-ensemble priors",
     "example_intro": "This example fits a nonparametric regression where the mean of a continuous outcome is an unknown smooth function of several predictors. The likelihood is \\(y_i \\sim \\mathcal{N}\\!\\left(f(x_i), \\sigma^2\\right)\\), where \\(f\\) is given a BART (Bayesian Additive Regression Trees) tree-ensemble prior, so the mean is learned as a sum of regression trees rather than a fixed parametric form. The noise variance gets BART's default calibrated conjugate prior \\(\\sigma^2 \\sim \\text{InverseGamma}(\\nu/2,\\ \\nu\\lambda/2)\\), with \\(\\lambda\\) set from a data-based estimate \\(\\hat\\sigma^2\\) so the prior is anchored near the observed scale.",
-    "example_desc": "y_i ~ Normal(f(x_i), sigma^2) with f ~ BART tree-ensemble prior and sigma^2 ~ InverseGamma(nu/2, nu*lambda/2) calibrated from the data (BART default, sigquant=0.9)",
-    "example_model": "BartNoise"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"BartNoise\")   # compile + load the bundled example class\n\n# Simulate a small well-identified dataset (translated from int main, n small)\nset.seed(1)\nN <- 200L; p <- 3L\nX <- matrix(runif(N * p, -1, 1), N, p)              # X ~ Uniform(-1, 1)\nf <- sin(3 * X[, 1]) + 0.5 * X[, 2]^2 - X[, 3]      # smooth low-dim mean\ny <- f + rnorm(N, 0, 0.5)                           # y ~ N(f, 0.5^2)\n\n# Constructor: X, y, ntrees, k, power, base, nu, numcut, dart, aug, seed, keep_tree, keep_history\nm <- new(BartNoise, X, y, 50L, 2.0, 2.0, 0.95, 3.0, 100L, FALSE, FALSE,\n         seed = 1L, keep_history = TRUE)\n\nm$step(5000L)                                       # run the sampler\nai4b_diagnose(m$get_history())                      # trace / diagnostics\n"
   },
   {
     "name": "beta_gibbs_block",
@@ -23,8 +22,7 @@ window.CORE_BLOCKS = [
     "example": "SpikeSlabRJMCMC.cpp",
     "group": "Continuous-conjugate Gibbs",
     "example_intro": "This example fits a sparse Bayesian linear regression with Dirac spike-and-slab variable selection, in the Ishwaran and Rao (2005) sigma-scaled slab form. The likelihood is \\(y_i = X_i'\\beta + \\varepsilon_i\\) with \\(\\varepsilon_i \\sim \\mathcal{N}(0, \\sigma^2)\\), and each coefficient is governed by an inclusion indicator \\(\\gamma_j \\sim \\text{Bernoulli}(\\pi)\\): when \\(\\gamma_j = 0\\) the coefficient \\(\\beta_j\\) is exactly zero (the spike), and when \\(\\gamma_j = 1\\) it is drawn from the slab \\(\\beta_j \\mid \\gamma_j, \\sigma, \\tau \\sim \\mathcal{N}(0, \\sigma^2\\tau^2)\\). The priors are \\(\\pi \\sim \\text{Beta}(a_\\pi, b_\\pi)\\) with scale-invariant Jeffreys priors \\(p(\\sigma) \\propto 1/\\sigma\\) and \\(p(\\tau) \\propto 1/\\tau\\) on the noise scale and the dimensionless signal-to-noise scale \\(\\tau\\).",
-    "example_desc": "y_i = X_i' beta + e_i with e_i ~ Normal(0, sigma^2), gamma_j ~ Bernoulli(pi), beta_j = 0 when gamma_j = 0 and beta_j ~ Normal(0, sigma^2 * tau^2) when gamma_j = 1, pi ~ Beta(a_pi, b_pi), Jeffreys prior 1/sigma on sigma and 1/tau on tau",
-    "example_model": "SpikeSlabRJMCMC"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"SpikeSlabRJMCMC\")  # compile + load the bundled class\n\n# Simulate a small sparse linear-regression dataset (n small, p = 8).\nset.seed(1)\nn <- 200; p <- 8\nbeta_true <- c(2.5, 0, 0, -1.8, 0, 0, 1.2, 0)   # actives {1,4,7}\nX <- matrix(rnorm(n * p), n, p)\nX <- scale(X, center = TRUE, scale = FALSE)       # center columns (no intercept)\ny <- as.numeric(X %*% beta_true + rnorm(n, 0, 1)) # sigma_true = 1\ny <- y - mean(y)                                  # center y\n\n# Construct sampler: Beta(1,1) prior on inclusion probability.\nm <- new(SpikeSlabRJMCMC, X, y, 1.0, 1.0, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "binary_gibbs_block",
@@ -46,8 +44,7 @@ window.CORE_BLOCKS = [
     "example": "DPGaussianMixture_DerivedAlpha.cpp",
     "group": "Discrete-latent Gibbs",
     "example_intro": "This example fits a Dirichlet-process Gaussian mixture to data \\(y_i \\in \\mathbb{R}^d\\), where each observation is drawn from one of \\(K\\) clusters, \\(y_i \\mid z_i = k \\sim \\mathcal{N}(\\mu_k, \\mathrm{diag}(1/\\lambda_k))\\), with cluster locations and precisions given a Normal-Gamma prior \\((\\mu_k, \\lambda_k) \\sim \\mathrm{NormalGamma}(\\mu_0, \\kappa_0, a_\\lambda, b_\\lambda)\\). The mixture weights follow a truncated stick-breaking (DP) prior with concentration \\(\\alpha\\), and the twist is that \\(\\alpha\\) is not sampled directly but derived as \\(\\alpha = \\exp(\\phi)\\) from a latent scalar with prior \\(\\phi \\sim \\mathcal{N}(0,1)\\). This demonstrates the \"derived-parameter\" pattern: \\(\\phi\\) is sampled by NUTS and \\(\\alpha\\) is automatically refreshed and read by the stick-breaking weights as if it were an ordinary parameter.",
-    "example_desc": "y_i ~ Normal(mu_k, diag(1/lambda_k)) for cluster z_i, with (mu_k, lambda_k) ~ NormalGamma(mu_0, kappa_0, a_lambda, b_lambda), stick-breaking DP weights pi with concentration alpha = exp(phi), and phi ~ Normal(0, 1)",
-    "example_model": "DPGaussianMixture_DerivedAlpha"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"DPGaussianMixture_DerivedAlpha\")  # compile + load bundled class\n\nset.seed(1)\n# Simulate a small 1-D, 3-component Gaussian mixture (translated from int main).\nN <- 200L\nw_true <- c(0.4, 0.35, 0.25)        # mixing weights\nm_true <- c(-4.0, 0.0, 5.0)         # component means\ns_true <- 0.7                       # common sd\ncomp   <- sample.int(3L, N, replace = TRUE, prob = w_true)\ny      <- matrix(rnorm(N, m_true[comp], s_true), ncol = 1)  # y is N x d (d = 1)\n\nK_trunc <- 10L                      # DP truncation level (>= 2)\nm <- new(DPGaussianMixture_DerivedAlpha, y, K_trunc, seed = 1L, keep_history = TRUE)\n\nm$step(5000L)                       # one sweep per step; alpha = exp(phi) via NUTS\nai4b_diagnose(m$get_history())      # model-independent posterior diagnostics + plots\n"
   },
   {
     "name": "celerite_gp_block",
@@ -59,8 +56,7 @@ window.CORE_BLOCKS = [
     "example": "GPTimeSeries.cpp",
     "group": "Continuous-conjugate Gibbs",
     "example_intro": "This example fits a 1-D time-series Gaussian process regression to noisy observations \\(y_i = f(t_i) + \\varepsilon_i\\) with \\(\\varepsilon_i \\sim \\mathcal{N}(0, \\sigma^2)\\), where the latent function has a GP prior \\(f \\sim \\mathcal{GP}(0, k)\\) with the exponential (Ornstein-Uhlenbeck / Matern-1/2) kernel \\(k(\\Delta t) = \\mathrm{amp}^2 \\exp(-|\\Delta t|/\\tau)\\). The latent \\(f\\) is marginalized out analytically and the celerite algorithm gives an \\(O(N)\\) marginal likelihood over the hyperparameters. The priors are \\(\\mathrm{amp} \\sim \\text{half-Normal}(0, \\mathrm{sd}(y))\\), \\(\\tau \\sim \\text{InverseGamma}(5, 5\\,\\mathrm{median}\\,\\Delta t)\\), and a Jeffreys prior \\(p(\\sigma) \\propto 1/\\sigma\\) on the noise.",
-    "example_desc": "y_i ~ Normal(f(t_i), sigma^2) with f ~ GP(0, k), k(dt) = amp^2 * exp(-|dt|/tau), amp ~ HalfNormal(0, sd(y)), tau ~ InverseGamma(5, 5*median_dt), sigma ~ Jeffreys (1/sigma)",
-    "example_model": "GPTimeSeries"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"GPTimeSeries\")  # compile + load the bundled example\n\n# Simulate a noisy OU process: f ~ AR(1), y = f + noise (matches the OU kernel)\nset.seed(1)\nN <- 200; dt <- 1.0\namp_true <- 2.0; tau_true <- 40.0; sigma_true <- 1.0\nrho <- exp(-dt / tau_true)\ninnov_sd <- amp_true * sqrt(1 - rho^2)\nf <- numeric(N)\nf[1] <- amp_true * rnorm(1)                       # stationary start\nfor (i in 2:N) f[i] <- rho * f[i-1] + innov_sd * rnorm(1)\nt <- (0:(N-1)) * dt                               # sorted ascending (required)\ny <- f + sigma_true * rnorm(N)\n\n# Constructor: GPTimeSeries(t, y, rng_seed, keep_history)\nm <- new(GPTimeSeries, t, y, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "composite_block",
@@ -72,8 +68,7 @@ window.CORE_BLOCKS = [
     "example": "BetaBernoulli.cpp",
     "group": "Tools and helpers",
     "example_intro": "This example fits the canonical Beta-Bernoulli model for a single success probability. Each binary observation is modeled as \\(y_i \\mid p \\sim \\mathrm{Bernoulli}(p)\\) for \\(i = 1, \\dots, N\\), with a conjugate prior \\(p \\sim \\mathrm{Beta}(a, b)\\) on the probability \\(p \\in (0, 1)\\). The sampler targets the posterior \\(p \\mid y \\sim \\mathrm{Beta}(a + \\sum_i y_i,\\; b + N - \\sum_i y_i)\\), using NUTS under an interval\\((0,1)\\) constraint and checking recovery against this closed form.",
-    "example_desc": "y_i ~ Bernoulli(p) for i = 1..N with p ~ Beta(a, b)",
-    "example_model": "BetaBernoulli"
+    "example_r": "library(AI4BayesCode)\n\n# Compile + load the bundled BetaBernoulli example class\nai4bayescode_example(\"BetaBernoulli\")\n\n# Simulate small synthetic data: y_i ~ Bernoulli(p_true)\nset.seed(1)\nN <- 200\np_true <- 0.30\ny <- as.numeric(rbinom(N, size = 1, prob = p_true))\n\n# Beta(a, b) prior hyperparameters\na <- 2.0\nb <- 2.0\n\n# Construct model: BetaBernoulli(y, a, b, seed, keep_history)\nm <- new(BetaBernoulli, y, a, b, seed = 1L, keep_history = TRUE)\n\n# Run the sampler\nm$step(5000L)\n\n# Diagnose posterior draws\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "dirichlet_gibbs_block",
@@ -85,8 +80,7 @@ window.CORE_BLOCKS = [
     "example": "FiniteGaussianMixture.cpp",
     "group": "Continuous-conjugate Gibbs",
     "example_intro": "This example fits a finite Gaussian mixture model with a fixed number of clusters \\(K\\). Each observation \\(y_i \\in \\mathbb{R}^d\\) is drawn from one of \\(K\\) Gaussian components, \\(y_i \\mid z_i \\sim \\mathcal{N}(\\mu_{z_i}, \\mathrm{diag}(1/\\lambda_{z_i}))\\), with cluster label \\(z_i \\sim \\mathrm{Categorical}(\\pi)\\). The mixing weights get a symmetric Dirichlet prior \\(\\pi \\sim \\mathrm{Dirichlet}(\\alpha/K, \\dots, \\alpha/K)\\), and each cluster's mean and per-dimension precision share a conjugate Normal-Gamma prior \\((\\mu_k, \\lambda_k) \\sim \\mathrm{NormalGamma}(\\mu_0, \\kappa_0, a_\\lambda, b_\\lambda)\\).",
-    "example_desc": "y_i ~ Normal(mu_z_i, diag(1/lambda_z_i)) with z_i ~ Categorical(pi), pi ~ Dirichlet(alpha/K, ..., alpha/K), and (mu_k, lambda_k) ~ NormalGamma(mu_0, kappa_0, a_lambda, b_lambda) for a fixed number of clusters K",
-    "example_model": "FiniteGaussianMixture"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"FiniteGaussianMixture\")  # compile + load bundled class\n\nset.seed(1)\n# Simulate a 2-cluster, 2-D Gaussian mixture (matches the C++ demo, simplified).\nK       <- 2L\nn_per   <- 75                      # 150 points total, small\ntrue_mu <- rbind(c(-3, -3), c(3, 3))\ny <- rbind(\n  matrix(rnorm(n_per * 2, mean = rep(true_mu[1, ], each = n_per)), ncol = 2),\n  matrix(rnorm(n_per * 2, mean = rep(true_mu[2, ], each = n_per)), ncol = 2)\n)\n\n# Constructor: data y, number of clusters K, Normal-Gamma + Dirichlet hypers.\nm <- new(FiniteGaussianMixture, y, K,\n         kappa_0 = 0.01, a_lambda_0 = 2.0, alpha_dir = 1.0,\n         seed = 1L, keep_history = TRUE)\n\nm$step(5000L)                      # run the Gibbs sampler\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "elliptical_slice_sampling_block",
@@ -98,8 +92,7 @@ window.CORE_BLOCKS = [
     "example": "GPClassification.cpp",
     "group": "Generic transition kernels",
     "example_intro": "This example fits a Gaussian process classification model for binary labels. Each label is drawn as \\(y_i \\sim \\mathrm{Bernoulli}(\\mathrm{sigmoid}(f(x_i)))\\), where the latent function gets a zero-mean GP prior \\(f \\sim \\mathcal{GP}(0, K)\\) with a squared-exponential kernel. The kernel hyperparameters carry priors \\(\\text{amplitude} \\sim \\text{half-Normal}(0, 1)\\) and \\(\\text{lengthscale} \\sim \\text{InverseGamma}(5, \\text{median pairwise distance})\\).",
-    "example_desc": "y_i ~ Bernoulli(sigmoid(f(x_i))) with f ~ GP(0, SE kernel), amplitude ~ half-Normal(0, 1), and lengthscale ~ InverseGamma(5, median pairwise distance)",
-    "example_model": "GPClassification"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"GPClassification\")  # compile + load bundled example\n\nset.seed(1)\n# 1D GP classification: latent f = 1.6*sin(1.3*x), y ~ Bernoulli(sigmoid(f))\nn <- 150\nx <- runif(n, -3, 3)\nf_true <- 1.6 * sin(1.3 * x)\np_true <- 1 / (1 + exp(-f_true))\ny <- rbinom(n, size = 1, prob = p_true)   # 0/1 labels\nX <- matrix(x, ncol = 1)                  # N x 1 design matrix\ny <- as.numeric(y)\n\n# constructor: GPClassification(X, y, rng_seed, keep_history)\nm <- new(GPClassification, X, y, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "full_rank_gaussian_vi_block",
@@ -121,8 +114,7 @@ window.CORE_BLOCKS = [
     "example": "HDPGaussianMixture.cpp",
     "group": "Continuous-conjugate Gibbs",
     "example_intro": "This example fits a hierarchical Dirichlet process Gaussian mixture (in truncated form) that clusters grouped data while sharing a common pool of \\(T\\) atoms across all groups. Each observation \\(y_{ji}\\) in group \\(j\\) is drawn from a shared Gaussian atom \\(y_{ji} \\mid z_{ji}=t \\sim \\mathcal{N}(\\mu_t, \\Sigma_t)\\), where the assignment \\(z_{ji} \\sim \\text{Categorical}(\\pi_j)\\) and each group's weights \\(\\pi_j \\sim \\text{Dirichlet}(\\alpha\\beta)\\) are tied to a global stick-breaking weight \\(\\beta\\) with concentration \\(\\gamma\\). The shared atoms carry a conjugate Normal-Inverse-Wishart prior \\((\\mu_t, \\Sigma_t) \\sim \\text{NIW}(\\mu_0, \\kappa_0, \\Psi_0, \\nu_0)\\), and \\(\\alpha, \\gamma\\) are fixed at construction.",
-    "example_desc": "y_ji ~ Normal(mu_t, Sigma_t) with z_ji ~ Categorical(pi_j), pi_j ~ Dirichlet(alpha * beta), beta ~ StickBreaking(gamma) global weights shared across groups, and (mu_t, Sigma_t) ~ NIW(mu_0, kappa_0, Psi_0, nu_0)",
-    "example_model": "HDPGaussianMixture"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"HDPGaussianMixture\")   # compile + load the bundled class\n\nset.seed(1)\natom_mu <- c(-6, 0, 6)                         # 3 shared atoms, 1-D\nw <- rbind(c(.60, .30, .10), c(.10, .30, .60)) # per-group mixing weights (2 groups)\nn_per <- 100; G <- 2; N <- G * n_per\ngroup_idx <- rep(0:(G - 1), each = n_per)      # group labels 0..G-1\na <- vapply(seq_len(N), function(i) sample(1:3, 1, prob = w[group_idx[i] + 1, ]), 1L)\ny <- matrix(atom_mu[a] + 0.6 * rnorm(N), ncol = 1)  # N x d data matrix (d = 1)\n\nm <- new(HDPGaussianMixture, y, as.integer(group_idx),\n         K_trunc = 8L, mu_0 = mean(y), kappa_0 = 0.05,\n         Psi_0 = matrix(1, 1, 1), nu_0 = 3, alpha = 1, gamma_0 = 1,\n         seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())"
   },
   {
     "name": "genbart_block",
@@ -134,8 +126,7 @@ window.CORE_BLOCKS = [
     "example": "GBartMultinomial.cpp",
     "group": "Tree-ensemble priors",
     "example_intro": "This example fits a multinomial logistic model with flexible, tree-based regression functions for a categorical outcome \\(y_i \\in \\{0, 1, \\dots, C-1\\}\\). Class 0 is the reference, and each non-reference class \\(j\\) has a log-odds-vs-reference \\(r_j(x_i)\\) given an independent generalized-BART prior, so \\(y_i \\sim \\text{Categorical}(\\pi_0(x_i), \\dots, \\pi_{C-1}(x_i))\\) with \\(\\pi_j(x) = \\exp(r_j(x)) / (1 + \\sum_{l=1}^{C-1} \\exp(r_l(x)))\\) and \\(r_0 := 0\\). Fitting uses a Poisson-multinomial gamma augmentation that turns the problem into \\(C-1\\) conditionally independent Poisson-BART regressions sampled by Gibbs.",
-    "example_desc": "y_i ~ Categorical(softmax(0, r_1(x_i), ..., r_{C-1}(x_i))) where class 0 is the reference and each log-odds function r_j(x) for j in 1..C-1 has an independent BART prior",
-    "example_model": "GBartMultinomial"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"GBartMultinomial\")  # compile + load the bundled example\n\n# Small synthetic 3-class multinomial-logistic dataset (C = 3, p = 3).\nset.seed(1)\nN <- 200L\nX <- matrix(runif(N * 3L, -1.5, 1.5), N, 3L)   # x1, x2, x3 ~ Unif(-1.5, 1.5)\nr1 <-  1.2 * X[, 1] - 0.8 * X[, 2]              # class 1 vs reference log-odds\nr2 <- -1.0 * X[, 1] + 1.5 * X[, 3]              # class 2 vs reference log-odds\nE  <- cbind(1, exp(r1), exp(r2))                # softmax(0, r1, r2)\nP  <- E / rowSums(E)\ny  <- apply(P, 1L, function(p) sample.int(3L, 1L, prob = p)) - 1L  # y in {0,1,2}\n\n# Constructor: X, y, C, ntrees, seed, keep_tree, keep_history.\nm <- new(GBartMultinomial, X, as.numeric(y), 3L, 50L,\n         seed = 1L, keep_tree = FALSE, keep_history = TRUE)\nm$step(5000L)                                   # run Gibbs sweeps\nai4b_diagnose(m$get_history())                  # trace / diagnostics\n"
   },
   {
     "name": "gmrf_precision_block",
@@ -147,8 +138,7 @@ window.CORE_BLOCKS = [
     "example": "GMRFPrior.cpp",
     "group": "Bayesian graphical models",
     "example_intro": "This example draws from a 2D intrinsic Gaussian Markov random field (ICAR / IGMRF) prior over a latent field \\(x\\) on an \\(L_x \\times L_y\\) lattice, with no observation likelihood (a pure-prior demo). The field follows \\(x \\sim \\mathcal{N}(0,\\,(\\kappa R)^{-1})\\) subject to the sum-to-zero constraint \\(\\sum_i x_i = 0\\), where \\(R\\) is the graph Laplacian of the lattice (\\(R_{ii}=\\deg(i)\\), \\(R_{ij}=-1\\) for adjacent nodes). The precision scale \\(\\kappa>0\\) controls overall smoothness and is fixed at construction.",
-    "example_desc": "x is a 2D ICAR/IGMRF field on an L_x by L_y lattice with x ~ Normal(0, (kappa*R)^-1) where R is the lattice graph Laplacian, subject to sum(x)=0, and kappa>0 is a fixed precision scale",
-    "example_model": "GMRFPrior"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"GMRFPrior\")  # compile + load the bundled example class\n\n# Pure-prior ICAR demo: no observation data. The \"data\" is the lattice\n# geometry and the precision scale kappa. We pick a small 2D lattice so\n# N = L_x * L_y stays small (here 12 x 12 = 144 nodes).\nset.seed(1)\nL_x   <- 12L    # lattice width\nL_y   <- 12L    # lattice height\nkappa <- 2.0    # precision scale (> 0)\n\n# Constructor: GMRFPrior(L_x, L_y, kappa, periodic, eight_nn, rng_seed, keep_history)\nm <- new(GMRFPrior, L_x, L_y, kappa,\n         FALSE,    # periodic boundary?\n         FALSE,    # 8-nearest-neighbour (vs 4-NN)?\n         seed = 1L, keep_history = TRUE)\n\nm$step(5000L)                 # direct sparse-Cholesky draws from the ICAR prior\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "gmrf_whitened_ess_block",
@@ -170,8 +160,7 @@ window.CORE_BLOCKS = [
     "when_to_use": "Reach for it when your model has a discrete latent state that evolves through time with Markov dependence, such as a regime-switching or segmentation model, and you want to sample the whole state path at once.",
     "example": "HMMGaussian2State.cpp",
     "example_intro": "This example fits a 2-state hidden Markov model with Gaussian emissions to a time series \\(y_{1:T}\\). A latent state \\(z_t \\in \\{0,1\\}\\) evolves as a Markov chain with initial distribution \\(z_1 \\sim \\mathrm{Categorical}(\\pi)\\) and transitions \\(z_t \\mid z_{t-1}=k \\sim \\mathrm{Categorical}(A_{k,\\cdot})\\), and each observation is drawn from \\(y_t \\mid z_t=k \\sim \\mathcal{N}(\\mu_k, \\sigma^2)\\). Here the transition matrix \\(A\\), initial vector \\(\\pi\\), emission means \\(\\mu_0,\\mu_1\\), and \\(\\sigma\\) are fixed at their supplied values, and only the latent state path \\(z_{1:T}\\) is sampled, via forward-filter backward-sample (FFBS).",
-    "example_desc": "z_t is a 2-state Markov chain with z_1 ~ Categorical(pi) and z_t | z_{t-1}=k ~ Categorical(A[k,:]), and y_t | z_t=k ~ Normal(mu_k, sigma^2), where A, pi, mu, and sigma are fixed and only the state path z is sampled",
-    "example_model": "HMMGaussian2State"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"HMMGaussian2State\")  # compile + load bundled class\n\n# Simulate a small 2-state Gaussian HMM (sticky chain, well-separated means)\nset.seed(1)\nT <- 200\nA  <- c(0.92, 0.08, 0.08, 0.92)  # row-major 2x2, rows sum to 1\npi_init <- c(0.5, 0.5)\nmu <- c(-2.0, 2.0)\nsigma <- 1.0\nz_true <- integer(T)\nz_true[1] <- if (runif(1) < pi_init[1]) 0L else 1L\nfor (t in 2:T) {\n  stay <- A[z_true[t-1]*2 + z_true[t-1] + 1]\n  z_true[t] <- if (runif(1) < stay) z_true[t-1] else 1L - z_true[t-1]\n}\ny <- mu[z_true + 1] + sigma * rnorm(T)\n\n# Only z is sampled (A, pi, mu, sigma fixed at truth) via FFBS\nm <- new(HMMGaussian2State, y, A, pi_init, mu, sigma, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())"
   },
   {
     "name": "inv_gamma_gibbs_block",
@@ -193,8 +182,7 @@ window.CORE_BLOCKS = [
     "example": "IsingPrior.cpp",
     "group": "Bayesian graphical models",
     "example_intro": "This example draws from a prior-only 2D Ising/Potts model: a lattice of categorical site labels \\(x_i \\in \\{0,\\dots,Q-1\\}\\) on an \\(L_x \\times L_y\\) grid, with no observed data. The joint prior is the ferromagnetic Markov random field \\(\\pi(x) \\propto \\exp\\{\\beta \\sum_{i \\sim j} \\mathbf{1}[x_i = x_j]\\}\\), which rewards neighbouring sites for sharing the same label, with interaction strength \\(\\beta \\ge 0\\) fixed at construction. Sampling uses a Swendsen-Wang cluster move, which flips whole domains at once and mixes well even near the critical coupling where single-site Gibbs stalls.",
-    "example_desc": "x_i in {0..Q-1} on an Lx-by-Ly lattice with prior proportional to exp(beta * sum over neighbor pairs i~j of indicator(x_i == x_j)), beta >= 0 fixed, no likelihood",
-    "example_model": "IsingPrior"
+    "example_r": "library(AI4BayesCode)\n\n# Compile + load the bundled IsingPrior example class\nai4bayescode_example(\"IsingPrior\")\n\n# Prior-only 2D Ising model: no observed data, just lattice config.\n# \"Simulated data\" here is the lattice geometry the constructor needs.\nset.seed(1)\nL_x  <- 12L     # lattice width\nL_y  <- 12L     # lattice height  -> N = 144 sites (small)\nQ    <- 2L      # number of states (Ising)\nbeta <- 0.44    # interaction strength, near 2D critical coupling\n\n# Constructor: IsingPrior(L_x, L_y, Q, beta, periodic, eight_nn, seed, keep_history)\nm <- new(IsingPrior, L_x, L_y, Q, beta,\n         TRUE, FALSE,              # periodic boundary, 4-NN neighbourhood\n         seed = 1L, keep_history = TRUE)\n\nm$step(5000L)                      # Swendsen-Wang cluster sweeps\n\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "joint_nuts_block",
@@ -206,8 +194,7 @@ window.CORE_BLOCKS = [
     "example": "BSplineRegression.cpp",
     "group": "Generic transition kernels",
     "example_intro": "This example fits a Bayesian penalized B-spline (P-spline) smoother for a continuous outcome, the classic smoothing-spline pattern from mgcv/brms. Each observation is \\(y_n \\sim \\mathcal{N}(\\text{Intercept} + \\sum_k B_{nk} s_k,\\ \\sigma^2)\\), where \\(B\\) is a precomputed spline basis and the coefficients are non-centered as \\(s_k = \\tau\\, z_k\\) with \\(z_k \\sim \\mathcal{N}(0,1)\\). The priors are \\(\\text{Intercept} \\sim \\mathcal{N}(0, 10)\\), a half-normal smoothing scale \\(\\tau \\sim \\text{Half-Normal}(0, \\mathrm{sd}(y))\\), and a Jeffreys prior \\(p(\\sigma) \\propto 1/\\sigma\\) on the residual scale.",
-    "example_desc": "y_n ~ Normal(Intercept + sum_k Bsp[n,k] * s_k, sigma^2) with s_k = tau * z_k, z_k ~ Normal(0,1), Intercept ~ Normal(0,10), tau ~ HalfNormal(0, sd(y)), and a Jeffreys prior p(sigma) ~ 1/sigma",
-    "example_model": "BSplineRegression"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"BSplineRegression\")  # compile + load bundled class\n\nset.seed(1)\nn   <- 150\nK_s <- 10                                   # spline basis dimension\nx   <- seq(0, 1, length.out = n)\ntruth <- 0.4 * sin(8 * x) + 0.2 * x^2       # latent smooth\ny   <- truth + rnorm(n, 0, 0.3)             # response vector\n\n# Truncated power (linear) basis: phi_k(x) = (x - knot_k)_+\nknots <- (1:K_s) / (K_s + 1)\nBsp   <- outer(x, knots, function(xi, kk) pmax(xi - kk, 0))  # n x K_s\n\nm <- new(BSplineRegression, y, Bsp, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "lda_collapsed_gibbs_block",
@@ -219,8 +206,7 @@ window.CORE_BLOCKS = [
     "example": "LdaCollapsedGibbs.cpp",
     "group": "Discrete-latent Gibbs",
     "example_intro": "This example fits fixed-\\(K\\) Latent Dirichlet Allocation to a bag-of-words corpus, learning per-document topic mixtures and per-topic word distributions. Each document \\(d\\) has a topic mixture \\(\\theta_d \\sim \\text{Dirichlet}(\\alpha)\\) and each topic \\(k\\) has a word distribution \\(\\phi_k \\sim \\text{Dirichlet}(\\beta)\\); every token's topic is drawn \\(z_n \\sim \\text{Categorical}(\\theta_d)\\) and the observed word \\(w_n \\sim \\text{Categorical}(\\phi_{z_n})\\). Inference uses collapsed Gibbs sampling over the token-topic assignments \\(z\\), with \\(\\theta\\) and \\(\\phi\\) recovered from the induced count tables, and the hyperparameters \\(\\alpha\\) and \\(\\beta\\) fixed (uniform by default).",
-    "example_desc": "w_n ~ Categorical(phi[z_n]) and z_n ~ Categorical(theta[doc_n]) with theta_d ~ Dirichlet(alpha) and phi_k ~ Dirichlet(beta), alpha and beta fixed uniform",
-    "example_model": "LdaCollapsedGibbs"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"LdaCollapsedGibbs\")   # compile + load the bundled class\n\nset.seed(1)\nM <- 20; V <- 6; K <- 2; Ld <- 12              # docs, vocab, topics, tokens/doc\nphi_true <- rbind(c(.40,.35,.15,.05,.03,.02),  # topic 0: first half of vocab\n                  c(.02,.03,.05,.15,.35,.40))  # topic 1: second half\nlead <- runif(M, 0.7, 0.95)\nw <- integer(0); doc <- integer(0)\nfor (d in 1:M) {\n  p0 <- if (d <= M/2) lead[d] else 1 - lead[d] # dominant-topic mixing weight\n  z  <- ifelse(runif(Ld) < p0, 1L, 2L)         # token topic (1-indexed)\n  w   <- c(w,   vapply(z, function(k) sample.int(V, 1, prob = phi_true[k, ]), 1L))\n  doc <- c(doc, rep(d, Ld))\n}\nalpha <- rep(1, K); beta <- rep(1, V)          # uniform Dirichlet hyperparameters\n\nm <- new(LdaCollapsedGibbs, w, doc, M, V, K, alpha, beta, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "mean_field_categorical_vi_block",
@@ -232,8 +218,7 @@ window.CORE_BLOCKS = [
     "example": "CategoricalIsingChainVI.cpp",
     "group": "Variational inference",
     "example_intro": "This example runs mean-field variational inference on a discrete Potts/Ising chain of \\(n\\) nodes, each taking one of \\(K\\) states, with an unnormalized joint \\(\\log \\tilde p(z) = \\beta \\sum_{i} I[z_i = z_{i+1}] + \\sum_i h_i\\, I[z_i = 1]\\) that rewards neighboring nodes for agreeing (coupling \\(\\beta\\)) and adds an external field \\(h_i\\) favoring state 1. There is no observation model: it is a prior-only target. Mean-field VI approximates the joint by a product of per-node categoricals \\(q(z) = \\prod_i \\mathrm{Categorical}(z_i; \\phi_i)\\) and fits the variational marginals \\(\\phi_i\\) by maximizing the ELBO.",
-    "example_desc": "discrete chain z_1..z_n each in {0..K-1} with log p(z) = beta * sum_i I[z_i == z_{i+1}] + sum_i h_i * I[z_i == 1], a Potts/Ising coupling beta and per-node external field h favoring state 1, fit by mean-field categorical VI",
-    "example_model": "CategoricalIsingChainVI"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"CategoricalIsingChainVI\")  # compile + load bundled class\n\n# Synthetic Potts/Ising chain: n nodes, K states, coupling beta, per-node field h.\nset.seed(1)\nn    <- 4L                              # chain length (K^n = 81 states -> exact)\nK    <- 3L                              # states per node\nbeta <- 0.8                             # nearest-neighbour coupling\nh    <- rnorm(n, mean = 2.0, sd = 0.5)  # strong positive field on state 1\n\n# Mean-field categorical VI over the chain; TRUE = exact enumeration.\nm <- new(CategoricalIsingChainVI, n, K, beta, h, TRUE,\n         seed = 1L, keep_history = TRUE)\nm$step(5000L)                           # RAABBVI epochs; no-op once converged\n\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "mean_field_gaussian_vi_block",
@@ -255,8 +240,7 @@ window.CORE_BLOCKS = [
     "example": "HDPGaussianMixture.cpp",
     "group": "Continuous-conjugate Gibbs",
     "example_intro": "This example fits a hierarchical Dirichlet process Gaussian mixture (in truncated form) that clusters grouped data while sharing a common pool of \\(T\\) atoms across all groups. Each observation \\(y_{ji}\\) in group \\(j\\) is drawn from a shared Gaussian atom \\(y_{ji} \\mid z_{ji}=t \\sim \\mathcal{N}(\\mu_t, \\Sigma_t)\\), where the assignment \\(z_{ji} \\sim \\text{Categorical}(\\pi_j)\\) and each group's weights \\(\\pi_j \\sim \\text{Dirichlet}(\\alpha\\beta)\\) are tied to a global stick-breaking weight \\(\\beta\\) with concentration \\(\\gamma\\). The shared atoms carry a conjugate Normal-Inverse-Wishart prior \\((\\mu_t, \\Sigma_t) \\sim \\text{NIW}(\\mu_0, \\kappa_0, \\Psi_0, \\nu_0)\\), and \\(\\alpha, \\gamma\\) are fixed at construction.",
-    "example_desc": "y_ji ~ Normal(mu_t, Sigma_t) with z_ji ~ Categorical(pi_j), pi_j ~ Dirichlet(alpha * beta), beta ~ StickBreaking(gamma) global weights shared across groups, and (mu_t, Sigma_t) ~ NIW(mu_0, kappa_0, Psi_0, nu_0)",
-    "example_model": "HDPGaussianMixture"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"HDPGaussianMixture\")   # compile + load the bundled class\n\nset.seed(1)\natom_mu <- c(-6, 0, 6)                         # 3 shared atoms, 1-D\nw <- rbind(c(.60, .30, .10), c(.10, .30, .60)) # per-group mixing weights (2 groups)\nn_per <- 100; G <- 2; N <- G * n_per\ngroup_idx <- rep(0:(G - 1), each = n_per)      # group labels 0..G-1\na <- vapply(seq_len(N), function(i) sample(1:3, 1, prob = w[group_idx[i] + 1, ]), 1L)\ny <- matrix(atom_mu[a] + 0.6 * rnorm(N), ncol = 1)  # N x d data matrix (d = 1)\n\nm <- new(HDPGaussianMixture, y, as.integer(group_idx),\n         K_trunc = 8L, mu_0 = mean(y), kappa_0 = 0.05,\n         Psi_0 = matrix(1, 1, 1), nu_0 = 3, alpha = 1, gamma_0 = 1,\n         seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())"
   },
   {
     "name": "normal_gamma_cluster_gibbs_block",
@@ -268,8 +252,7 @@ window.CORE_BLOCKS = [
     "example": "DPGaussianMixture.cpp",
     "group": "Continuous-conjugate Gibbs",
     "example_intro": "This example fits a Bayesian nonparametric Gaussian mixture model using a Dirichlet process, letting the data decide how many clusters are needed. Each observation is drawn from one of an unbounded set of diagonal-Gaussian components, \\(y_i \\sim \\mathcal{N}(\\mu_{z_i}, \\mathrm{diag}(1/\\lambda_{z_i}))\\), with cluster assignment \\(z_i \\sim \\mathrm{Categorical}(\\pi)\\) and mixing weights \\(\\pi\\) from a truncated stick-breaking representation, \\(V_k \\sim \\mathrm{Beta}(1, \\alpha)\\). Each cluster's mean and precision get a conjugate Normal-Gamma prior \\((\\mu_k, \\lambda_k) \\sim \\mathrm{NormalGamma}(\\mu_0, \\kappa_0, a_\\lambda, b_\\lambda)\\), and the DP concentration has a Gamma prior \\(\\alpha \\sim \\mathrm{Gamma}(a_\\alpha, b_\\alpha)\\).",
-    "example_desc": "y_i ~ Normal(mu_{z_i}, diag(1/lambda_{z_i})) with z_i ~ Categorical(pi), pi from Dirichlet-process truncated stick-breaking V_k ~ Beta(1, alpha), each (mu_k, lambda_k) ~ NormalGamma(mu_0, kappa_0, a_lambda, b_lambda), and alpha ~ Gamma(a_alpha, b_alpha)",
-    "example_model": "DPGaussianMixture"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"DPGaussianMixture\")  # compile + load the bundled example class\n\n# Small synthetic 2-component Gaussian mixture in d = 2 (matches int main, simplified)\nset.seed(1)\nn_per <- 75L; d <- 2L                                  # N = 150 total\nmu_true <- rbind(c(-3, -3), c(3, 3))                   # 2 well-separated centres\ny <- rbind(matrix(rnorm(n_per * d, 0, 0.7), n_per, d) + rep(mu_true[1, ], each = n_per),\n           matrix(rnorm(n_per * d, 0, 0.7), n_per, d) + rep(mu_true[2, ], each = n_per))\n\n# Constructor: new(DPGaussianMixture, y (N x d), K_trunc, seed, keep_history)\nm <- new(DPGaussianMixture, y, 30L, seed = 1L, keep_history = TRUE)\nm$step(5000L)                                          # run the truncated-DP Gibbs/NUTS stack\nai4b_diagnose(m$get_history())                         # R-hat / ESS / trace diagnostics\n"
   },
   {
     "name": "nuts_block",
@@ -281,8 +264,7 @@ window.CORE_BLOCKS = [
     "example": "ARDLasso.cpp",
     "group": "Generic transition kernels",
     "example_intro": "This example fits a Bayesian LASSO (the automatic relevance determination form) to a sparse linear regression. The response is modeled as \\(Y \\mid \\beta, \\alpha, \\sigma \\sim \\mathcal{N}(\\alpha\\mathbf{1} + X\\beta,\\ \\sigma^2 I)\\), with a conditionally Gaussian slab prior on each coefficient \\(\\beta_j \\mid \\sigma, \\psi_j^2 \\sim \\mathcal{N}(0,\\ \\sigma^2/\\psi_j^2)\\) whose per-coefficient precision \\(\\psi_j^2\\) has its own Gamma hyperprior, so each predictor gets adaptive shrinkage that pulls irrelevant coefficients toward zero. The intercept \\(\\alpha\\) gets a flat prior and the error variance gets a Jeffreys prior \\(p(\\sigma^2) \\propto 1/\\sigma^2\\).",
-    "example_desc": "Y_i ~ Normal(alpha + sum_j X_ij beta_j, sigma^2) with beta_j ~ Normal(0, sigma^2 / psi2_j), psi2_j ~ Gamma(1/2, rate = beta_j^2 / (2 sigma^2)), a flat prior on alpha, and a Jeffreys prior on sigma^2 proportional to 1/sigma^2",
-    "example_model": "ARDLasso"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"ARDLasso\")  # compile + load the bundled example class\n\n# Simulate a small sparse linear regression (translated from int main()).\nset.seed(1)\nN <- 200                                  # observations\np <- 6                                    # predictors\nbeta_true <- c(2.5, 0.0, -1.5, 0.0, 0.8, 0.0)  # 3 active, 3 zero\nalpha_true <- 1.0\nsigma_true <- 0.5\nX <- matrix(rnorm(N * p), nrow = N, ncol = p)   # standard-normal design\nY <- as.numeric(alpha_true + X %*% beta_true + sigma_true * rnorm(N))\n\n# Constructor: ARDLasso(X, Y, rng_seed, keep_history)\nm <- new(ARDLasso, X, Y, seed = 1L, keep_history = TRUE)\nm$step(5000L)                             # Gibbs sweeps (burn-in + draws)\n\nai4b_diagnose(m$get_history())            # trace / summary diagnostics\n"
   },
   {
     "name": "order_mcmc_block",
@@ -294,8 +276,7 @@ window.CORE_BLOCKS = [
     "example": "OrderMCMCBN.cpp",
     "group": "Bayesian graphical models",
     "example_intro": "This example learns the structure of a Bayesian network from a categorical dataset using Friedman-Koller order MCMC. For an ordering \\(\\prec\\) of the \\(n\\) variables, the data likelihood is the closed-form BDe marginal \\(P(D \\mid \\prec) = \\prod_i \\sum_{U \\subseteq \\mathrm{pred}_i(\\prec),\\, |U| \\le k} \\mathrm{score}(X_i, U \\mid D)\\), where each family is scored by the Bayesian-Dirichlet (BDe) metric with BDeu pseudocounts \\(N'_{ijk} = \\alpha / (r_i q_i)\\). The prior places a uniform structure prior over parent-set sizes per family and an implicit prior over orderings, and the sampler returns the posterior \\(P(\\prec \\mid D)\\) and per-step sampled DAGs.",
-    "example_desc": "categorical data D over n variables, learn a Bayesian network ordering with P(D | order) = product over i of sum over parent sets U (size <= k) of BDe score(X_i, U), BDeu prior alpha/(r_i q_i), uniform structure prior on parent-set size",
-    "example_model": "OrderMCMCBN"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"OrderMCMCBN\")  # compile + load the bundled example class\n\n# Simulate a small chain BN  X1 -> X2 -> X3 -> X4  (all binary), n = 4 vars\nset.seed(1)\nN <- 200; n <- 4; flip <- 0.10\ndata <- matrix(0L, N, n)\ndata[, 1] <- rbinom(N, 1, 0.5)            # X1 ~ Bernoulli(0.5)\nfor (j in 2:n) {                          # each child copies parent, flips w.p. flip\n  f <- rbinom(N, 1, flip)\n  data[, j] <- ifelse(f == 1L, 1L - data[, j - 1], data[, j - 1])\n}\nstorage.mode(data) <- \"integer\"\ncardinalities <- rep(2L, n)               # all variables binary\n\n# Constructor args match the C++ signature (data, cardinalities, hyperparameters)\nm <- new(OrderMCMCBN, data, cardinalities,\n         1.0,    # bdeu_alpha\n         3L,     # max_parents\n         20L,    # candidate_top_C\n         4000L,  # family_cache_F\n         10.0,   # gamma_prune_nats\n         0.5,    # prob_adjacent_swap\n         seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "pg_logistic_block",
@@ -307,8 +288,7 @@ window.CORE_BLOCKS = [
     "example": "LogisticRegression.cpp",
     "group": "Data-augmentation Gibbs",
     "example_intro": "This example fits a Bayesian logistic regression for binary outcomes. Each response is modeled as \\(y_i \\sim \\mathrm{Bernoulli}(\\mathrm{sigmoid}(X_i^\\top \\beta))\\), where \\(\\mathrm{sigmoid}(z) = 1/(1+e^{-z})\\) maps the linear predictor to a probability. The coefficients get a weakly informative Gaussian prior \\(\\beta \\sim \\mathcal{N}(0, \\sigma_{\\text{prior}}^2 I)\\), and the posterior is sampled exactly via Polya-Gamma data augmentation (Polson-Scott-Windle 2013).",
-    "example_desc": "y_i ~ Bernoulli(sigmoid(X_i' beta)) with beta ~ Normal(0, prior_sd^2 I)",
-    "example_model": "LogisticRegression"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"LogisticRegression\")  # compile + load the bundled class\n\n# Simulate small Bernoulli logistic data (intercept + 2 covariates)\nset.seed(1)\nN <- 200\np <- 3\nbeta_true <- c(-0.5, 1.2, -0.8)\nX <- cbind(1, matrix(rnorm(N * (p - 1)), nrow = N))  # col 1 = intercept\nprob <- 1 / (1 + exp(-(X %*% beta_true)))\ny <- rbinom(N, size = 1, prob = prob)                # 0/1 responses\n\n# Constructor: (X, y, prior_sd, seed, keep_history)\nm <- new(LogisticRegression, X, y, 10.0, seed = 1L, keep_history = TRUE)\nm$step(5000L)                                        # PG-augmented Gibbs sweeps\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "poisson_multinomial_aug_block",
@@ -320,8 +300,7 @@ window.CORE_BLOCKS = [
     "when_to_use": "Reach for it when fitting a multinomial or categorical-outcome model and you want to decouple the categories into independent Poisson pieces for easier conjugate updates.",
     "example": "GBartMultinomial.cpp",
     "example_intro": "This example fits a multinomial logistic model with flexible, tree-based regression functions for a categorical outcome \\(y_i \\in \\{0, 1, \\dots, C-1\\}\\). Class 0 is the reference, and each non-reference class \\(j\\) has a log-odds-vs-reference \\(r_j(x_i)\\) given an independent generalized-BART prior, so \\(y_i \\sim \\text{Categorical}(\\pi_0(x_i), \\dots, \\pi_{C-1}(x_i))\\) with \\(\\pi_j(x) = \\exp(r_j(x)) / (1 + \\sum_{l=1}^{C-1} \\exp(r_l(x)))\\) and \\(r_0 := 0\\). Fitting uses a Poisson-multinomial gamma augmentation that turns the problem into \\(C-1\\) conditionally independent Poisson-BART regressions sampled by Gibbs.",
-    "example_desc": "y_i ~ Categorical(softmax(0, r_1(x_i), ..., r_{C-1}(x_i))) where class 0 is the reference and each log-odds function r_j(x) for j in 1..C-1 has an independent BART prior",
-    "example_model": "GBartMultinomial"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"GBartMultinomial\")  # compile + load the bundled example\n\n# Small synthetic 3-class multinomial-logistic dataset (C = 3, p = 3).\nset.seed(1)\nN <- 200L\nX <- matrix(runif(N * 3L, -1.5, 1.5), N, 3L)   # x1, x2, x3 ~ Unif(-1.5, 1.5)\nr1 <-  1.2 * X[, 1] - 0.8 * X[, 2]              # class 1 vs reference log-odds\nr2 <- -1.0 * X[, 1] + 1.5 * X[, 3]              # class 2 vs reference log-odds\nE  <- cbind(1, exp(r1), exp(r2))                # softmax(0, r1, r2)\nP  <- E / rowSums(E)\ny  <- apply(P, 1L, function(p) sample.int(3L, 1L, prob = p)) - 1L  # y in {0,1,2}\n\n# Constructor: X, y, C, ntrees, seed, keep_tree, keep_history.\nm <- new(GBartMultinomial, X, as.numeric(y), 3L, 50L,\n         seed = 1L, keep_tree = FALSE, keep_history = TRUE)\nm$step(5000L)                                   # run Gibbs sweeps\nai4b_diagnose(m$get_history())                  # trace / diagnostics\n"
   },
   {
     "name": "probit_aug_block",
@@ -333,8 +312,7 @@ window.CORE_BLOCKS = [
     "example": "ProbitRegression.cpp",
     "group": "Data-augmentation Gibbs",
     "example_intro": "This example fits a Bayesian probit regression for a binary outcome. Each response is modeled as \\(y_i \\sim \\mathrm{Bernoulli}(p_i)\\) with success probability \\(p_i = \\Phi(x_i^\\top \\beta)\\), where \\(\\Phi\\) is the standard normal CDF, and the coefficients get a weakly informative Gaussian prior \\(\\beta \\sim \\mathcal{N}(0, \\sigma_{\\text{prior}}^2 I)\\). Sampling uses Albert-Chib data augmentation, introducing latent Gaussian utilities \\(z_i \\sim \\mathcal{N}(x_i^\\top \\beta, 1)\\) truncated by the sign of the observed label.",
-    "example_desc": "y_i ~ Bernoulli(Phi(x_i' beta)) with beta ~ Normal(0, prior_sd^2) and sigma fixed at 1 for probit identifiability",
-    "example_model": "ProbitRegression"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"ProbitRegression\")  # compile + load the bundled example class\n\nset.seed(1)\nn <- 200\np <- 3                                  # intercept + 2 covariates\nbeta_true <- c(-0.4, 1.2, -0.8)\nX <- cbind(1, matrix(rnorm(n * (p - 1)), n, p - 1))  # intercept + N(0,1) covariates\neta <- as.vector(X %*% beta_true)\nprob <- pnorm(eta)                      # Phi(eta)\ny <- as.numeric(runif(n) < prob)        # y ~ Bernoulli(Phi(X beta)), 0/1\n\n# Constructor: ProbitRegression(X, y, prior_sd, seed, keep_history)\nm <- new(ProbitRegression, X, y, prior_sd = 10.0, seed = 1L, keep_history = TRUE)\nm$step(5000)                            # NUTS adapts during the run\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "rjmcmc_block",
@@ -346,8 +324,7 @@ window.CORE_BLOCKS = [
     "example": "SpikeSlabRJMCMC.cpp",
     "group": "Trans-dimensional MH",
     "example_intro": "This example fits a sparse Bayesian linear regression with Dirac spike-and-slab variable selection, in the Ishwaran and Rao (2005) sigma-scaled slab form. The likelihood is \\(y_i = X_i'\\beta + \\varepsilon_i\\) with \\(\\varepsilon_i \\sim \\mathcal{N}(0, \\sigma^2)\\), and each coefficient is governed by an inclusion indicator \\(\\gamma_j \\sim \\text{Bernoulli}(\\pi)\\): when \\(\\gamma_j = 0\\) the coefficient \\(\\beta_j\\) is exactly zero (the spike), and when \\(\\gamma_j = 1\\) it is drawn from the slab \\(\\beta_j \\mid \\gamma_j, \\sigma, \\tau \\sim \\mathcal{N}(0, \\sigma^2\\tau^2)\\). The priors are \\(\\pi \\sim \\text{Beta}(a_\\pi, b_\\pi)\\) with scale-invariant Jeffreys priors \\(p(\\sigma) \\propto 1/\\sigma\\) and \\(p(\\tau) \\propto 1/\\tau\\) on the noise scale and the dimensionless signal-to-noise scale \\(\\tau\\).",
-    "example_desc": "y_i = X_i' beta + e_i with e_i ~ Normal(0, sigma^2), gamma_j ~ Bernoulli(pi), beta_j = 0 when gamma_j = 0 and beta_j ~ Normal(0, sigma^2 * tau^2) when gamma_j = 1, pi ~ Beta(a_pi, b_pi), Jeffreys prior 1/sigma on sigma and 1/tau on tau",
-    "example_model": "SpikeSlabRJMCMC"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"SpikeSlabRJMCMC\")  # compile + load the bundled class\n\n# Simulate a small sparse linear-regression dataset (n small, p = 8).\nset.seed(1)\nn <- 200; p <- 8\nbeta_true <- c(2.5, 0, 0, -1.8, 0, 0, 1.2, 0)   # actives {1,4,7}\nX <- matrix(rnorm(n * p), n, p)\nX <- scale(X, center = TRUE, scale = FALSE)       # center columns (no intercept)\ny <- as.numeric(X %*% beta_true + rnorm(n, 0, 1)) # sigma_true = 1\ny <- y - mean(y)                                  # center y\n\n# Construct sampler: Beta(1,1) prior on inclusion probability.\nm <- new(SpikeSlabRJMCMC, X, y, 1.0, 1.0, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "softbart_block",
@@ -359,8 +336,7 @@ window.CORE_BLOCKS = [
     "example": "SoftBartNoise.cpp",
     "group": "Tree-ensemble priors",
     "example_intro": "This example fits a nonparametric regression where the outcome is normally distributed around a smooth, unknown mean function of the predictors: \\(y_i \\sim \\mathcal{N}(f(x_i), \\sigma^2)\\). The mean function \\(f\\) is given a Soft BART tree-ensemble prior (Linero and Yang, 2018), a smoothed Bayesian additive regression trees prior that softly partitions the predictor space. The noise variance gets a calibrated inverse-gamma prior, \\(\\sigma^2 \\sim \\mathrm{InverseGamma}(\\nu/2,\\, \\nu\\lambda/2)\\), with \\(\\lambda\\) tuned from an OLS-based variance estimate.",
-    "example_desc": "y_i ~ Normal(f(x_i), sigma^2) with f ~ Soft BART tree-ensemble prior and sigma^2 ~ InverseGamma(nu/2, nu*lambda/2)",
-    "example_model": "SoftBartNoise"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"SoftBartNoise\")   # compile + load the bundled example class\n\nset.seed(1)\nn <- 200L                                 # small synthetic dataset\nX <- matrix(runif(n * 3L, -1, 1), n, 3L)  # x1,x2,x3 ~ Unif(-1,1)\nf <- sin(3 * X[, 1]) + 0.5 * X[, 2]^2 - X[, 3]   # smooth low-dim mean\ny <- f + rnorm(n, 0, 0.5)                  # sigma_true = 0.5\n\n# Constructor: X, y, ntrees, k, tau_rate, dart, seed, nu, keep_tree, keep_history\nm <- new(SoftBartNoise, X, y, 50L, 2.0, 10.0, FALSE, 1L, 3.0, FALSE, TRUE)\n\nm$step(5000L)                             # run the Gibbs sampler\nai4b_diagnose(m$get_history())            # trace plots + summaries\n"
   },
   {
     "name": "split_merge_block",
@@ -382,8 +358,7 @@ window.CORE_BLOCKS = [
     "example": "DPGaussianMixture.cpp",
     "group": "Discrete-latent Gibbs",
     "example_intro": "This example fits a Bayesian nonparametric Gaussian mixture model using a Dirichlet process, letting the data decide how many clusters are needed. Each observation is drawn from one of an unbounded set of diagonal-Gaussian components, \\(y_i \\sim \\mathcal{N}(\\mu_{z_i}, \\mathrm{diag}(1/\\lambda_{z_i}))\\), with cluster assignment \\(z_i \\sim \\mathrm{Categorical}(\\pi)\\) and mixing weights \\(\\pi\\) from a truncated stick-breaking representation, \\(V_k \\sim \\mathrm{Beta}(1, \\alpha)\\). Each cluster's mean and precision get a conjugate Normal-Gamma prior \\((\\mu_k, \\lambda_k) \\sim \\mathrm{NormalGamma}(\\mu_0, \\kappa_0, a_\\lambda, b_\\lambda)\\), and the DP concentration has a Gamma prior \\(\\alpha \\sim \\mathrm{Gamma}(a_\\alpha, b_\\alpha)\\).",
-    "example_desc": "y_i ~ Normal(mu_{z_i}, diag(1/lambda_{z_i})) with z_i ~ Categorical(pi), pi from Dirichlet-process truncated stick-breaking V_k ~ Beta(1, alpha), each (mu_k, lambda_k) ~ NormalGamma(mu_0, kappa_0, a_lambda, b_lambda), and alpha ~ Gamma(a_alpha, b_alpha)",
-    "example_model": "DPGaussianMixture"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"DPGaussianMixture\")  # compile + load the bundled example class\n\n# Small synthetic 2-component Gaussian mixture in d = 2 (matches int main, simplified)\nset.seed(1)\nn_per <- 75L; d <- 2L                                  # N = 150 total\nmu_true <- rbind(c(-3, -3), c(3, 3))                   # 2 well-separated centres\ny <- rbind(matrix(rnorm(n_per * d, 0, 0.7), n_per, d) + rep(mu_true[1, ], each = n_per),\n           matrix(rnorm(n_per * d, 0, 0.7), n_per, d) + rep(mu_true[2, ], each = n_per))\n\n# Constructor: new(DPGaussianMixture, y (N x d), K_trunc, seed, keep_history)\nm <- new(DPGaussianMixture, y, 30L, seed = 1L, keep_history = TRUE)\nm$step(5000L)                                          # run the truncated-DP Gibbs/NUTS stack\nai4b_diagnose(m$get_history())                         # R-hat / ESS / trace diagnostics\n"
   },
   {
     "name": "structured_categorical_vi_block",
@@ -395,8 +370,7 @@ window.CORE_BLOCKS = [
     "example": "StructuredPottsVI.cpp",
     "group": "Variational inference",
     "example_intro": "This example fits a discrete Potts model on an undirected graph, where each node \\(i\\) carries a categorical label \\(z_i \\in \\{0, \\dots, K-1\\}\\). The unnormalized log-density is \\(\\log \\tilde p(z) = \\sum_e \\beta_e\\, \\mathbb{I}[z_u = z_v] + \\sum_i h_i[z_i]\\), so neighboring nodes are encouraged to share a label with strength \\(\\beta_e\\) per edge, and a per-node external field \\(h_i\\) biases each label. Posterior marginals \\(q_i(z_i)\\) are approximated with structured (clique-level) mean-field variational inference, where the variational family factorizes across user-specified cliques but keeps the joint distribution exact within each clique.",
-    "example_desc": "z_i in {0..K-1} on a graph with log p(z) = sum over edges beta_e * I[z_u = z_v] + sum over nodes h_i[z_i], fit by structured clique mean-field VI",
-    "example_model": "StructuredPottsVI"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"StructuredPottsVI\")   # compile + load the bundled example class\n\nset.seed(1)\n# Small Potts MRF: 2 triangles, K = 2 states/node (translate the C++ setup).\nK           <- 2L\ncardinalities <- rep(K, 6L)                              # 6 nodes, 2 states each\n# Edge list (1-based) + per-edge coupling beta: strong triangles + weak bridge.\nedges       <- rbind(c(1,2), c(2,3), c(1,3),            # triangle A\n                     c(4,5), c(5,6), c(4,6),            # triangle B\n                     c(3,4))                            # weak bridge\nbeta        <- c(1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2)\n# Per-node external field h[i, k] (breaks label symmetry).\nh           <- matrix(c(0,0.6, 0,0.4, 0,0.2, 0,-0.3, 0,-0.5, 0,-0.7),\n                      nrow = 6L, ncol = K, byrow = TRUE)\n# Clique partition = the two triangles (captures strong coupling exactly).\nclique_partition <- list(c(1L,2L,3L), c(4L,5L,6L))\n\nm <- new(StructuredPottsVI, cardinalities, edges, beta, h, clique_partition,\n         seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "univariate_slice_sampling_block",
@@ -408,8 +382,7 @@ window.CORE_BLOCKS = [
     "example": "GPTimeSeries.cpp",
     "group": "Generic transition kernels",
     "example_intro": "This example fits a 1-D time-series Gaussian process regression to noisy observations \\(y_i = f(t_i) + \\varepsilon_i\\) with \\(\\varepsilon_i \\sim \\mathcal{N}(0, \\sigma^2)\\), where the latent function has a GP prior \\(f \\sim \\mathcal{GP}(0, k)\\) with the exponential (Ornstein-Uhlenbeck / Matern-1/2) kernel \\(k(\\Delta t) = \\mathrm{amp}^2 \\exp(-|\\Delta t|/\\tau)\\). The latent \\(f\\) is marginalized out analytically and the celerite algorithm gives an \\(O(N)\\) marginal likelihood over the hyperparameters. The priors are \\(\\mathrm{amp} \\sim \\text{half-Normal}(0, \\mathrm{sd}(y))\\), \\(\\tau \\sim \\text{InverseGamma}(5, 5\\,\\mathrm{median}\\,\\Delta t)\\), and a Jeffreys prior \\(p(\\sigma) \\propto 1/\\sigma\\) on the noise.",
-    "example_desc": "y_i ~ Normal(f(t_i), sigma^2) with f ~ GP(0, k), k(dt) = amp^2 * exp(-|dt|/tau), amp ~ HalfNormal(0, sd(y)), tau ~ InverseGamma(5, 5*median_dt), sigma ~ Jeffreys (1/sigma)",
-    "example_model": "GPTimeSeries"
+    "example_r": "library(AI4BayesCode)\nai4bayescode_example(\"GPTimeSeries\")  # compile + load the bundled example\n\n# Simulate a noisy OU process: f ~ AR(1), y = f + noise (matches the OU kernel)\nset.seed(1)\nN <- 200; dt <- 1.0\namp_true <- 2.0; tau_true <- 40.0; sigma_true <- 1.0\nrho <- exp(-dt / tau_true)\ninnov_sd <- amp_true * sqrt(1 - rho^2)\nf <- numeric(N)\nf[1] <- amp_true * rnorm(1)                       # stationary start\nfor (i in 2:N) f[i] <- rho * f[i-1] + innov_sd * rnorm(1)\nt <- (0:(N-1)) * dt                               # sorted ascending (required)\ny <- f + sigma_true * rnorm(N)\n\n# Constructor: GPTimeSeries(t, y, rng_seed, keep_history)\nm <- new(GPTimeSeries, t, y, seed = 1L, keep_history = TRUE)\nm$step(5000L)\nai4b_diagnose(m$get_history())\n"
   },
   {
     "name": "vi_block",
