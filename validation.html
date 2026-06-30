@@ -10,6 +10,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .checks { max-width:48rem; margin-top:1.75rem; border:1px solid rgb(var(--ink) / .14);
+              border-radius:12px; background:rgb(var(--ink) / .015); }
+    .checks > summary { cursor:pointer; padding:1rem 1.3rem; font-family:'Inter',sans-serif;
+                        font-weight:600; font-size:.95rem; color:rgb(var(--ink)); list-style:none; }
+    .checks > summary::-webkit-details-marker { display:none; }
+    .checks > summary::before { content:'+\00a0\00a0'; color:rgb(var(--accent)); font-weight:700; }
+    .checks[open] > summary::before { content:'\2212\00a0\00a0'; }
+    .checks__list { margin:0; padding:.1rem 1.6rem 1.3rem 2.9rem; font-size:.9rem; }
+    .checks__list li { margin:.55rem 0; line-height:1.5; color:rgb(var(--ink-soft)); }
+    .checks__list li strong { color:rgb(var(--ink)); font-weight:600; }
+  </style>
 </head>
 <body>
 
@@ -96,6 +108,37 @@
         <p>The sampler is run on data simulated under the target model. A quick smoke test, then two-chain R-hat and ESS to ask whether it converges, then posterior checks with Bayesian p-values and PSIS-LOO to ask whether it converges to the right posterior.</p>
       </article>
     </div>
+
+    <details class="checks">
+      <summary>Show the 25 semantic checks</summary>
+      <ol class="checks__list">
+        <li><strong>Distribution parameterization.</strong> Every distribution is annotated with its exact parameterization and mean.</li>
+        <li><strong>Parallel vs sequential update.</strong> Vector Gibbs updates use the correct sequential order.</li>
+        <li><strong>Dead parameters.</strong> No parameter is sampled but never used.</li>
+        <li><strong>Missing intercept or offset.</strong> The regression mean includes the intercept and any offset.</li>
+        <li><strong>Jacobian handling.</strong> Constrained NUTS parameters carry the correct change-of-variable Jacobian.</li>
+        <li><strong>DAG consistency.</strong> The code&rsquo;s dependency graph matches the model.</li>
+        <li><strong>Dependency declaration.</strong> Each block declares the inputs it reads.</li>
+        <li><strong>Binding correctness.</strong> The R and Python bindings are used correctly.</li>
+        <li><strong>Numerical stability.</strong> Log-sum-exp, clamping, and overflow guards are in place.</li>
+        <li><strong>State mutation in prediction.</strong> Posterior prediction does not alter the chain&rsquo;s state.</li>
+        <li><strong>Joint-NUTS audit.</strong> Extra checks when a joint NUTS block is used.</li>
+        <li><strong>Gradient verification.</strong> Hand-written gradients are checked against automatic differentiation.</li>
+        <li><strong>RNG separation.</strong> Sampling and prediction draw from separate random streams.</li>
+        <li><strong>Bijection sanity.</strong> Custom trans-dimensional maps round-trip and stay invertible.</li>
+        <li><strong>Library parity.</strong> Gibbs and specialized blocks match a reference implementation.</li>
+        <li><strong>Gibbs-exception justification.</strong> Every closed-form Gibbs step is justified inline.</li>
+        <li><strong>No ad-hoc Gibbs.</strong> No hand-written Gibbs outside the approved set.</li>
+        <li><strong>Dense-metric justification.</strong> A dense NUTS metric is justified and pilot-scaled.</li>
+        <li><strong>Vectorized gradients.</strong> Gradients use BLAS-friendly matrix operations.</li>
+        <li><strong>No per-step warmup.</strong> The sampler never re-warms inside a recording step.</li>
+        <li><strong>VI block contract.</strong> Variational blocks conform to the required interface.</li>
+        <li><strong>VI optimizer.</strong> Variational blocks use the RAABBVI optimizer.</li>
+        <li><strong>Re-adaptation safety.</strong> Re-tuning NUTS preserves chain state and RNG separation.</li>
+        <li><strong>Joint-NUTS pre-flight.</strong> Funnel reparameterization, constraints, and callbacks are complete.</li>
+        <li><strong>Trans-dimensional models use RJMCMC.</strong> Dirac spikes and varying dimension go through reversible-jump.</li>
+      </ol>
+    </details>
 
     <p class="subtitle" style="max-width:46rem; margin-top:2rem;">
       The two stages work together: the first makes sure the right model is being fit, and the
