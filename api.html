@@ -34,8 +34,8 @@
     <p class="eyebrow hero__eyebrow">Reference</p>
     <h1 class="hero__title">API documentation.</h1>
     <p class="hero__lede">
-      The same stateful interface — <code>set_current</code>, <code>step</code>,
-      <code>get_current</code>, <code>get_history</code> — is exposed by every
+      The same stateful interface (<code>set_current</code>, <code>step</code>,
+      <code>get_current</code>, <code>get_history</code>) is exposed by every
       block, every composite, and the top-level sampler. R, Python, and C++
       bindings share these names exactly.
     </p>
@@ -118,7 +118,7 @@
         <pre class="api__sig">m$get_current()</pre>
 
         <h3 id="get_history">get_history</h3>
-        <p>Return the recorded trace as a named list. Scalars become length-<code>n_keep</code> vectors; vector parameters become <code>n_keep &times; dim</code> matrices.</p>
+        <p>Return the recorded trace as a named list. Scalars become length-<code>n_keep</code> vectors. Vector parameters become <code>n_keep &times; dim</code> matrices.</p>
         <pre class="api__sig">trace <- m$get_history()</pre>
 
         <h3 id="readapt">readapt_nuts</h3>
@@ -148,7 +148,7 @@
         <p>Composites are blocks that contain other blocks. They orchestrate the order of updates and carry a shared pool of current values.</p>
 
         <h3 id="compose-fn">compose_blocks</h3>
-        <p>Build a composite from a list of constituent blocks. The composite is itself a block — same interface, same stateful guarantees.</p>
+        <p>Build a composite from a list of constituent blocks. The composite is itself a block, with the same interface and the same stateful guarantees.</p>
         <pre class="api__sig">outer <- compose_blocks(list(beta_block, sigma_block, hmm_block))</pre>
 
         <h3 id="shared_pool">shared_pool</h3>
@@ -161,7 +161,7 @@
       </article>
 
       <p class="muted" style="margin-top:3rem;border-top:1px solid rgb(var(--rule));padding-top:1.5rem;font-size:.85rem;">
-        Detailed reference auto-generated from C++ headers via <code>doxygen</code>; this page hand-curates the most-used surface. Full reference: <a class="accent" href="#">/docs/ref/</a>.
+        Detailed reference auto-generated from C++ headers via <code>doxygen</code>. This page hand-curates the most-used surface. Full reference: <a class="accent" href="#">/docs/ref/</a>.
       </p>
 
     </main>

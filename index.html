@@ -42,10 +42,13 @@
       From natural language to <span class="hero__accent">validated</span>, <span class="hero__accent">modular</span>, <span class="hero__accent">stateful</span> Bayesian samplers.
     </h1>
     <p class="hero__lede">
-      AI4BayesCode translates plain-English model descriptions into modular,
-      stateful MCMC samplers — composed from pre-validated sampling blocks,
-      checked at parse time, checked at runtime, exposed cleanly to R, Python,
-      and C++.
+      AI4BayesCode is an extensible, LLM-driven system that turns a natural-language
+      Bayesian model description into a runnable, validated MCMC sampler. A modular design decomposes
+      the model into sampling blocks, each mapped to a built-in component, so complex
+      sampling algorithms aren&rsquo;t reimplemented from scratch. Validation covers the
+      model specification (before generation) and the sampler code (after). A recursively
+      stateful paradigm composes blocks (even from different contributors) into larger
+      MCMC procedures, usable from R, Python, or C++.
     </p>
     <div class="hero__cta">
       <a class="btn btn--primary" href="install.html">Get started</a>
@@ -71,21 +74,21 @@
       An LLM-driven system that builds <em class="font-display" style="font-style:italic;color:rgb(var(--accent))">complete</em> MCMC samplers from a model spec.
     </h2>
     <p class="subtitle mt-1" style="max-width: 46rem;">
-      Rather than asking a language model to write a sampler from scratch — where complex algorithms quietly go wrong — AI4BayesCode decomposes the model into modular blocks and binds each to a pre-validated sampling component.
+      Rather than asking a language model to write a sampler from scratch, where complex algorithms quietly go wrong, AI4BayesCode decomposes the model into modular blocks and binds each to a built-in sampling component.
     </p>
 
     <div class="features-v mt-3">
       <article class="feature-v" data-cat="param">
-        <h3 class="feature-v__tagline">From a paragraph of English to a runnable sampler.</h3>
-        <p class="feature-v__desc">AI4BayesCode parses your model description, decomposes it into modular blocks, and assigns each block to a pre-validated sampling primitive &mdash; <code>wrapper · block · kernel</code>. You write the model. The system writes (and validates) the sampler.</p>
+        <h3 class="feature-v__tagline">From a plain-language description to a runnable sampler.</h3>
+        <p class="feature-v__desc">AI4BayesCode parses your model description, decomposes it into modular blocks, and assigns each block to a built-in sampling component (<code>wrapper · block · kernel</code>). You write the model. The system writes (and validates) the sampler.</p>
       </article>
       <article class="feature-v" data-cat="semi">
         <h3 class="feature-v__tagline">Stateful blocks that compose without reinitialising.</h3>
-        <p class="feature-v__desc">Every block exposes the same <code>set_current</code> / <code>step</code> / <code>get_current</code> interface. Embed a BART ensemble or NUTS chain inside a larger MCMC, propagate updated inputs through a shared pool, and continue sampling &mdash; no warm-up reset, no lost adaptation.</p>
+        <p class="feature-v__desc">Every block exposes the same <code>set_current</code> / <code>step</code> / <code>get_current</code> interface. Embed a BART ensemble or NUTS chain inside a larger MCMC, propagate updated inputs through a shared pool, and continue sampling, with no warm-up reset and no lost adaptation.</p>
       </article>
       <article class="feature-v" data-cat="emp">
         <h3 class="feature-v__tagline">Catches errors before you ever read the trace.</h3>
-        <p class="feature-v__desc">Semantic checks at parse time catch mis-specified priors and support mismatches before code is generated. Runtime checks compute <code>R-hat</code>, <code>ESS</code>, divergences, and posterior-predictive <em>p</em>-values automatically &mdash; diagnostics attached to every chain.</p>
+        <p class="feature-v__desc">Semantic checks at parse time catch mis-specified priors and support mismatches before code is generated. Runtime checks compute <code>R-hat</code>, <code>ESS</code>, divergences, and posterior-predictive <em>p</em>-values automatically, with diagnostics attached to every chain.</p>
       </article>
     </div>
   </div>
@@ -99,7 +102,7 @@
     <p class="eyebrow">Examples</p>
     <h2 class="mt-1">From description to runnable chain.</h2>
     <p class="subtitle mt-1" style="max-width: 44rem;">
-      You write the model in natural language, with priors and likelihood; AI4BayesCode builds the sampler, validates it, compiles it to C++, and ships R and Python bindings. Below: three short prompts and the samplers they produce.
+      You write the model in natural language, with priors and likelihood. AI4BayesCode builds the sampler, validates it, compiles it to C++, and ships R and Python bindings. Below are three short prompts and the samplers they produce.
     </p>
 
     <div class="examples mt-3">
@@ -130,7 +133,7 @@
   data        = list(y = y, X = X)
 )
 
-<span class="com"># stateful interface — same on every block</span>
+<span class="com"># stateful interface: same on every block</span>
 <span class="fn">m</span>$<span class="fn">step</span>(n_burn = <span class="lit">2000</span>)
 <span class="fn">m</span>$<span class="fn">step</span>(n_keep = <span class="lit">4000</span>)
 trace &lt;- <span class="fn">m</span>$<span class="fn">get_history</span>()
@@ -147,7 +150,7 @@ trace &lt;- <span class="fn">m</span>$<span class="fn">get_history</span>()
           <p class="example__label">Natural-language prompt</p>
           <p class="example__prompt-body">
             Spike-and-slab regression with <em>Dirac</em> spike at zero and a
-            Laplace slab; sample the inclusion indicators <em>γ</em> and the
+            Laplace slab. Sample the inclusion indicators <em>γ</em> and the
             coefficients <em>β</em> jointly via reversible-jump MCMC.
           </p>
           <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
@@ -182,7 +185,7 @@ inc &lt;- colMeans(<span class="fn">m</span>$<span class="fn">get_history</span>
           <p class="example__label">Natural-language prompt</p>
           <p class="example__prompt-body">
             Three-state Poisson hidden Markov model. Time series <em>y<sub>1:T</sub></em>
-            with state-specific Poisson rates ordered ascending; sticky
+            with state-specific Poisson rates ordered ascending and a sticky
             transition matrix. Sample the hidden states with
             forward-filter backward-sample.
           </p>
@@ -195,7 +198,7 @@ inc &lt;- colMeans(<span class="fn">m</span>$<span class="fn">get_history</span>
         </div>
         <div class="example__side example__side--code">
           <p class="example__label">Generated R interface</p>
-<pre class="code-block"><span class="com"># composite block — HMM nested inside the outer chain</span>
+<pre class="code-block"><span class="com"># composite block: HMM nested inside the outer chain</span>
 <span class="fn">m</span> &lt;- <span class="fn">build_sampler</span>(
   description = <span class="lit">"3-state Poisson HMM ..."</span>,
   data        = list(y = y, K = <span class="lit">3</span>)

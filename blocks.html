@@ -4,11 +4,31 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Blocks · AI4BayesCode</title>
+  <meta name="description" content="AI4BayesCode builds every sampler from pre-validated built-in blocks. The three-tier architecture, the built-in catalog, community contributions, and block design." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .subtabs { display:flex; gap:.15rem; flex-wrap:wrap; margin:1.5rem 0 0;
+               border-bottom:1px solid rgb(var(--ink) / .12); }
+    .subtab { font-family:inherit; font-size:.92rem; font-weight:500;
+              padding:.55rem .95rem; border:none; background:none;
+              color:rgb(var(--ink-faint)); cursor:pointer;
+              border-bottom:2px solid transparent; margin-bottom:-1px; }
+    .subtab:hover { color:rgb(var(--ink)); }
+    .subtab.is-active { color:rgb(var(--accent)); border-bottom-color:rgb(var(--accent)); }
+    .subpanel.is-hidden { display:none; }
+    .tier-fig { max-width:760px; margin:2.25rem auto .75rem; }
+    .tier-fig svg { width:100%; height:auto; font-family:'Inter',system-ui,sans-serif; }
+    .tier-fig figcaption { text-align:center; font-size:.85rem; color:rgb(var(--ink-faint)); margin-top:.6rem; }
+    .placeholder { border:1px dashed rgb(var(--ink) / .22); border-radius:8px;
+                   padding:1.75rem; margin-top:1.75rem; max-width:46rem; }
+    .placeholder .tag { display:inline-block; font-size:.72rem; font-weight:600;
+                        letter-spacing:.04em; text-transform:uppercase;
+                        color:rgb(var(--accent)); margin-bottom:.5rem; }
+  </style>
 </head>
 <body>
 
@@ -30,225 +50,161 @@
 </nav>
 
 <header class="container">
-  <section class="hero" style="padding-bottom:1.5rem;">
-    <p class="eyebrow hero__eyebrow">Catalog</p>
-    <h1 class="hero__title">Models AI4BayesCode can build samplers for.</h1>
+  <section class="hero" style="padding-bottom:1.25rem;">
+    <p class="eyebrow hero__eyebrow">Building blocks</p>
+    <h1 class="hero__title">Blocks.</h1>
     <p class="hero__lede">
-      Describe any of these model classes in plain English &mdash; with your
-      likelihood, priors, and observed quantities &mdash; and AI4BayesCode
-      decomposes it into modular blocks, assigns each block to the right
-      sampling primitive, validates the implementation, and ships a runnable
-      stateful sampler. New model classes are added by writing a short AI
-      Skill and one reference example; see
-      <a class="accent" href="api.html#extending">extending the catalog</a>.
+      AI4BayesCode builds every sampler by composing pre-validated built-in blocks.
+      A block is the unit of sampling.
     </p>
+
+    <div class="subtabs">
+      <button class="subtab is-active" data-target="arch">Three-tier architecture</button>
+      <button class="subtab" data-target="core">Core blocks</button>
+      <button class="subtab" data-target="contrib">Contributed blocks</button>
+      <button class="subtab" data-target="design">Block design</button>
+    </div>
   </section>
 </header>
 
-<hr class="divider" />
-
-<section class="section">
+<!-- ===== PANEL: THREE-TIER ARCHITECTURE ===== -->
+<section class="section subpanel" data-panel="arch" style="padding-top:1.5rem;">
   <div class="container">
 
-    <div class="cat-legend">
-      <div class="cat-legend__item"><span class="cat-dot" style="background:rgb(var(--c-param));"></span>Regression &amp; shrinkage</div>
-      <div class="cat-legend__item"><span class="cat-dot" style="background:rgb(var(--c-semi));"></span>Trees &amp; state-space</div>
-      <div class="cat-legend__item"><span class="cat-dot" style="background:rgb(var(--c-emp));"></span>Spatial &amp; graphical</div>
-      <div class="cat-legend__item"><span class="cat-dot" style="background:rgb(var(--c-prob));"></span>Mixtures, clustering, survival</div>
-      <div class="cat-legend__item"><span class="cat-dot" style="background:rgb(var(--c-ext));"></span>Variational targets</div>
-    </div>
-
-    <!-- ===== Regression & shrinkage ===== -->
-    <h2 style="margin-bottom:1.25rem;">Regression &amp; shrinkage</h2>
-    <div class="block-grid">
-      <article class="block-card" data-cat="param">
-        <div class="block-card__cat">Linear models</div>
-        <div class="block-card__name">Bayesian linear regression</div>
-        <p class="block-card__desc">Gaussian-likelihood regression with conjugate or weakly-informative priors on coefficients and residual scale. The canonical workhorse for continuous outcomes.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> nuts_block · half-Cauchy on σ</div>
-      </article>
-
-      <article class="block-card" data-cat="param">
-        <div class="block-card__cat">GLM</div>
-        <div class="block-card__name">Generalized linear models</div>
-        <p class="block-card__desc">Logistic, Poisson, negative-binomial, gamma, beta regression with link functions. Useful when the response is discrete, bounded, or otherwise non-Gaussian.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> nuts_block · link-aware Jacobians</div>
-      </article>
-
-      <article class="block-card" data-cat="param">
-        <div class="block-card__cat">Shrinkage</div>
-        <div class="block-card__name">Horseshoe regression</div>
-        <p class="block-card__desc">Continuous global-local shrinkage on regression coefficients. Strong shrinkage of small effects, near-zero shrinkage of large ones; no inclusion indicators needed.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> nuts_block on (β, log τ, log λ)</div>
-      </article>
-
-      <article class="block-card" data-cat="param">
-        <div class="block-card__cat">Variable selection</div>
-        <div class="block-card__name">Spike-and-slab regression</div>
-        <p class="block-card__desc">Dirac (or normal) spike at zero plus a Gaussian, Laplace, or t slab. Inclusion indicators and coefficients sampled jointly via reversible-jump for trans-dimensional moves.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> rjmcmc_block · inverse-gamma on σ²</div>
-      </article>
-
-      <article class="block-card" data-cat="param">
-        <div class="block-card__cat">Hierarchical</div>
-        <div class="block-card__name">Mixed-effects models</div>
-        <p class="block-card__desc">Fixed effects with grouped random intercepts and slopes, Gaussian or non-Gaussian outcomes. Covers GLMM, longitudinal models, and partial-pooling designs.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> nuts_block · LKJ on group correlation</div>
-      </article>
-
-      <article class="block-card" data-cat="param">
-        <div class="block-card__cat">Interaction selection</div>
-        <div class="block-card__name">Interaction-aware BVS</div>
-        <p class="block-card__desc">Two-layer spike-and-slab over main effects <em>and</em> their pairwise products with a low-dim covariate set, under a weak-hierarchy constraint (interaction only if main is in).</p>
-        <div class="block-card__use"><strong>Powered by:</strong> rjmcmc_block · Bayesian-lasso scale mixture</div>
-      </article>
-    </div>
-
-    <!-- ===== Trees & state-space ===== -->
-    <h2 style="margin: 3.5rem 0 1.25rem;">Trees &amp; state-space</h2>
-    <div class="block-grid">
-      <article class="block-card" data-cat="semi">
-        <div class="block-card__cat">Tree ensemble</div>
-        <div class="block-card__name">BART</div>
-        <p class="block-card__desc">Bayesian additive regression trees for continuous outcomes &mdash; flexible nonparametric mean function with built-in shrinkage on tree depth and leaf values.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> bart_block (stateful tree ensemble)</div>
-      </article>
-
-      <article class="block-card" data-cat="semi">
-        <div class="block-card__cat">Generalized trees</div>
-        <div class="block-card__name">Generalized BART</div>
-        <p class="block-card__desc">Logistic, Poisson, negative-binomial, and survival BART under the same tree-update primitive. The first publicly available implementation of the generalized BART family.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> genbart_block · data-augmented latents</div>
-      </article>
-
-      <article class="block-card" data-cat="semi">
-        <div class="block-card__cat">Hidden Markov</div>
-        <div class="block-card__name">Hidden Markov models</div>
-        <p class="block-card__desc">Discrete-state HMMs with Gaussian, Poisson, or negative-binomial emissions. Ordered emission constraint for identifiability; supports an arbitrary number of states.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> hmm_block (FFBS) · dirichlet_gibbs on (A, π)</div>
-      </article>
-
-      <article class="block-card" data-cat="semi">
-        <div class="block-card__cat">State-space</div>
-        <div class="block-card__name">Linear-Gaussian state-space</div>
-        <p class="block-card__desc">Latent continuous state with linear dynamics and Gaussian observations. Kalman filtering for the latent path, NUTS for the hyperparameters.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> kalman_block · nuts_block on dynamics</div>
-      </article>
-
-      <article class="block-card" data-cat="semi">
-        <div class="block-card__cat">Spatio-temporal</div>
-        <div class="block-card__name">Separable GP panel</div>
-        <p class="block-card__desc">Multi-channel time series modeled as a separable spatio-temporal Gaussian field: Matérn-in-coordinate tensored with Matérn-in-time, plus independent observation noise.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> elliptical_slice_block · Kronecker-aware kernel</div>
-      </article>
-    </div>
-
-    <!-- ===== Spatial & graphical ===== -->
-    <h2 style="margin: 3.5rem 0 1.25rem;">Spatial &amp; graphical models</h2>
-    <div class="block-grid">
-      <article class="block-card" data-cat="emp">
-        <div class="block-card__cat">Markov random field</div>
-        <div class="block-card__name">Hidden Ising / Potts MRF</div>
-        <p class="block-card__desc">Image segmentation and lattice priors: discrete state at each site with a Potts interaction. Cluster updates (Swendsen-Wang) for rapid mixing.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> ising_cluster_block · Gaussian emission</div>
-      </article>
-
-      <article class="block-card" data-cat="emp">
-        <div class="block-card__cat">Disease mapping</div>
-        <div class="block-card__name">BYM2 spatial smoothing</div>
-        <p class="block-card__desc">Poisson disease mapping with the BYM2 reparameterization &mdash; mixes a structured ICAR component with an unstructured one, with PC priors on the mixing weight.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> gmrf_precision_block · nuts_block on hyperparams</div>
-      </article>
-
-      <article class="block-card" data-cat="emp">
-        <div class="block-card__cat">Stochastic process</div>
-        <div class="block-card__name">Household epidemic dynamics</div>
-        <p class="block-card__desc">Closed-population SIR-style epidemic with global and within-household infectious contacts. Intractable likelihood &mdash; sampler uses forward simulation.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> abc_block · simulator-based likelihood</div>
-      </article>
-
-      <article class="block-card" data-cat="emp">
-        <div class="block-card__cat">Structure learning</div>
-        <div class="block-card__name">Bayesian network structure</div>
-        <p class="block-card__desc">Discrete Bayesian network DAG inference with BDeu or BGe scores. Order-MCMC over node permutations with conjugate parent-set scoring.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> order_mcmc_block · dirichlet_gibbs on CPTs</div>
-      </article>
-    </div>
-
-    <!-- ===== Mixtures, clustering, survival ===== -->
-    <h2 style="margin: 3.5rem 0 1.25rem;">Mixtures, clustering, survival</h2>
-    <div class="block-grid">
-      <article class="block-card" data-cat="prob">
-        <div class="block-card__cat">Finite mixture</div>
-        <div class="block-card__name">Gaussian mixture model</div>
-        <p class="block-card__desc">Finite mixture of Gaussians with a Dirichlet prior on weights. Latent allocations sampled by conditional Gibbs; component parameters by NUTS.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> categorical_gibbs · dirichlet_gibbs · nuts_block</div>
-      </article>
-
-      <article class="block-card" data-cat="prob">
-        <div class="block-card__cat">Nonparametric</div>
-        <div class="block-card__name">Dirichlet process mixture</div>
-        <p class="block-card__desc">Infinite-mixture clustering with a DP prior over partitions. Component count is learned; supports Gaussian, Poisson, or user-defined emissions.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> dpm_block (slice / Chinese-restaurant)</div>
-      </article>
-
-      <article class="block-card" data-cat="prob">
-        <div class="block-card__cat">Survival</div>
-        <div class="block-card__name">Bayesian Cox regression</div>
-        <p class="block-card__desc">Proportional-hazards regression with right-censored survival data and a piecewise-constant or BART baseline hazard. Frailty extensions supported.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> nuts_block · piecewise / bart_block hazard</div>
-      </article>
-
-      <article class="block-card" data-cat="prob">
-        <div class="block-card__cat">Survival</div>
-        <div class="block-card__name">Accelerated failure time</div>
-        <p class="block-card__desc">AFT model with log-normal, log-logistic, or Weibull baseline and parametric or BART covariate effects. Handles right- and interval-censoring.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> nuts_block · censoring-aware likelihood</div>
-      </article>
-    </div>
-
-    <!-- ===== Variational targets ===== -->
-    <h2 style="margin: 3.5rem 0 1.25rem;">Variational targets</h2>
-    <div class="block-grid">
-      <article class="block-card" data-cat="ext">
-        <div class="block-card__cat">Discrete VI</div>
-        <div class="block-card__name">Categorical mean-field VI on a grid</div>
-        <p class="block-card__desc">Coordinate-ascent VI for discrete categorical latents over a 2-D lattice with Potts interaction; closed-form per-site updates given neighbor expectations.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> categorical_meanfield_vi_block</div>
-      </article>
-
-      <article class="block-card" data-cat="ext">
-        <div class="block-card__cat">Structured VI</div>
-        <div class="block-card__name">Structured VI for 3-D Potts</div>
-        <p class="block-card__desc">Clique-factorized VI with user-specified clique partition; beats naive mean-field on tightly-coupled lattices and tree-structured factor graphs.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> structured_meanfield_vi_block</div>
-      </article>
-
-      <article class="block-card" data-cat="ext">
-        <div class="block-card__cat">Gaussian VI</div>
-        <div class="block-card__name">Mean-field Gaussian VI</div>
-        <p class="block-card__desc">Diagonal-Gaussian variational family with ADVI-style reparameterization. A cheap continuous-VI baseline for any continuous posterior; pairs well with MCMC for sensitivity checks.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> mean_field_gaussian_vi_block</div>
-      </article>
-
-      <article class="block-card" data-cat="ext">
-        <div class="block-card__cat">Full-rank VI</div>
-        <div class="block-card__name">Full-rank Gaussian VI</div>
-        <p class="block-card__desc">Low-rank + diagonal Gaussian variational family for high-dimensional posteriors with strong correlation structure. Cheaper than NUTS, more flexible than mean-field.</p>
-        <div class="block-card__use"><strong>Powered by:</strong> full_rank_gaussian_vi_block</div>
-      </article>
-    </div>
-
-    <hr class="divider" style="margin: 4rem 0 2.5rem;" />
-
-    <p class="muted" style="font-size:.9rem;max-width:46rem;">
-      <strong>Missing a model class you'd like to use?</strong>
-      AI4BayesCode is designed to be extended at the block level. Write a
-      short AI Skill plus a reference example, register a new sampling
-      primitive if needed, and the agent will assign your model to it
-      automatically. See <a class="accent" href="api.html#extending">extending the catalog</a>.
+    <p class="subtitle" style="max-width:46rem;">
+      AI4BayesCode never asks the AI to write a sampler from scratch. Every sampler is
+      composed from pre-validated built-in blocks, so the AI only describes the model and
+      picks blocks, not the algorithm.
     </p>
 
+    <figure class="tier-fig">
+      <svg viewBox="0 0 760 392" role="img" aria-label="Three-tier architecture of AI4BayesCode">
+        <defs>
+          <marker id="ah" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+            <path d="M0,0 L6.5,3 L0,6 Z" style="fill:rgb(var(--ink))"></path>
+          </marker>
+        </defs>
+
+        <!-- boxes -->
+        <rect x="175" y="14" width="210" height="44" rx="5"
+              style="fill:none;stroke:rgb(var(--ink));stroke-width:1.3"></rect>
+        <rect x="24" y="86" width="512" height="70" rx="5"
+              style="fill:none;stroke:rgb(var(--ink));stroke-width:1.3"></rect>
+        <rect x="24" y="198" width="512" height="70" rx="6"
+              style="fill:rgb(var(--accent) / .07);stroke:rgb(var(--accent));stroke-width:2.4"></rect>
+        <rect x="24" y="310" width="512" height="62" rx="5"
+              style="fill:none;stroke:rgb(var(--ink));stroke-width:1.3"></rect>
+        <rect x="576" y="158" width="160" height="86" rx="5"
+              style="fill:none;stroke:rgb(var(--ink));stroke-width:1.3;stroke-dasharray:4 3"></rect>
+
+        <!-- D: parsed model -->
+        <text x="280" y="33" text-anchor="middle" style="fill:rgb(var(--ink));font-size:13.5px;font-weight:700">Parsed model</text>
+        <text x="280" y="49" text-anchor="middle" style="fill:rgb(var(--ink-soft));font-size:11px">Joint posterior distribution</text>
+
+        <!-- A: wrapper -->
+        <text x="38" y="110" style="fill:rgb(var(--ink));font-size:13.5px;font-weight:700">Tier A &middot; Wrapper</text>
+        <text x="38" y="128" style="fill:rgb(var(--ink-soft));font-size:11px">Decomposes the parsed model into modular blocks and assembles the</text>
+        <text x="38" y="144" style="fill:rgb(var(--ink-soft));font-size:11px">sampler into runnable C++, R, and Python code.</text>
+
+        <!-- B: block (emphasized) -->
+        <text x="38" y="222" style="fill:rgb(var(--accent));font-size:14px;font-weight:700">Tier B &middot; Block</text>
+        <text x="38" y="240" style="fill:rgb(var(--ink));font-size:11px">Pre-validated built-in sampling blocks: NUTS, joint NUTS, Gibbs,</text>
+        <text x="38" y="256" style="fill:rgb(var(--ink));font-size:11px">RJMCMC, BART, and more. The unit of sampling.</text>
+
+        <!-- C: kernel -->
+        <text x="38" y="332" style="fill:rgb(var(--ink));font-size:13.5px;font-weight:700">Tier C &middot; Kernel</text>
+        <text x="38" y="350" style="fill:rgb(var(--ink-soft));font-size:11px">Numerical engines with existing implementations, such as NUTS</text>
+        <text x="38" y="366" style="fill:rgb(var(--ink-soft));font-size:11px">built on mcmclib, shared across blocks.</text>
+
+        <!-- E: examples -->
+        <text x="590" y="181" style="fill:rgb(var(--ink));font-size:12.5px;font-weight:700">Examples</text>
+        <text x="590" y="200" style="fill:rgb(var(--ink-soft));font-size:10.5px">Reference examples</text>
+        <text x="590" y="215" style="fill:rgb(var(--ink-soft));font-size:10.5px">composed of built-in</text>
+        <text x="590" y="230" style="fill:rgb(var(--ink-soft));font-size:10.5px">blocks.</text>
+
+        <!-- vertical flow arrows -->
+        <line x1="280" y1="58" x2="280" y2="83" style="stroke:rgb(var(--ink));stroke-width:1.5" marker-end="url(#ah)"></line>
+
+        <line x1="230" y1="158" x2="230" y2="195" style="stroke:rgb(var(--ink));stroke-width:1.5" marker-end="url(#ah)"></line>
+        <text x="224" y="180" text-anchor="end" style="fill:rgb(var(--ink-faint));font-size:9.5px">assign blocks</text>
+        <line x1="330" y1="196" x2="330" y2="159" style="stroke:rgb(var(--ink));stroke-width:1.5" marker-end="url(#ah)"></line>
+        <text x="336" y="180" text-anchor="start" style="fill:rgb(var(--ink-faint));font-size:9.5px">assemble blocks</text>
+
+        <line x1="230" y1="270" x2="230" y2="307" style="stroke:rgb(var(--ink));stroke-width:1.5" marker-end="url(#ah)"></line>
+        <text x="224" y="292" text-anchor="end" style="fill:rgb(var(--ink-faint));font-size:9.5px">call numerical algorithms</text>
+        <line x1="330" y1="308" x2="330" y2="271" style="stroke:rgb(var(--ink));stroke-width:1.5" marker-end="url(#ah)"></line>
+        <text x="336" y="292" text-anchor="start" style="fill:rgb(var(--ink-faint));font-size:9.5px">update parameters</text>
+
+        <!-- dashed: examples relations -->
+        <line x1="536" y1="116" x2="574" y2="162" style="stroke:rgb(var(--ink));stroke-width:1.3;stroke-dasharray:4 3" marker-end="url(#ah)"></line>
+        <text x="548" y="128" style="fill:rgb(var(--ink-faint));font-size:9px">refer to</text>
+        <line x1="574" y1="236" x2="536" y2="244" style="stroke:rgb(var(--ink));stroke-width:1.3;stroke-dasharray:4 3" marker-end="url(#ah)"></line>
+        <text x="544" y="262" style="fill:rgb(var(--ink-faint));font-size:9px">compose of</text>
+      </svg>
+      <figcaption>The three-tier architecture. Tier B, the block tier, is the unit of sampling.</figcaption>
+    </figure>
+
+    <p class="subtitle" style="max-width:46rem;">
+      The three tiers separate the model from the math. The <strong>block tier</strong>
+      carries the model-specific target and is the unit of sampling. The
+      <strong>kernel tier</strong> provides the generic, reusable algorithms. The
+      <strong>wrapper</strong> assembles both into runnable code. Because the AI only
+      works at the block tier, the generated code stays reliable.
+    </p>
+
+  </div>
+</section>
+
+<!-- ===== PANEL: CORE BLOCKS ===== -->
+<section class="section subpanel is-hidden" data-panel="core" style="padding-top:1.5rem;">
+  <div class="container">
+    <div class="placeholder">
+      <span class="tag">Coming next</span>
+      <p class="subtitle" style="margin:0;">
+        The 50 built-in blocks: 34 sampling blocks plus 16 local block bundles. Each gets a
+        small card with a one-line summary, and a detail view with its full description and
+        a reference example, built straight from each block's own bundle.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PANEL: CONTRIBUTED BLOCKS ===== -->
+<section class="section subpanel is-hidden" data-panel="contrib" style="padding-top:1.5rem;">
+  <div class="container">
+    <div class="placeholder">
+      <span class="tag">Coming with the registry</span>
+      <p class="subtitle" style="margin:0;">
+        Community-contributed blocks. Each is a self-contained bundle: a manifest, the
+        header, an example, a skill, and tests. Contributors upload the whole bundle folder,
+        and the page is built straight from it. Reviewed before publishing, in the spirit
+        of CRAN.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PANEL: BLOCK DESIGN ===== -->
+<section class="section subpanel is-hidden" data-panel="design" style="padding-top:1.5rem;">
+  <div class="container">
+    <p class="subtitle" style="max-width:46rem;">
+      A new block is one self-contained folder you can build, validate, and share. The
+      folder holds everything the system and the website need.
+    </p>
+    <pre class="code-block" style="max-width:40rem;"><span class="com"># a block bundle</span>
+my_block/
+  manifest.dcf          <span class="com"># name, title, description, when to use</span>
+  my_block.hpp          <span class="com"># the block itself</span>
+  examples/Model.cpp    <span class="com"># at least one reference example</span>
+  skills/my_block.md    <span class="com"># the AI skill: when to use, config</span>
+  test_my_block.cpp     <span class="com"># a passing library test</span></pre>
+    <div class="placeholder">
+      <span class="tag">Tutorial coming</span>
+      <p class="subtitle" style="margin:0;">
+        A full tutorial and a CRAN-style upload are on the way. For now, build a bundle with
+        the AI4BayesCode block-design flow and contribute it by pull request.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -258,14 +214,28 @@
       <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
       <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers.</p>
       <p style="margin-top:1rem;">
-        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;·&nbsp;
-        <a class="accent" href="index.html">Home</a> &nbsp;·&nbsp;
-        <a class="accent" href="api.html">API</a> &nbsp;·&nbsp;
+        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="index.html">Home</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="api.html">API</a> &nbsp;&middot;&nbsp;
         <a class="accent" href="teams.html">Team</a>
       </p>
     </div>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll('.subtab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.getAttribute('data-target');
+      document.querySelectorAll('.subtab').forEach(function (x) {
+        x.classList.toggle('is-active', x === b);
+      });
+      document.querySelectorAll('.subpanel').forEach(function (p) {
+        p.classList.toggle('is-hidden', p.getAttribute('data-panel') !== t);
+      });
+    });
+  });
+</script>
 
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Install · AI4BayesCode</title>
-  <meta name="description" content="Install AI4BayesCode — as a skill for a coding agent (Claude Code, Codex, Cursor, …), or as an R / Python package." />
+  <meta name="description" content="Install AI4BayesCode as a skill for a coding agent (Claude Code, Codex, Cursor, …), or as an R / Python package." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -47,7 +47,7 @@
     <h2 class="mt-1">Get AI4BayesCode running.</h2>
     <p class="subtitle mt-1" style="max-width:44rem;">
       Two ways to use it. Drive it from a <strong>coding agent</strong> (install
-      it as a skill, then describe your model in plain English), or install the
+      it as a skill, then describe your model in plain language), or install the
       <strong>R / Python package</strong> and call it from code. Pick one:
     </p>
 
@@ -62,13 +62,13 @@
 <section class="section toggle-panel" data-panel="llm">
   <div class="container">
     <p class="subtitle install__note" style="font-style:italic;">
-      AI4BayesCode runs through a <strong>coding agent</strong> — for example
+      AI4BayesCode runs through a <strong>coding agent</strong>, for example
       <strong>Claude Code</strong>, <strong>Cursor</strong>, or <strong>Codex</strong>. A
       chat-only LLM like <strong>ChatGPT</strong> can&rsquo;t be used, because the agent needs
       to work with files on your computer and run code to validate the sampler it builds.
     </p>
     <p class="subtitle install__note">
-      The repository root <em>is</em> the skill package — install it once, reload, then
+      The repository root <em>is</em> the skill package. Install it once, reload, then
       launch it and describe your model.
     </p>
 
@@ -101,19 +101,19 @@ git clone https://github.com/zjg540066169/AI4BayesCode.git
 <span class="com"># then tell your coding agent:</span>
 Read AI4BayesCode/start.md first,
 then: &lt;your model description&gt;</pre>
-        <p class="install__note" style="margin-top:.75rem;">No slash command — Cursor, Windsurf, Cline, aider, or any coding agent (one with local-file &amp; code access) launches by reading <code>start.md</code>, which routes you to generate-vs-design and loads the rest on demand.</p>
+        <p class="install__note" style="margin-top:.75rem;">No slash command needed. Cursor, Windsurf, Cline, aider, or any coding agent (one with local-file &amp; code access) launches by reading <code>start.md</code>, which routes you to generate-vs-design and loads the rest on demand.</p>
       </div>
     </div>
 
     <p class="subtitle install__note">
       <strong>Also recommended:</strong> install the R or Python package too (the
       <em>R / Python package</em> tab). Then the sampler the agent writes finds the
-      AI4BayesCode library on your computer on its own — you won&rsquo;t have to point it at
+      AI4BayesCode library on your computer on its own, and you won&rsquo;t have to point it at
       any folder by hand.
     </p>
 
     <p class="subtitle install__note">
-      <strong>After install</strong> — launch it: the slash command in Claude Code / Codex,
+      <strong>After install</strong>, launch it. Use the slash command in Claude Code / Codex,
       or tell any other coding agent to <em>"Read AI4BayesCode/start.md first"</em>. It first
       asks what you want to
       do: <strong>generate a sampler</strong> (compose existing blocks for your model) or
@@ -126,8 +126,8 @@ then: &lt;your model description&gt;</pre>
 <span class="com"># then choose "generate a sampler", and describe the model:</span>
 y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
     <p class="subtitle install__note">
-      The block-design flow is the other path — for building a new sampling primitive when
-      no existing block fits. Pure-C++ users need only a C++17 compiler; the bundled
+      The block-design flow is the other path, for building a new sampling primitive when
+      no existing block fits. Pure-C++ users need only a C++17 compiler. The bundled
       <code>include/</code> headers are the install.
     </p>
   </div>
@@ -138,7 +138,7 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
   <div class="container">
     <p class="subtitle install__note">
       The same library ships as installable <strong>R</strong> and <strong>Python</strong>
-      packages — self-contained (C++ headers + skill corpus travel inside). Describe the
+      packages, self-contained (C++ headers + skill corpus travel inside). Describe the
       model in plain text and <code>generate()</code> writes and validates the sampler.
     </p>
 
@@ -186,8 +186,8 @@ AI4BayesCode.generate(
 
     <p class="subtitle install__note">
       <code>generate()</code> saves the sampler as a <code>.cpp</code> file. Load it with
-      <code>ai4bayescode_source()</code> / <code>AI4BayesCode.source()</code> — it compiles
-      against the bundled library, with no paths to configure — then run
+      <code>ai4bayescode_source()</code> / <code>AI4BayesCode.source()</code>, which compiles
+      against the bundled library, with no paths to configure, then run
       <code>ai4bayescode_doc()</code> / <code>AI4BayesCode.doc()</code> to print a usage card:
       what the sampler takes as input and how to call it.
     </p>
