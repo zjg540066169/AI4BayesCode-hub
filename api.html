@@ -39,7 +39,8 @@
       AI4BayesCode has two layers. You drive the <strong>package</strong> to turn a
       model description into a compiled sampler. The compiled sampler exposes a small
       <strong>stateful interface</strong> you call to run the chain and read it back.
-      The same names work from R and Python.
+      A third set of <strong>helpers</strong> sits between them, turning a sampler&rsquo;s
+      output into diagnostics and a DAG. The same names work from R and Python.
     </p>
   </section>
 </header>
@@ -68,12 +69,14 @@
         <li><a href="#set_current">set_current</a></li>
         <li><a href="#get_history">get_history</a></li>
         <li><a href="#predict_at">predict_at</a></li>
+        <li><a href="#get_dag">get_dag</a></li>
         <li><a href="#readapt">readapt_NUTS</a></li>
       </ul>
 
-      <div class="api__nav-group">Diagnostics</div>
+      <div class="api__nav-group">Diagnostics &amp; DAG</div>
       <ul>
         <li><a href="#diagnose">ai4b_diagnose</a></li>
+        <li><a href="#plot_dag">plot_dag</a></li>
         <li><a href="#run_chains">run_chains</a></li>
       </ul>
     </aside>
@@ -147,19 +150,28 @@ Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
         <p>Posterior-predictive draws at new inputs, using the recorded chain.</p>
         <pre class="api__sig">R   m$predict_at(new_data)    Python   m.predict_at(new_data)</pre>
 
+        <h3 id="get_dag">get_dag</h3>
+        <p>The model&rsquo;s dependency graph (nodes, edges, and plates) as data. <code>plot_dag()</code> reads this to draw the figure.</p>
+        <pre class="api__sig">R   m$get_dag()    Python   m.get_dag()</pre>
+
         <h3 id="readapt">readapt_NUTS</h3>
         <p>Re-tune the NUTS step size and mass matrix without advancing the chain, useful when the target geometry shifts mid-run. NUTS-family blocks only; other blocks are skipped.</p>
         <pre class="api__sig">R   m$readapt_NUTS()    Python   m.readapt_NUTS()</pre>
       </article>
 
       <article class="api__section" id="diagnose">
-        <h2>Diagnostics</h2>
-        <p>After sampling, summarize and check convergence. These ship with the package, so a generated runner calls the same functions by name.</p>
+        <h2>Diagnostics &amp; DAG</h2>
+        <p>These helpers sit between the two layers. They take what a sampler produces, its history and its structure, and turn it into convergence diagnostics and figures. They ship with the package, so a generated runner calls the same functions by name.</p>
 
         <h3>ai4b_diagnose</h3>
         <p>Model-independent posterior diagnostics from <code>get_history()</code>: a summary table with R-hat and bulk / tail ESS, plus a trace, autocorrelation, and density plot.</p>
         <pre class="api__sig">R       ai4b_diagnose(hist, plot = TRUE)
 Python  AI4BayesCode.ai4b_diagnose(hist)</pre>
+
+        <h3 id="plot_dag">plot_dag</h3>
+        <p>Draw the model as a DAG (a plate diagram) straight from the sampler, reading its <code>get_dag()</code> under the hood. Leave <code>out_path</code> empty to show it, or pass a path to write a PNG.</p>
+        <pre class="api__sig">R       plot_dag(model, plate = TRUE, out_path = NULL)
+Python  AI4BayesCode.plot_dag(model, plate=True, out_path=None)</pre>
 
         <h3 id="run_chains">run_chains</h3>
         <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. Companions: <code>AI4BayesCode_rhat_summary()</code> in R; <code>rhat()</code>, <code>ess_bulk()</code>, <code>ess_tail()</code> in Python.</p>

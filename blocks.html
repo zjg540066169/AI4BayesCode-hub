@@ -54,6 +54,29 @@
     .placeholder .tag { display:inline-block; font-size:.72rem; font-weight:600;
                         letter-spacing:.04em; text-transform:uppercase;
                         color:rgb(var(--accent)); margin-bottom:.5rem; }
+    .block-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:1.25rem; margin-top:1.75rem; }
+    .block-card { border:1px solid rgb(var(--ink) / .14); border-radius:14px;
+                  padding:1.6rem 1.75rem 1.4rem; max-width:54rem; width:100%; box-sizing:border-box; }
+    .bc-top { display:flex; align-items:baseline; flex-wrap:wrap; gap:.5rem .9rem; }
+    .bc-name { font-family:'IBM Plex Mono',monospace; font-size:1.35rem; font-weight:600; color:rgb(var(--ink)); }
+    .bc-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-left:auto; }
+    .bc-tag { font-size:.72rem; font-weight:600; padding:.16rem .55rem; border-radius:99px;
+              border:1px solid rgb(var(--ink) / .18); color:rgb(var(--ink-soft)); white-space:nowrap; }
+    .bc-tag.is-kind { color:rgb(var(--accent)); border-color:rgb(var(--accent) / .4); background:rgb(var(--accent) / .07); }
+    .bc-title { font-family:'Lora',serif; font-size:1.1rem; color:rgb(var(--ink)); margin:.75rem 0 0; }
+    .bc-desc { color:rgb(var(--ink-soft)); margin:.55rem 0 0; line-height:1.6; }
+    .bc-meta { display:grid; grid-template-columns:max-content 1fr; gap:.45rem 1.4rem;
+               margin:1.2rem 0 0; border-top:1px solid rgb(var(--ink) / .1); padding-top:1.1rem; font-size:.9rem; }
+    .bc-meta dt { color:rgb(var(--ink-faint)); font-weight:600; }
+    .bc-meta dd { margin:0; color:rgb(var(--ink-soft)); line-height:1.5; }
+    .bc-builtin { margin:1.2rem 0 0; font-size:.85rem; color:rgb(var(--ink-faint)); font-style:italic; }
+    .bc-install { margin-top:1.3rem; border-top:1px solid rgb(var(--ink) / .1); padding-top:1.2rem; }
+    .bc-install h4 { font-size:.98rem; margin:0; color:rgb(var(--ink)); }
+    .bc-way { margin-top:1rem; }
+    .bc-way-label { font-size:.74rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+                    color:rgb(var(--ink-faint)); margin:0 0 .35rem; }
+    .bc-way pre { margin:0; }
+    .bc-way p { margin:.4rem 0 0; font-size:.88rem; color:rgb(var(--ink-soft)); }
   </style>
 </head>
 <body>
@@ -229,13 +252,37 @@
 <!-- ===== PANEL: CORE BLOCKS ===== -->
 <section class="section subpanel is-hidden" data-panel="core" style="padding-top:1.5rem;">
   <div class="container">
-    <div class="placeholder">
-      <span class="tag">Coming next</span>
-      <p class="subtitle" style="margin:0;">
-        The 50 built-in blocks: 34 sampling blocks plus 16 local block bundles. Each gets a
-        small card with a one-line summary, and a detail view with its full description and
-        a reference example, built straight from each block's own bundle.
-      </p>
+    <p class="subtitle" style="max-width:46rem;">
+      The built-in blocks ship with AI4BayesCode. Here is one, shown the way every core block
+      will appear. A searchable grid of all of them is next.
+    </p>
+    <div class="block-grid">
+      <article class="block-card">
+        <div class="bc-top">
+          <span class="bc-name">gmrf_precision_block</span>
+          <div class="bc-tags">
+            <span class="bc-tag is-kind">Core</span>
+            <span class="bc-tag">MCMC</span>
+            <span class="bc-tag">GPL-2.0+</span>
+          </div>
+        </div>
+        <p class="bc-title">Sparse-precision Gaussian Markov random field sampler.</p>
+        <p class="bc-desc">
+          Draws a Gaussian field with a sparse precision matrix Q (prior
+          p(x) &prop; exp(-&frac12; x&prime;Q&thinsp;x + b&prime;x), Q sparse and positive
+          semidefinite, optionally sum-to-zero). A sparse Cholesky factorization with a
+          fill-reducing ordering (Rue 2001) gives an exact, direct conjugate draw, so it
+          stays fast on large lattices and graphs.
+        </p>
+        <dl class="bc-meta">
+          <dt>When to use</dt> <dd>A latent field with a known sparse precision: spatial CAR / ICAR, smoothing splines, or any GMRF prior.</dd>
+          <dt>Update</dt>      <dd>Exact conjugate draw, no tuning. Sparse Cholesky + permuted backsolve via Eigen.</dd>
+          <dt>Constraints</dt> <dd>None on the field; optional sum-to-zero.</dd>
+          <dt>Engine</dt>      <dd>MCMC, kernel tier built in.</dd>
+          <dt>Reference</dt>   <dd>Rue (2001), sparse Cholesky for GMRFs.</dd>
+        </dl>
+        <p class="bc-builtin">Built in. Available in every install, no download needed.</p>
+      </article>
     </div>
   </div>
 </section>
@@ -243,14 +290,63 @@
 <!-- ===== PANEL: CONTRIBUTED BLOCKS ===== -->
 <section class="section subpanel is-hidden" data-panel="contrib" style="padding-top:1.5rem;">
   <div class="container">
-    <div class="placeholder">
-      <span class="tag">Coming with the registry</span>
-      <p class="subtitle" style="margin:0;">
-        Community-contributed blocks. Each is a self-contained bundle: a manifest, the
-        header, an example, a skill, and tests. Contributors upload the whole bundle folder,
-        and the page is built straight from it. Reviewed before publishing, in the spirit
-        of CRAN.
-      </p>
+    <p class="subtitle" style="max-width:46rem;">
+      Community blocks, reviewed and published to the hub. Here is one, with the ways to
+      install it into your own AI4BayesCode.
+    </p>
+    <div class="block-grid">
+      <article class="block-card">
+        <div class="bc-top">
+          <span class="bc-name">nngp_gaussian_gibbs_block</span>
+          <div class="bc-tags">
+            <span class="bc-tag is-kind">Contributed</span>
+            <span class="bc-tag">v0.1.0</span>
+            <span class="bc-tag">MCMC</span>
+            <span class="bc-tag">GPL-3.0+</span>
+          </div>
+        </div>
+        <p class="bc-title">Nearest-Neighbor Gaussian Process spatial regression sampler.</p>
+        <p class="bc-desc">
+          Fits Bayesian Gaussian spatial regression with an NNGP random effect,
+          y<sub>i</sub> &sim; N(x<sub>i</sub>&prime;&beta; + w<sub>i</sub>, &tau;&sup2;). The
+          spatial effects use a sparse approximation built from an exponential covariance over
+          each location&rsquo;s m nearest neighbors (KD-tree search), replacing the dense
+          n-by-n GP covariance so Gaussian-process spatial modeling scales to large
+          point-referenced datasets. Effects, coefficients, and nugget are sampled by conjugate
+          Gibbs; the partial sill and decay update jointly via a marginalized slice.
+        </p>
+        <dl class="bc-meta">
+          <dt>When to use</dt> <dd>Large-scale spatial regression with Gaussian-process random effects on point-referenced data.</dd>
+          <dt>Author</dt>      <dd>Jungang Zou</dd>
+          <dt>Update</dt>      <dd>MCMC, conjugate Gibbs plus a marginalized slice on the decay.</dd>
+          <dt>Depends</dt>     <dd>core (&ge; 1.0); vendors <code>nanoflann</code> (BSD-2-Clause) for neighbor search.</dd>
+          <dt>Reference</dt>   <dd>Datta, Banerjee, Finley &amp; Gelfand (2016); Finley et al. (2019).</dd>
+        </dl>
+
+        <div class="bc-install">
+          <h4>Install this block</h4>
+
+          <div class="bc-way">
+            <p class="bc-way-label">R / Python package</p>
+<pre class="code-block"><span class="com"># downloads the bundle from the hub and installs it into your local AI4BayesCode</span>
+<span class="fn">ai4bayescode_install_block</span>(<span class="lit">"nngp_gaussian_gibbs_block"</span>)   <span class="com"># R</span>
+<span class="ty">AI4BayesCode</span>.<span class="fn">install_block</span>(<span class="lit">"nngp_gaussian_gibbs_block"</span>)   <span class="com"># Python</span></pre>
+            <p>The block is then available to <code>generate()</code> like any built-in one.</p>
+          </div>
+
+          <div class="bc-way">
+            <p class="bc-way-label">Coding agent</p>
+<pre class="code-block"><span class="com"># in Claude Code / Codex / any coding agent with the skill installed:</span>
+Install the nngp_gaussian_gibbs_block block from the AI4BayesCode hub.</pre>
+            <p>The agent fetches the bundle into your local <code>blocks_local/</code>, ready for the next run.</p>
+          </div>
+
+          <div class="bc-way">
+            <p class="bc-way-label">Download</p>
+            <p style="margin-top:0;"><a class="accent" href="https://github.com/zjg540066169/AI4BayesCode-hub/tree/main/registry/nngp_gaussian_gibbs_block" target="_blank" rel="noopener">Browse the bundle</a> on GitHub (manifest, header, skill, test, example, vendored sources).</p>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
