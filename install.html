@@ -50,13 +50,20 @@
     <p class="subtitle mt-1" style="max-width:44rem;">
       Two ways to use it. Drive it from a <strong>coding agent</strong> (install
       it as a skill, then describe your model in plain language), or install the
-      <strong>R / Python package</strong> and call it from code. Pick one:
+      <strong>R / Python package</strong> and call it from code. Install steps for each:
     </p>
 
     <div class="toggle">
       <button class="btn btn--primary toggle__btn" data-target="llm">Coding agent</button>
       <button class="btn toggle__btn" data-target="pkg">R / Python package</button>
     </div>
+
+    <p class="subtitle install__note" style="max-width:44rem; border-left:3px solid rgb(var(--accent) / .55); padding-left:1rem;">
+      <strong>Recommended:</strong> generate your sampler in a <strong>coding agent</strong>, where
+      generation is the most complete, then use the <strong>R or Python package</strong> to load and
+      run the sampler it writes. The package can generate too, but the coding-agent path is more
+      capable, so installing both gives the smoothest workflow.
+    </p>
   </section>
 </header>
 
