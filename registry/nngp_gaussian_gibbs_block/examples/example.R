@@ -25,7 +25,7 @@ run <- AI4BayesCode_run_chains(
 AI4BayesCode_rhat_summary(run)            # cross-chain R-hat and ESS
 ai4b_diagnose(run$histories[[1]])         # trace, ACF, density for one chain
 
-# or drive a single chain through the stateful interface
+# optional: stateful usage, drive a single chain yourself
 m <- new(SpatialNNGPRegression, y, Xf, coordsf,
          n = n, p = p, coord_dim = 2L, m = 10L,
          phi_lower = 0.5, phi_upper = 30.0,

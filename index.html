@@ -145,7 +145,7 @@ run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
 <span class="fn">AI4BayesCode_rhat_summary</span>(run)         <span class="com"># cross-chain R-hat and ESS</span>
 <span class="fn">ai4b_diagnose</span>(run$histories[[<span class="lit">1</span>]])    <span class="com"># trace, ACF, density</span>
 
-<span class="com"># or drive a single chain through the stateful interface</span>
+<span class="com"># optional: stateful usage, drive a single chain yourself</span>
 m &lt;- <span class="fn">new</span>(BayesLinReg, y, X, seed = <span class="lit">1L</span>, keep_history = <span class="kw">TRUE</span>)
 m$<span class="fn">step</span>(<span class="lit">10000</span>)
 hist &lt;- m$<span class="fn">get_history</span>()           <span class="com"># named list of matrices</span>
@@ -182,7 +182,7 @@ run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
 <span class="fn">AI4BayesCode_rhat_summary</span>(run)
 inc &lt;- <span class="fn">colMeans</span>(run$histories[[<span class="lit">1</span>]]$gamma)   <span class="com"># posterior inclusion probabilities</span>
 
-<span class="com"># or drive one chain with full control of the stateful interface</span>
+<span class="com"># optional: stateful usage, drive one chain with full control</span>
 m &lt;- <span class="fn">new</span>(SpikeLaplace, y, X, seed = <span class="lit">1L</span>, keep_history = <span class="kw">TRUE</span>)
 m$<span class="fn">set_current</span>(<span class="fn">list</span>(sigma = <span class="lit">1.0</span>))   <span class="com"># warm-start a parameter</span>
 m$<span class="fn">step</span>(<span class="lit">2000</span>); m$<span class="fn">readapt_NUTS</span>(<span class="lit">500</span>)    <span class="com"># warm up, then re-tune NUTS</span>
