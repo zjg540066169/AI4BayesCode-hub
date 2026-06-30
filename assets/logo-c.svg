@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Option C (circular): standard ring  ·  curly quote  ·  italic B  ·  small bell curve
+       Horizontal narrative: language on the left, Bayes in the middle, sampler on the right. -->
+
+  <!-- Outer ring -->
+  <circle cx="32" cy="32" r="28"
+          stroke="rgb(78 78 168)" stroke-width="1.5"
+          fill="rgb(253 252 255)"/>
+
+  <!-- Left: opening curly quote -->
+  <text x="13" y="35" text-anchor="middle"
+        font-family="'Lora', Georgia, serif"
+        font-size="22" font-weight="500"
+        fill="rgb(20 18 38)">&#x201C;</text>
+
+  <!-- Center: italic B (Bayes) -->
+  <text x="32" y="40" text-anchor="middle"
+        font-family="'Lora', Georgia, serif"
+        font-size="24" font-weight="600" font-style="italic"
+        fill="rgb(20 18 38)">B</text>
+
+  <!-- Right: small Gaussian bell (the posterior) -->
+  <path d="M 43 42 C 46 42 47 32 50 32 C 53 32 54 42 56 42"
+        stroke="rgb(78 78 168)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>

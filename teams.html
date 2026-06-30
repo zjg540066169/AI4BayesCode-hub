@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Team · AI4BayesCode</title>
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container site-nav__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="assets/logo.svg" alt="" />
+      <span>AI4BayesCode<span class="brand__sub">Modular Stateful Samplers</span></span>
+    </a>
+    <ul class="site-nav__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blocks.html">Blocks</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="teams.html" class="is-active">Team</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode" class="hide-on-small">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="container">
+  <section class="hero" style="padding-bottom:1.5rem;">
+    <p class="eyebrow hero__eyebrow">Authors</p>
+    <h1 class="hero__title">The team behind AI4BayesCode.</h1>
+    <p class="hero__lede">
+      AI4BayesCode is developed at the intersection of biostatistics, applied
+      machine learning, and probabilistic programming. We work on samplers
+      researchers can actually deploy.
+    </p>
+  </section>
+</header>
+
+<hr class="divider" />
+
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Core team</p>
+    <h2 class="mt-1" style="margin-bottom:2rem;">Authors of the STAI-X 2026 paper.</h2>
+
+    <div class="author-grid">
+
+      <article class="author" data-cat="param">
+        <div class="author__avatar">JZ</div>
+        <h3 class="author__name">Jungang Zou</h3>
+        <div class="author__links">
+          <a href="#">Webpage</a>
+          <a href="#">GitHub</a>
+          <a href="#">Email</a>
+        </div>
+      </article>
+
+      <article class="author" data-cat="semi">
+        <div class="author__avatar">AJ</div>
+        <h3 class="author__name">Alex Ziyu Jiang</h3>
+        <div class="author__links">
+          <a href="#">Webpage</a>
+          <a href="#">GitHub</a>
+          <a href="#">Email</a>
+        </div>
+      </article>
+
+      <article class="author" data-cat="emp">
+        <div class="author__avatar">QC</div>
+        <h3 class="author__name">Qixuan Chen</h3>
+        <div class="author__links">
+          <a href="#">Webpage</a>
+          <a href="#">GitHub</a>
+          <a href="#">Email</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Contributing</p>
+    <h2 class="mt-1" style="margin-bottom:1rem;">An open, extensible system.</h2>
+    <p class="subtitle" style="max-width:46rem;">
+      AI4BayesCode grows by adding blocks. The block-level extension interface
+      (an AI Skill plus a stateful kernel) is designed so that domain
+      specialists can ship a new sampling block without modifying the system
+      core. We welcome contributions to the block library, new front-end
+      bindings, and new benchmark models.
+    </p>
+
+    <div class="feature-grid mt-3">
+      <article class="feature" data-cat="param">
+        <h3>Add a block</h3>
+        <p>Write the stateful interface, the conditional target, and a one-shot AI Skill that tells the agent when to use it. See <a class="accent" href="api.html#extending">extending the catalog</a>.</p>
+      </article>
+      <article class="feature" data-cat="semi">
+        <h3>Add a benchmark</h3>
+        <p>Contribute a natural-language model description, a known-truth DGP, and a reference oracle (long-run MCMC, exact forward-backward, or a hand-coded sampler).</p>
+      </article>
+      <article class="feature" data-cat="emp">
+        <h3>Add a binding</h3>
+        <p>The kernel tier is C++. Front-ends already exist for R and Python; bindings for Julia, Rust, or any FFI-friendly language are welcome contributions.</p>
+      </article>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="container site-foot__inner">
+    <div>
+      <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
+      <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers.</p>
+      <p style="margin-top:1rem;">
+        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;·&nbsp;
+        <a class="accent" href="index.html">Home</a> &nbsp;·&nbsp;
+        <a class="accent" href="blocks.html">Blocks</a> &nbsp;·&nbsp;
+        <a class="accent" href="api.html">API</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

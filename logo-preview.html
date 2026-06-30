@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Logo brainstorm · AI4BayesCode</title>
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .logo-row {
+      display: grid;
+      grid-template-columns: 14rem 1fr;
+      gap: 2.5rem;
+      align-items: center;
+      padding: 2.5rem 0;
+      border-bottom: 1px solid rgb(var(--rule));
+    }
+    .logo-row:last-child { border-bottom: 0; }
+    .logo-row__meta { font-family: 'Hanken Grotesk', sans-serif; }
+    .logo-row__name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: rgb(var(--ink));
+      margin: 0 0 .35rem;
+      letter-spacing: -.015em;
+    }
+    .logo-row__cap {
+      font-size: .85rem;
+      color: rgb(var(--ink-soft));
+      line-height: 1.5;
+      margin: 0 0 .75rem;
+      max-width: 14rem;
+    }
+    .logo-row__concept {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem;
+      color: rgb(var(--ink-faint));
+      letter-spacing: .03em;
+    }
+    .logo-row__scales {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .logo-row__scale {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .35rem;
+    }
+    .logo-row__scale img {
+      display: block;
+      background: rgb(var(--bg));
+      padding: .35rem;
+      border: 1px dashed rgb(var(--rule));
+      border-radius: 50%;
+    }
+    .logo-row__scale span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .65rem;
+      color: rgb(var(--ink-faint));
+      letter-spacing: .05em;
+    }
+    .logo-row__on-dark {
+      background: rgb(var(--ink));
+      padding: .5rem;
+      border-radius: 50%;
+      display: inline-block;
+      filter: invert(1) hue-rotate(180deg);
+    }
+    .logo-row.is-current { background: rgb(var(--sunk) / .4); border-radius: 12px; padding: 2rem; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container site-nav__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="assets/logo.svg" alt="" />
+      <span>AI4BayesCode<span class="brand__sub">Logo brainstorm</span></span>
+    </a>
+    <ul class="site-nav__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blocks.html">Blocks</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="teams.html">Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="container">
+  <section class="hero" style="padding-bottom:1.5rem;">
+    <p class="eyebrow hero__eyebrow">Brainstorm</p>
+    <h1 class="hero__title">Three icon directions, in a circle.</h1>
+    <p class="hero__lede">
+      Each new option keeps the circular shape of the current logo and the
+      three-part composition <strong>language &middot; Bayes &middot; sampler</strong>.
+      The italic <em>B</em> is the visual anchor; an ochre density curve appears
+      on the right in all variants; only the <strong>language</strong> element
+      changes between options.
+    </p>
+  </section>
+</header>
+
+<hr class="divider" />
+
+<section class="section section--tight">
+  <div class="container">
+
+    <!-- ===== Current logo (reference) ===== -->
+    <div class="logo-row is-current">
+      <div class="logo-row__meta">
+        <p class="logo-row__name" style="color:rgb(var(--ink-soft));">Current</p>
+        <p class="logo-row__cap">The existing logo — italic <em>B</em> on a parchment circle, with a wavy density curve underneath. No explicit language element.</p>
+        <p class="logo-row__concept">[ring]  B  &cap;</p>
+      </div>
+      <div class="logo-row__scales">
+        <div class="logo-row__scale"><img src="assets/logo.svg" width="16"  height="16"  alt="current · 16"/><span>16</span></div>
+        <div class="logo-row__scale"><img src="assets/logo.svg" width="32"  height="32"  alt="current · 32"/><span>32</span></div>
+        <div class="logo-row__scale"><img src="assets/logo.svg" width="48"  height="48"  alt="current · 48"/><span>48</span></div>
+        <div class="logo-row__scale"><img src="assets/logo.svg" width="80"  height="80"  alt="current · 80"/><span>80</span></div>
+        <div class="logo-row__scale"><img src="assets/logo.svg" width="128" height="128" alt="current · 128"/><span>128</span></div>
+        <div class="logo-row__scale"><div class="logo-row__on-dark"><img src="assets/logo.svg" width="40" height="40" alt="current · dark"/></div><span>dark</span></div>
+      </div>
+    </div>
+
+    <!-- ===== Option A ===== -->
+    <div class="logo-row">
+      <div class="logo-row__meta">
+        <p class="logo-row__name">Option A</p>
+        <p class="logo-row__cap">The ring itself is a <strong>speech bubble</strong> — a small tail at bottom-left turns the circle into a chat bubble. The inside is the current <em>B</em> + curve, untouched. Most subtle of the three.</p>
+        <p class="logo-row__concept">[bubble]  B  &cap;</p>
+      </div>
+      <div class="logo-row__scales">
+        <div class="logo-row__scale"><img src="assets/logo-a.svg" width="16"  height="16"  alt="A · 16"/><span>16</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-a.svg" width="32"  height="32"  alt="A · 32"/><span>32</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-a.svg" width="48"  height="48"  alt="A · 48"/><span>48</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-a.svg" width="80"  height="80"  alt="A · 80"/><span>80</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-a.svg" width="128" height="128" alt="A · 128"/><span>128</span></div>
+        <div class="logo-row__scale"><div class="logo-row__on-dark"><img src="assets/logo-a.svg" width="40" height="40" alt="A · dark"/></div><span>dark</span></div>
+      </div>
+    </div>
+
+    <!-- ===== Option B ===== -->
+    <div class="logo-row">
+      <div class="logo-row__meta">
+        <p class="logo-row__name">Option B</p>
+        <p class="logo-row__cap">A vertical narrative inside the ring: three dots at the top (language / typing), italic <em>B</em> in the middle, smooth bell curve at the bottom.</p>
+        <p class="logo-row__concept">[ring]&nbsp; &middot;&middot;&middot; &nbsp;B&nbsp; &cap;</p>
+      </div>
+      <div class="logo-row__scales">
+        <div class="logo-row__scale"><img src="assets/logo-b.svg" width="16"  height="16"  alt="B · 16"/><span>16</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-b.svg" width="32"  height="32"  alt="B · 32"/><span>32</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-b.svg" width="48"  height="48"  alt="B · 48"/><span>48</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-b.svg" width="80"  height="80"  alt="B · 80"/><span>80</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-b.svg" width="128" height="128" alt="B · 128"/><span>128</span></div>
+        <div class="logo-row__scale"><div class="logo-row__on-dark"><img src="assets/logo-b.svg" width="40" height="40" alt="B · dark"/></div><span>dark</span></div>
+      </div>
+    </div>
+
+    <!-- ===== Option C ===== -->
+    <div class="logo-row">
+      <div class="logo-row__meta">
+        <p class="logo-row__name">Option C</p>
+        <p class="logo-row__cap">A horizontal arrangement inside the ring: opening curly quote on the left, italic <em>B</em> in the middle, small bell curve on the right.</p>
+        <p class="logo-row__concept">[ring]&nbsp; &ldquo;&nbsp;B&nbsp;&cap;</p>
+      </div>
+      <div class="logo-row__scales">
+        <div class="logo-row__scale"><img src="assets/logo-c.svg" width="16"  height="16"  alt="C · 16"/><span>16</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-c.svg" width="32"  height="32"  alt="C · 32"/><span>32</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-c.svg" width="48"  height="48"  alt="C · 48"/><span>48</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-c.svg" width="80"  height="80"  alt="C · 80"/><span>80</span></div>
+        <div class="logo-row__scale"><img src="assets/logo-c.svg" width="128" height="128" alt="C · 128"/><span>128</span></div>
+        <div class="logo-row__scale"><div class="logo-row__on-dark"><img src="assets/logo-c.svg" width="40" height="40" alt="C · dark"/></div><span>dark</span></div>
+      </div>
+    </div>
+
+    <p class="muted" style="margin-top:3rem;font-size:.88rem;max-width:42rem;">
+      <strong>Font caveat</strong>: the italic <em>B</em> (and the opening quote
+      in Option C) is set in <code>'Fraunces'</code> with a Georgia fallback. When
+      an SVG is loaded via <code>&lt;img&gt;</code>, it renders in an isolated
+      context that doesn&rsquo;t see the page&rsquo;s Fraunces &mdash; so the
+      <em>B</em> may fall back to Georgia in this preview. For the chosen
+      final logo we&rsquo;d either inline the SVG or convert the <em>B</em>
+      glyph to a path so the logo is font-independent.
+    </p>
+
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="container site-foot__inner">
+    <div>
+      <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
+      <p style="margin:0;max-width:22rem;">Logo brainstorm preview &mdash; not part of the published site.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

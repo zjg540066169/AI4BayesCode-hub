@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Option A (circular): speech-bubble-shaped ring  ·  italic B  ·  density curve
+       The circle itself IS the language element — a small tail at bottom-left
+       turns the outer ring into a chat bubble. -->
+
+  <!-- Bubble: arc from top all the way around to bottom-left, then tail, then short arc back -->
+  <path d="M 32 6
+           A 26 26 0 1 1 15.3 51.9
+           L 5 56
+           L 9.5 45
+           A 26 26 0 0 1 32 6 Z"
+        stroke="rgb(78 78 168)" stroke-width="1.5"
+        fill="rgb(253 252 255)" stroke-linejoin="round"/>
+
+  <!-- Center: italic B (Bayes) -->
+  <text x="32" y="38" text-anchor="middle"
+        font-family="'Lora', Georgia, serif"
+        font-size="26" font-weight="600" font-style="italic"
+        fill="rgb(20 18 38)">B</text>
+
+  <!-- Density curve below B -->
+  <path d="M 18 50 Q 22 44 26 47 Q 30 52 32 44 Q 34 36 38 47 Q 42 50 46 44"
+        stroke="rgb(78 78 168)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Option B (circular): standard ring  ·  three dots (text / typing)  ·  italic B  ·  bell curve
+       Vertical narrative inside the circle: language at top, Bayes in middle, sampler at bottom. -->
+
+  <!-- Outer ring -->
+  <circle cx="32" cy="32" r="28"
+          stroke="rgb(78 78 168)" stroke-width="1.5"
+          fill="rgb(253 252 255)"/>
+
+  <!-- Top: three dots representing language / typing -->
+  <circle cx="26" cy="16" r="1.5" fill="rgb(20 18 38)"/>
+  <circle cx="32" cy="16" r="1.5" fill="rgb(20 18 38)"/>
+  <circle cx="38" cy="16" r="1.5" fill="rgb(20 18 38)"/>
+
+  <!-- Middle: italic B (Bayes) -->
+  <text x="32" y="40" text-anchor="middle"
+        font-family="'Lora', Georgia, serif"
+        font-size="22" font-weight="600" font-style="italic"
+        fill="rgb(20 18 38)">B</text>
+
+  <!-- Bottom: smooth Gaussian bell (the posterior) -->
+  <path d="M 18 52 C 24 52 25 44 32 44 C 39 44 40 52 46 52"
+        stroke="rgb(78 78 168)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+</svg>

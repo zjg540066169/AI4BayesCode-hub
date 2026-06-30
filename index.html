@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en" data-cat="param">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI4BayesCode · Modular Stateful Bayesian Samplers</title>
+  <meta name="description" content="AI4BayesCode translates natural-language Bayesian model descriptions into validated, modular, stateful MCMC samplers." />
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="site-nav">
+  <div class="container site-nav__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="assets/logo.svg" alt="" />
+      <span>
+        AI4BayesCode
+        <span class="brand__sub">Modular Stateful Samplers</span>
+      </span>
+    </a>
+    <ul class="site-nav__links">
+      <li><a href="index.html" class="is-active">Home</a></li>
+      <li><a href="blocks.html">Blocks</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="teams.html">Team</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode" class="hide-on-small">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="container">
+  <section class="hero">
+    <p class="eyebrow hero__eyebrow">A I 4 B a y e s C o d e &nbsp;·&nbsp; STAI-X 2026</p>
+    <h1 class="hero__title">
+      From natural language to <span class="hero__accent">validated</span> Bayesian samplers.
+    </h1>
+    <p class="hero__lede">
+      AI4BayesCode translates plain-English model descriptions into modular,
+      stateful MCMC samplers — composed from pre-validated sampling blocks,
+      checked at parse time, checked at runtime, exposed cleanly to R, Python,
+      and C++.
+    </p>
+    <div class="hero__cta">
+      <a class="btn btn--primary" href="#install">Get started</a>
+      <a class="btn" href="blocks.html">Explore blocks</a>
+      <a class="btn" href="api.html">Read the API</a>
+    </div>
+    <div class="hero__meta">
+      <div class="hero__meta-item"><strong>3-tier</strong> wrapper / block / kernel</div>
+      <div class="hero__meta-item"><strong>20+ blocks</strong> NUTS, RJMCMC, BART, MRF, &hellip;</div>
+      <div class="hero__meta-item"><strong>Stateful</strong> recursive composition</div>
+      <div class="hero__meta-item"><strong>Validated</strong> pre- &amp; post-generation checks</div>
+    </div>
+  </section>
+</header>
+
+<hr class="divider" />
+
+<!-- ===== WHAT IT IS ===== -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">What it is</p>
+    <h2 class="mt-1" style="max-width: 38rem;">
+      An LLM-driven system that builds <em class="font-display" style="font-style:italic;color:rgb(var(--accent))">complete</em> MCMC samplers from a model spec.
+    </h2>
+    <p class="subtitle mt-1" style="max-width: 46rem;">
+      Rather than asking a language model to write a sampler from scratch — where complex algorithms quietly go wrong — AI4BayesCode decomposes the model into modular blocks and binds each to a pre-validated sampling component.
+    </p>
+
+    <div class="features-v mt-3">
+      <article class="feature-v" data-cat="param">
+        <h3 class="feature-v__tagline">From a paragraph of English to a runnable sampler.</h3>
+        <p class="feature-v__desc">AI4BayesCode parses your model description, decomposes it into modular blocks, and assigns each block to a pre-validated sampling primitive &mdash; <code>wrapper · block · kernel</code>. You write the model. The system writes (and validates) the sampler.</p>
+      </article>
+      <article class="feature-v" data-cat="semi">
+        <h3 class="feature-v__tagline">Stateful blocks that compose without reinitialising.</h3>
+        <p class="feature-v__desc">Every block exposes the same <code>set_current</code> / <code>step</code> / <code>get_current</code> interface. Embed a BART ensemble or NUTS chain inside a larger MCMC, propagate updated inputs through a shared pool, and continue sampling &mdash; no warm-up reset, no lost adaptation.</p>
+      </article>
+      <article class="feature-v" data-cat="emp">
+        <h3 class="feature-v__tagline">Catches errors before you ever read the trace.</h3>
+        <p class="feature-v__desc">Semantic checks at parse time catch mis-specified priors and support mismatches before code is generated. Runtime checks compute <code>R-hat</code>, <code>ESS</code>, divergences, and posterior-predictive <em>p</em>-values automatically &mdash; diagnostics attached to every chain.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ===== EXAMPLES ===== -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Examples</p>
+    <h2 class="mt-1">From description to runnable chain.</h2>
+    <p class="subtitle mt-1" style="max-width: 44rem;">
+      You write the model in natural language, with priors and likelihood; AI4BayesCode builds the sampler, validates it, compiles it to C++, and ships R and Python bindings. Below: three short prompts and the samplers they produce.
+    </p>
+
+    <div class="examples mt-3">
+
+      <!-- example 1 -->
+      <article class="example" data-cat="param">
+        <div class="example__side example__side--prompt">
+          <p class="example__label">Natural-language prompt</p>
+          <p class="example__prompt-body">
+            I have <em>n</em> observations of a continuous response <em>y</em> and
+            a design matrix <em>X</em>. Fit a Bayesian linear regression with a
+            <em>horseshoe</em> prior on the regression coefficients and a
+            half-Cauchy prior on the residual scale.
+          </p>
+          <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
+          <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;">
+            nuts_block(β, log τ)<br>
+            half_cauchy_block(σ)
+          </p>
+        </div>
+        <div class="example__side example__side--code">
+          <p class="example__label">Generated R interface</p>
+<pre class="code-block"><span class="com"># pre-generation: model parsed + checked</span>
+<span class="kw">library</span>(<span class="ty">AI4BayesCode</span>)
+
+<span class="fn">m</span> &lt;- <span class="fn">build_sampler</span>(
+  description = readLines(<span class="lit">"prompt.txt"</span>),
+  data        = list(y = y, X = X)
+)
+
+<span class="com"># stateful interface — same on every block</span>
+<span class="fn">m</span>$<span class="fn">step</span>(n_burn = <span class="lit">2000</span>)
+<span class="fn">m</span>$<span class="fn">step</span>(n_keep = <span class="lit">4000</span>)
+trace &lt;- <span class="fn">m</span>$<span class="fn">get_history</span>()
+
+<span class="com"># post-generation diagnostics auto-attached</span>
+<span class="fn">m</span>$<span class="fn">diagnosis</span>      <span class="com"># R-hat, ESS, divergences</span>
+<span class="fn">m</span>$<span class="fn">diagnosis_plot</span> <span class="com"># trace + density grid</span></pre>
+        </div>
+      </article>
+
+      <!-- example 2 -->
+      <article class="example" data-cat="semi">
+        <div class="example__side example__side--prompt">
+          <p class="example__label">Natural-language prompt</p>
+          <p class="example__prompt-body">
+            Spike-and-slab regression with <em>Dirac</em> spike at zero and a
+            Laplace slab; sample the inclusion indicators <em>γ</em> and the
+            coefficients <em>β</em> jointly via reversible-jump MCMC.
+          </p>
+          <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
+          <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;">
+            rjmcmc_block(β, γ)<br>
+            inverse_gamma_block(σ²)<br>
+            beta_block(τ²)
+          </p>
+        </div>
+        <div class="example__side example__side--code">
+          <p class="example__label">Generated R interface</p>
+<pre class="code-block"><span class="com"># trans-dimensional sampler from a 4-line description</span>
+<span class="fn">m</span> &lt;- <span class="fn">build_sampler</span>(
+  description = <span class="lit">"spike-and-slab regression ..."</span>,
+  data        = list(y = y, X = X),
+  validate    = <span class="kw">TRUE</span>
+)
+
+<span class="com"># model averaging is automatic</span>
+<span class="fn">m</span>$<span class="fn">step</span>(n_burn = <span class="lit">4000</span>)
+<span class="fn">m</span>$<span class="fn">step</span>(n_keep = <span class="lit">4000</span>)
+
+inc &lt;- colMeans(<span class="fn">m</span>$<span class="fn">get_history</span>()$gamma)
+<span class="fn">plot</span>(inc, type = <span class="lit">"h"</span>,
+     ylab = <span class="lit">"posterior inclusion probability"</span>)</pre>
+        </div>
+      </article>
+
+      <!-- example 3 -->
+      <article class="example" data-cat="emp">
+        <div class="example__side example__side--prompt">
+          <p class="example__label">Natural-language prompt</p>
+          <p class="example__prompt-body">
+            Three-state Poisson hidden Markov model. Time series <em>y<sub>1:T</sub></em>
+            with state-specific Poisson rates ordered ascending; sticky
+            transition matrix. Sample the hidden states with
+            forward-filter backward-sample.
+          </p>
+          <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
+          <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;">
+            hmm_block(z, FFBS)<br>
+            dirichlet_gibbs_block(A, π)<br>
+            gamma_gibbs_block(λ)
+          </p>
+        </div>
+        <div class="example__side example__side--code">
+          <p class="example__label">Generated R interface</p>
+<pre class="code-block"><span class="com"># composite block — HMM nested inside the outer chain</span>
+<span class="fn">m</span> &lt;- <span class="fn">build_sampler</span>(
+  description = <span class="lit">"3-state Poisson HMM ..."</span>,
+  data        = list(y = y, K = <span class="lit">3</span>)
+)
+
+<span class="fn">m</span>$<span class="fn">step</span>(n_burn = <span class="lit">1500</span>)
+<span class="fn">m</span>$<span class="fn">step</span>(n_keep = <span class="lit">2000</span>)
+
+<span class="com"># exact forward-backward state marginals available</span>
+gamma_smooth &lt;- <span class="fn">m</span>$<span class="fn">state_marginals</span>()</pre>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ===== INSTALL ===== -->
+<section class="section" id="install">
+  <div class="container">
+    <p class="eyebrow">Installation</p>
+    <h2 class="mt-1">One core, three front-ends.</h2>
+    <p class="subtitle mt-1" style="max-width: 44rem;">
+      The sampler core is C++ for speed; native R and Python interfaces share the same stateful blocks so trace handling, diagnostics, and composition are identical across languages.
+    </p>
+
+    <div class="install mt-3">
+      <div class="install__card" data-cat="param">
+        <div class="install__lang">R</div>
+<pre><span class="com"># from CRAN (planned)</span>
+install.packages(<span class="lit">"AI4BayesCode"</span>)
+
+<span class="com"># or from source</span>
+devtools::install_github(
+  <span class="lit">"ai4bayescode/AI4BayesCode"</span>
+)
+library(AI4BayesCode)</pre>
+      </div>
+      <div class="install__card" data-cat="semi">
+        <div class="install__lang">Python</div>
+<pre><span class="com"># planned release</span>
+pip install ai4bayescode
+
+<span class="com"># importable agent + sampler</span>
+from ai4bayescode \
+    import build_sampler
+
+m = build_sampler(<span class="lit">"prompt.txt"</span>,
+                  data=data)</pre>
+      </div>
+      <div class="install__card" data-cat="emp">
+        <div class="install__lang">C++</div>
+<pre><span class="com">// header-only core</span>
+#include &lt;ai4bayescode.hpp&gt;
+
+auto m = build_sampler(
+    spec, data);
+m.step(n_burn=2000);
+m.step(n_keep=4000);</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-foot">
+  <div class="container site-foot__inner">
+    <div>
+      <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
+      <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers. STAI-X 2026.</p>
+      <p style="margin-top:1rem;">
+        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;·&nbsp;
+        <a class="accent" href="blocks.html">Blocks</a> &nbsp;·&nbsp;
+        <a class="accent" href="api.html">API</a> &nbsp;·&nbsp;
+        <a class="accent" href="teams.html">Team</a>
+      </p>
+    </div>
+    <div class="site-foot__cite">
+@inproceedings{ai4bayescode2026,
+  title  = {AI4BayesCode: From Natural Language Descriptions
+            to Validated Modular Stateful Bayesian Samplers},
+  author = {Zou, Jungang and Jiang, Alex Ziyu and Chen, Qixuan},
+  booktitle = {STAI-X},
+  year   = {2026}
+}
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
