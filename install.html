@@ -69,21 +69,21 @@
     <div class="install mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">Claude Code</div>
-<pre><span class="com"># clone, then copy into the skills dir</span>
+<pre><span class="com"># clone, then copy in (re-running overwrites any existing install)</span>
 git clone https://github.com/zjg540066169/AI4BayesCode.git
 cd AI4BayesCode
 mkdir -p ~/.claude/skills
-rsync -a --exclude <span class="lit">'.git/'</span> ./ ~/.claude/skills/AI4BayesCode/</pre>
+rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.claude/skills/AI4BayesCode/</pre>
         <p class="install__note" style="margin-top:.75rem;">Reload Claude Code, then type <code>/AI4BayesCode</code>.</p>
       </div>
 
       <div class="install__card" data-cat="semi">
         <div class="install__lang">Codex</div>
-<pre><span class="com"># clone, then copy into the codex skills dir</span>
+<pre><span class="com"># clone, then copy in (re-running overwrites any existing install)</span>
 git clone https://github.com/zjg540066169/AI4BayesCode.git
 cd AI4BayesCode
 mkdir -p ~/.codex/skills
-rsync -a --exclude <span class="lit">'.git/'</span> ./ ~/.codex/skills/AI4BayesCode/</pre>
+rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.codex/skills/AI4BayesCode/</pre>
         <p class="install__note" style="margin-top:.75rem;">Restart Codex, then type <code>/Ai4bayescode</code> <span class="muted">(Codex lowercases the skill name, so only the first letter is capitalized)</span>.</p>
       </div>
 
@@ -158,7 +158,7 @@ AI4BayesCode.generate(
   <div class="container site-foot__inner">
     <div>
       <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
-      <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers. STAI-X 2026.</p>
+      <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers.</p>
       <p style="margin-top:1rem;">
         <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;·&nbsp;
         <a class="accent" href="blocks.html">Blocks</a> &nbsp;·&nbsp;
