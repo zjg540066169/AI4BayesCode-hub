@@ -265,6 +265,28 @@ a.hero__meta-item {
 a.hero__meta-item:hover strong {
   color: rgb(var(--accent));
 }
+.paper-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .85rem;
+  margin: 1.5rem 0 0;
+  font-family: 'Inter', sans-serif;
+  font-size: .92rem;
+  color: rgb(var(--ink-soft));
+}
+.paper-strip__badge {
+  font-size: .66rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: rgb(var(--accent));
+  background: rgb(var(--accent) / .1);
+  border: 1px solid rgb(var(--accent) / .3);
+  border-radius: 99px;
+  padding: .22rem .65rem;
+}
+.paper-strip__sep { color: rgb(var(--ink-faint)); }
 
 /* ----- feature grid ----- */
 .feature-grid {
