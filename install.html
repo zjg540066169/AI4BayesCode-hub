@@ -152,10 +152,10 @@ remotes::install_github(
 library(AI4BayesCode)
 ai4bayescode_set_key(<span class="lit">"sk-ant-..."</span>)   <span class="com"># set your LLM key once</span>
 ai4bayescode_generate(
-  <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)
+  <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2"</span>)
 <span class="com"># or, instead of set_key, pass the key in the call:</span>
 <span class="com"># ai4bayescode_generate(</span>
-<span class="com">#   "y ~ N(Xbeta, sigma^2) with Jeffreys prior",</span>
+<span class="com">#   "y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2",</span>
 <span class="com">#   API_key = "sk-ant-...")</span></pre>
       </div>
 
@@ -168,10 +168,10 @@ pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.
 import AI4BayesCode
 AI4BayesCode.set_key(<span class="lit">"sk-ant-..."</span>)   <span class="com"># set your LLM key once</span>
 AI4BayesCode.generate(
-    <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior"</span>)
+    <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2"</span>)
 <span class="com"># or, instead of set_key, pass the key in the call:</span>
 <span class="com"># AI4BayesCode.generate(</span>
-<span class="com">#     "y ~ N(Xbeta, sigma^2) with Jeffreys prior",</span>
+<span class="com">#     "y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2",</span>
 <span class="com">#     API_key="sk-ant-...")</span></pre>
       </div>
     </div>
