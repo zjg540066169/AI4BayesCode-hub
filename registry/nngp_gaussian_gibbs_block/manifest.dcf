@@ -1,5 +1,6 @@
 Block: nngp_gaussian_gibbs_block
 Version: 0.1.0
+Date: 2026-06-30
 Title: Nearest-Neighbor Gaussian Process spatial regression sampler
 Description: Fits Bayesian Gaussian spatial regression with a Nearest-Neighbor
  Gaussian Process (NNGP) random effect, y_i ~ N(x_i' beta + w_i, tau^2), where the

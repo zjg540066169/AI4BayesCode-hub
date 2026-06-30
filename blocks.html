@@ -316,6 +316,11 @@
       contribute your own block, and download and install any block here into your own copy. To
       design and submit one, see the <a class="accent" href="#upload">Block upload</a> tab.
     </p>
+    <div id="contrib-sort" class="bsort" style="display:none;">
+      <span class="bsort__label">Sort</span>
+      <button class="bsort__btn is-active" type="button" data-sort="name">By name</button>
+      <button class="bsort__btn" type="button" data-sort="date">By date</button>
+    </div>
     <div id="contrib-grid" class="bgrid"><p class="bgrid__empty">Loading...</p></div>
   </div>
 </section>
@@ -706,11 +711,23 @@ my_block/
 
   // ---- contributed grid (auto-built from the registry/ folder) ----
   var contribGrid = document.getElementById('contrib-grid');
+  var contribBlocks = [];
+  var contribSort = 'name';
   function fields(name, txt){
     var f = parseDcf(txt); f.name = name;
     var m = (f.Maintainer || '').match(/<([^>]+)>/);
     if (m) f.email = m[1]; else if (f.Email) f.email = f.Email;
     return f;
+  }
+  function renderContribGrid(){
+    if (!contribGrid) return;
+    var arr = contribBlocks.slice();
+    if (contribSort === 'date') arr.sort(function (a, b) {
+      var da = a.Date || '', db = b.Date || '';
+      return db < da ? -1 : db > da ? 1 : byName(a, b); });   // newest first
+    else arr.sort(byName);
+    contribGrid.innerHTML = '';
+    arr.forEach(function (b) { contribGrid.appendChild(mini(b, 'contrib')); });
   }
   function renderContrib(){
     if (!contribGrid) return;
@@ -726,8 +743,10 @@ my_block/
             .then(function (t) { return fields(n, t); })
             .catch(function () { return { name: n, Title: '(manifest unavailable)' }; });
         })).then(function (blocks) {
-          contribGrid.innerHTML = '';
-          blocks.forEach(function (b) { contribGrid.appendChild(mini(b, 'contrib')); });
+          contribBlocks = blocks;
+          var sortBox = document.getElementById('contrib-sort');
+          if (sortBox) sortBox.style.display = blocks.length >= 2 ? 'flex' : 'none';
+          renderContribGrid();
         });
       })
       .catch(function () {
@@ -735,7 +754,17 @@ my_block/
           + '<a class="accent" href="https://github.com/' + OWNER + '/' + HUBREPO + '/tree/main/registry" target="_blank" rel="noopener">Browse it on GitHub</a>.</p>';
       });
   }
-  if (contribGrid) renderContrib();
+  if (contribGrid) {
+    var csortBox = document.getElementById('contrib-sort');
+    if (csortBox) csortBox.querySelectorAll('.bsort__btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        contribSort = btn.getAttribute('data-sort');
+        csortBox.querySelectorAll('.bsort__btn').forEach(function (x) { x.classList.toggle('is-active', x === btn); });
+        renderContribGrid();
+      });
+    });
+    renderContrib();
+  }
 })();
 </script>
 
