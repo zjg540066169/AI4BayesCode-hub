@@ -712,6 +712,92 @@ a.hero__meta-item:hover strong {
   color: rgb(var(--ink-soft));
 }
 
+/* ----- tutorials hub ----- */
+.tut-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+.tut-card {
+  display: flex;
+  flex-direction: column;
+  background: rgb(var(--panel));
+  border: 1px solid rgb(var(--rule));
+  border-radius: 14px;
+  padding: 1.6rem;
+  transition: border-color .15s ease, transform .15s ease;
+}
+a.tut-card:hover { border-color: rgb(var(--accent) / .55); transform: translateY(-2px); }
+.tut-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.tut-card__tag {
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: .62rem;
+  font-weight: 600;
+  color: rgb(var(--accent));
+}
+.tut-card__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  flex: none;
+  background: rgb(var(--accent) / .12);
+  color: rgb(var(--accent));
+}
+.tut-card h3 { margin-bottom: .5rem; font-size: 1.25rem; }
+.tut-card__desc {
+  font-family: 'Lora', Georgia, serif;
+  font-size: .98rem;
+  line-height: 1.5;
+  color: rgb(var(--ink-soft));
+  margin: 0 0 1.1rem 0;
+}
+.tut-card__cta {
+  margin-top: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  color: rgb(var(--accent));
+}
+.tut-card--soon {
+  background: transparent;
+  border-style: dashed;
+  justify-content: center;
+}
+.tut-card--soon h3 { color: rgb(var(--ink-faint)); }
+.tut-card--soon .tut-card__desc { color: rgb(var(--ink-faint)); margin-bottom: 0; }
+
+/* responsive 16:9 video frame (works for <video> and <iframe>) */
+.video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgb(var(--rule));
+}
+.video-frame video,
+.video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
 /* ----- utilities ----- */
 .muted { color: rgb(var(--ink-faint)); }
 .accent { color: rgb(var(--accent)); }
@@ -722,6 +808,7 @@ a.hero__meta-item:hover strong {
 /* ----- responsive ----- */
 @media (max-width: 900px) {
   .feature-grid { grid-template-columns: 1fr; }
+  .tut-grid { grid-template-columns: 1fr; }
   .example { grid-template-columns: 1fr; }
   .example__side--prompt { border-right: 0; border-bottom: 1px solid rgb(var(--rule)); }
   .install { grid-template-columns: 1fr; }

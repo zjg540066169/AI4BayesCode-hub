@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tutorial · AI4BayesCode</title>
-  <meta name="description" content="Tutorial for AI4BayesCode. Coming soon." />
+  <title>Tutorials · AI4BayesCode</title>
+  <meta name="description" content="Short video tutorials for AI4BayesCode: generate a sampler from a model description, run it in R, and design your own block. More tutorials coming soon." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,12 +33,56 @@
 </nav>
 
 <header class="container">
-  <section class="hero">
-    <p class="eyebrow hero__eyebrow">Tutorial</p>
-    <h1 class="hero__title">Tutorial.</h1>
-    <p class="hero__lede">Coming soon.</p>
+  <section class="hero" style="padding-bottom:1.5rem;">
+    <p class="eyebrow hero__eyebrow">Learn</p>
+    <h1 class="hero__title">Tutorials.</h1>
+    <p class="hero__lede">
+      Short screencasts that walk through AI4BayesCode end to end. Start by generating a sampler
+      from a plain-language model, run it in R, and see how to design your own block. We will keep
+      adding tutorials over time.
+    </p>
   </section>
 </header>
+
+<hr class="divider" />
+
+<section class="section">
+  <div class="container">
+
+    <div class="tut-grid">
+
+      <!-- 1. generate + run (two-part, continuous) -->
+      <a class="tut-card" data-cat="prob" href="tutorial-generate-and-run.html">
+        <div class="tut-card__top">
+          <span class="tut-card__tag">Getting started</span>
+          <span class="tut-card__play"><svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg></span>
+        </div>
+        <h3>Generate a sampler and run it</h3>
+        <p class="tut-card__desc">Turn a plain-language model into a validated sampler, then run it in R. Generation and usage, back to back.</p>
+        <span class="tut-card__cta">Watch &rarr;</span>
+      </a>
+
+      <!-- 2. design a block -->
+      <a class="tut-card" data-cat="ext" href="tutorial-block-design.html">
+        <div class="tut-card__top">
+          <span class="tut-card__tag">Extending</span>
+          <span class="tut-card__play"><svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg></span>
+        </div>
+        <h3>Design a new block</h3>
+        <p class="tut-card__desc">Design and add a new sampling block to AI4BayesCode through the block-design flow in a coding agent.</p>
+        <span class="tut-card__cta">Watch &rarr;</span>
+      </a>
+
+      <!-- coming soon -->
+      <div class="tut-card tut-card--soon">
+        <h3>More tutorials coming soon</h3>
+        <p class="tut-card__desc">We are adding walkthroughs for more models, diagnostics, and advanced blocks. Check back, or suggest one on <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/issues">GitHub</a>.</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
 <footer class="site-foot">
   <div class="container site-foot__inner">

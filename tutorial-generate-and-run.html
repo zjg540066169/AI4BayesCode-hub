@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" data-cat="prob">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generate a sampler and run it · AI4BayesCode</title>
+  <meta name="description" content="Video tutorial in two parts: turn a plain-language Bayesian model into a validated MCMC sampler, then load it in R, run chains, and work with the posterior." />
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container site-nav__inner">
+    <a class="brand" href="https://github.com/zjg540066169/AI4BayesCode" target="_blank" rel="noopener">
+      <img class="brand__logo" src="assets/logo.svg" alt="" />
+      <span>AI4BayesCode<span class="brand__sub">Validated Modular Stateful Samplers</span></span>
+    </a>
+    <ul class="site-nav__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="install.html">Install</a></li>
+      <li><a href="tutorial.html" class="is-active">Tutorial</a></li>
+      <li><a href="blocks.html">Blocks</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="teams.html">Team</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode/issues" class="hide-on-small">Issues</a></li>
+      <li><a href="https://github.com/zjg540066169/AI4BayesCode" class="hide-on-small">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="container">
+  <section class="hero" style="padding-bottom:1.25rem;">
+    <p class="eyebrow hero__eyebrow"><a href="tutorial.html" class="accent">Tutorials</a> &nbsp;/&nbsp; Getting started</p>
+    <h1 class="hero__title" style="font-size:clamp(2.2rem,4.5vw,3.2rem);margin-bottom:1rem;">Generate a sampler and run it.</h1>
+    <p class="hero__lede">
+      Watch AI4BayesCode turn a plain-language model into a validated sampler, then load it in R
+      and work with the posterior. Two short parts, back to back.
+    </p>
+  </section>
+</header>
+
+<hr class="divider" />
+
+<section class="section">
+  <div class="container" style="max-width:60rem;">
+
+    <p class="eyebrow" style="color:rgb(var(--accent));margin-bottom:.9rem;">Part 1 &middot; Generating the sampler</p>
+    <div class="video-frame">
+      <video controls preload="metadata" playsinline>
+        <source src="assets/videos/sampler_generation.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+        <a href="assets/videos/sampler_generation.mp4">Download the video</a>.
+      </video>
+    </div>
+    <p style="max-width:44rem;margin-top:1.5rem;font-family:'Lora',Georgia,serif;font-size:1.08rem;line-height:1.6;color:rgb(var(--ink-soft));">
+      You describe the model in natural language, and AI4BayesCode parses it, completes any missing
+      priors, decomposes it into blocks, assigns each block to a built-in sampler, and validates the
+      generated code before handing it back.
+    </p>
+
+    <p class="eyebrow" style="color:rgb(var(--accent));margin-top:3rem;margin-bottom:.9rem;">Part 2 &middot; Running it in R</p>
+    <div class="video-frame">
+      <video controls preload="metadata" playsinline>
+        <source src="assets/videos/sampler_usage_R.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+        <a href="assets/videos/sampler_usage_R.mp4">Download the video</a>.
+      </video>
+    </div>
+    <p style="max-width:44rem;margin-top:1.5rem;font-family:'Lora',Georgia,serif;font-size:1.08rem;line-height:1.6;color:rgb(var(--ink-soft));">
+      With the sampler generated, you source it in R, run several chains, read the R-hat and ESS
+      diagnostics, and pull out the posterior. Set up the tools first on the
+      <a class="accent" href="install.html">Install</a> page, and see the
+      <a class="accent" href="api.html">API</a> for every function shown here.
+    </p>
+
+    <p style="margin-top:2rem;">
+      <a class="btn" href="tutorial.html">&larr; All tutorials</a>
+      <a class="btn" href="tutorial-block-design.html">Next: design a block</a>
+    </p>
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="container site-foot__inner">
+    <div>
+      <div class="font-display" style="font-weight:600;color:rgb(var(--ink));font-size:1rem;margin-bottom:.3rem;">AI4BayesCode</div>
+      <p style="margin:0;max-width:22rem;">An open, extensible system for AI-generated Bayesian samplers.</p>
+      <p style="margin-top:1rem;">
+        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode">GitHub</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="index.html">Home</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="tutorial.html">Tutorials</a> &nbsp;&middot;&nbsp;
+        <a class="accent" href="api.html">API</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
