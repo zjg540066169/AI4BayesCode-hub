@@ -85,12 +85,12 @@
         <p class="feature-v__desc">Describe your model in words, with its likelihood and priors. AI4BayesCode parses the description, picks the right built-in samplers, and hands you compiled code you can run from R, Python, or C++. You write the model, it writes the sampler.</p>
       </article>
       <article class="feature-v" data-cat="semi">
-        <h3 class="feature-v__tagline">Stateful blocks that keep sampling without restarting.</h3>
-        <p class="feature-v__desc">Each block holds its own state behind one shared interface. <code>set_current</code> takes the latest values from the other blocks, <code>step</code> advances the chain, and <code>get_current</code> passes its state back. So a block placed inside a larger MCMC keeps what it has learned and keeps sampling instead of reinitializing, the way a BART ensemble holds onto its trees rather than rebuilding them each sweep. Because every block works this way, components built separately, even by different contributors, compose coherently into one chain, and you can build and explore models fast.</p>
+        <h3 class="feature-v__tagline">Stateful blocks that compose into larger samplers.</h3>
+        <p class="feature-v__desc">A recursively stateful design is central to AI4BayesCode. Each block keeps its own state as the quantities around it change, so it keeps sampling inside a larger MCMC instead of starting over. This lets modular sampling components, even ones developed by different contributors, be composed coherently within larger MCMC procedures, and the same design makes model development and exploration fast.</p>
       </article>
       <article class="feature-v" data-cat="prob">
-        <h3 class="feature-v__tagline">New models come online fast, and you can add your own.</h3>
-        <p class="feature-v__desc">New kinds of models can be supported quickly by adding a block, so the system keeps up with new methods instead of lagging behind them. The block library is open, so you can contribute your own blocks, and the set of models AI4BayesCode can build grows with the community. A contributed block behaves like a built-in one and composes with the rest.</p>
+        <h3 class="feature-v__tagline">An extensible system, open to new models and contributors.</h3>
+        <p class="feature-v__desc">AI4BayesCode is built to be extended. New kinds of models can be supported quickly by adding a block, so the system keeps up with new methods. The block library is also open to contribution, so users can add their own blocks and grow the set of models the system can build.</p>
       </article>
       <article class="feature-v" data-cat="emp">
         <h3 class="feature-v__tagline">Systematic validation, before and after.</h3>
