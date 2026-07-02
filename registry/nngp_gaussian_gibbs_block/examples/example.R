@@ -21,7 +21,7 @@ run <- AI4BayesCode_run_chains(
                   n = n, p = p, coord_dim = 2L, m = 10L,
                   phi_lower = 0.5, phi_upper = 30.0,
                   a_tau = 2.0, b_tau = 1.0, a_sigma = 2.0, b_sigma = 1.0,
-                  seed = s, keep_history = TRUE), n_chains = 4)
+                  seed = s, keep_history = TRUE), n_chains = 4, n_burn = 5000, n_keep = 5000)
 AI4BayesCode_rhat_summary(run)            # cross-chain R-hat and ESS
 ai4b_diagnose(run$histories[[1]])         # trace, ACF, density for one chain
 

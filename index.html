@@ -143,7 +143,7 @@
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
   <span class="kw">function</span>(s) <span class="fn">new</span>(BayesLinReg, y, X, seed = s, keep_history = <span class="kw">TRUE</span>),
-  n_chains = <span class="lit">4</span>)
+  n_chains = <span class="lit">4</span>, n_burn = <span class="lit">5000</span>, n_keep = <span class="lit">5000</span>)
 
 <span class="fn">AI4BayesCode_rhat_summary</span>(run)         <span class="com"># cross-chain R-hat and ESS</span>
 <span class="fn">ai4b_diagnose</span>(run$histories[[<span class="lit">1</span>]])    <span class="com"># trace, ACF, density</span>
@@ -162,7 +162,7 @@ mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
   <span class="kw">lambda</span> s: mod.<span class="fn">BayesLinReg</span>(y, X, seed=s, keep_history=<span class="kw">True</span>),
-  seeds=<span class="fn">range</span>(<span class="lit">4</span>))
+  seeds=<span class="fn">range</span>(<span class="lit">4</span>), n_burn=<span class="lit">5000</span>, n_keep=<span class="lit">5000</span>)
 
 <span class="ty">AI4BayesCode</span>.<span class="fn">ai4b_diagnose</span>(runs[<span class="lit">0</span>])      <span class="com"># R-hat, ESS, trace, ACF, density</span>
 
@@ -207,7 +207,7 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
   <span class="kw">function</span>(s) <span class="fn">new</span>(SpikeLaplace, y, X, seed = s, keep_history = <span class="kw">TRUE</span>),
-  n_chains = <span class="lit">4</span>)
+  n_chains = <span class="lit">4</span>, n_burn = <span class="lit">5000</span>, n_keep = <span class="lit">5000</span>)
 
 <span class="fn">AI4BayesCode_rhat_summary</span>(run)
 inc &lt;- <span class="fn">colMeans</span>(run$histories[[<span class="lit">1</span>]]$gamma)   <span class="com"># posterior inclusion probabilities</span>
@@ -227,7 +227,7 @@ mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
   <span class="kw">lambda</span> s: mod.<span class="fn">SpikeLaplace</span>(y, X, seed=s, keep_history=<span class="kw">True</span>),
-  seeds=<span class="fn">range</span>(<span class="lit">4</span>))
+  seeds=<span class="fn">range</span>(<span class="lit">4</span>), n_burn=<span class="lit">5000</span>, n_keep=<span class="lit">5000</span>)
 
 inc = runs[<span class="lit">0</span>][<span class="lit">"gamma"</span>].<span class="fn">mean</span>(axis=<span class="lit">0</span>)        <span class="com"># posterior inclusion probabilities</span>
 

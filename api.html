@@ -126,7 +126,8 @@ m$readapt_NUTS(500)                                    # re-tune NUTS step size 
 
 # run several chains in parallel for cross-chain R-hat / ESS
 runs &lt;- AI4BayesCode_run_chains(
-  function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE), n_chains = 4)</pre>
+  function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
+  n_chains = 4, n_burn = 5000, n_keep = 5000)</pre>
       </article>
 
       <article class="api__section" id="set_key">
@@ -266,8 +267,9 @@ Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
         <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed. Convergence companions: <code>AI4BayesCode_rhat_summary()</code> in R. In Python, <code>rhat()</code>, <code>ess_bulk()</code>, and <code>ess_tail()</code>.</p>
         <pre class="api__sig"># model_ctor builds a fresh sampler from a seed
 AI4BayesCode_run_chains(function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
-                        n_chains = 4, n_burn = 2000, n_keep = 10000)
-# Python: AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, seed=s, keep_history=True), n_chains=4)</pre>
+                        n_chains = 4, n_burn = 5000, n_keep = 5000)
+# Python: AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, seed=s, keep_history=True),
+#                                 seeds=range(4), n_burn=5000, n_keep=5000)</pre>
       </article>
 
     </main>
