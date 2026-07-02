@@ -69,6 +69,14 @@
         <li><a href="#example">example</a></li>
       </ul>
 
+      <div class="api__nav-group">Contributed blocks</div>
+      <ul>
+        <li><a href="#available_blocks">available_blocks</a></li>
+        <li><a href="#install_block">install_block</a></li>
+        <li><a href="#installed_blocks">installed_blocks</a></li>
+        <li><a href="#remove_block">remove_block</a></li>
+      </ul>
+
       <div class="api__nav-group">The generated sampler</div>
       <ul>
         <li><a href="#ctor">constructor</a></li>
@@ -171,7 +179,37 @@ Python  AI4BayesCode.doc(MyModel)</pre>
         <h3 id="example">ai4bayescode_example</h3>
         <p>Compile and load a bundled example by name, a one-line way to see a working sampler.</p>
         <pre class="api__sig">R       ai4bayescode_example("GaussianLocationScale")</pre>
-        <p>The remaining helpers list and report: <code>ai4bayescode_list_examples()</code>, <code>ai4bayescode_list_skills()</code>, and <code>ai4bayescode_version()</code>.</p>
+        <p>The remaining helpers list and report: <code>ai4bayescode_list_examples()</code>, <code>ai4bayescode_list_skills()</code>, <code>ai4bayescode_version()</code>, and <code>ai4bayescode_stream_check()</code> to confirm streaming works with your key.</p>
+      </article>
+
+      <article class="api__section" id="available_blocks">
+        <h2>Contributed blocks</h2>
+        <p>The core blocks ship with the package. Community blocks live in the hub registry and install on demand, the same way R installs a package from CRAN. Once a block is installed, its header is on the compile path and its skill is available to the generator, so you can use it like a built-in one. The Python module mirrors each name under <code>AI4BayesCode.</code>.</p>
+
+        <h3>ai4bayescode_available_blocks</h3>
+        <p>List the contributed blocks you can install from the hub registry, like <code>available.packages()</code>.</p>
+        <pre class="api__sig">R       ai4bayescode_available_blocks()
+Python  AI4BayesCode.available_blocks()</pre>
+
+        <h3 id="install_block">ai4bayescode_install_block</h3>
+        <p>Install a contributed block into your library, like <code>install.packages()</code>. It downloads a reviewed bundle from the hub and adds the block, with any vendored dependencies, to the compile path, so the next <code>ai4bayescode_source</code> or <code>ai4bayescode_generate</code> can use it. The registry is curated and pre-validated, so installing is a download and version check, not a compile.</p>
+        <pre class="api__sig">R       ai4bayescode_install_block("nngp_gaussian_gibbs_block")
+Python  AI4BayesCode.install_block("nngp_gaussian_gibbs_block")</pre>
+        <dl class="api__params">
+          <dt>name</dt>  <dd>The block name, as listed by <code>ai4bayescode_available_blocks()</code>.</dd>
+          <dt>force</dt> <dd>Reinstall even if it is already present. Off by default.</dd>
+          <dt>quiet</dt> <dd>Skip the progress messages and the install summary. Off by default.</dd>
+        </dl>
+
+        <h3 id="installed_blocks">ai4bayescode_installed_blocks</h3>
+        <p>List the contributed blocks already installed in your library, like <code>installed.packages()</code>.</p>
+        <pre class="api__sig">R       ai4bayescode_installed_blocks()
+Python  AI4BayesCode.installed_blocks()</pre>
+
+        <h3 id="remove_block">ai4bayescode_remove_block</h3>
+        <p>Remove an installed contributed block, like <code>remove.packages()</code>. The library folder itself is <code>ai4bayescode_blocks_path()</code>.</p>
+        <pre class="api__sig">R       ai4bayescode_remove_block("nngp_gaussian_gibbs_block")
+Python  AI4BayesCode.remove_block("nngp_gaussian_gibbs_block")</pre>
       </article>
 
       <article class="api__section" id="ctor">
