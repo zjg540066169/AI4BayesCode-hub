@@ -158,13 +158,14 @@ y   &lt;- as.integer(eta + rnorm(n) &gt; 0)   <span class="c"># 1 if the latent 
 
     <p class="tut-step">Step 4 &middot; Compose the two blocks with set / get</p>
     <p class="tut-say">Now build both blocks and run one chain that alternates between them. The probit wrapper takes the outcome, an initial mean <code>mu</code> we start at 0, and the usual seed and history flag. VC-BART takes its <code>doc()</code> arguments in order: the data, <code>sigma</code> fixed at 1 for the probit link, then the standard BART settings. On each iteration, the wrapper draws the latent variable <code>z</code> from VC-BART's current fit, then VC-BART fits <code>z</code>. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
-    <pre class="tut-code">pr &lt;- new(Probit, y, rep(0, n), 1L, FALSE)   <span class="c"># y, initial mean mu = 0, rng_seed, keep_history</span>
+    <pre class="tut-code">pr &lt;- new(Probit, y, rep(0, n), 1L, TRUE)   <span class="c"># y, initial mean mu = 0, rng_seed, keep_history = TRUE</span>
 vc &lt;- new(VCBART,
           X, Z, pr$get_current()$z, 1,   <span class="c"># X, Z, y (= latent z), sigma (fixed at 1 for probit)</span>
-          200L, 2, 2, 0.95, 100L, 1L)    <span class="c"># ntrees, k, power, base, numcut, rng_seed (demo defaults)</span>
+          200L, 2, 2, 0.95, 100L, 1L,    <span class="c"># ntrees, k, power, base, numcut, rng_seed (demo defaults)</span>
+          FALSE, TRUE)                   <span class="c"># keep_tree, keep_history (keep history so we can diagnose)</span>
 
 for (t in 1:10000) {
-  pr$set_current(list(mu = vc$get_current()$fitted))  <span class="c"># VC-BART's fit -&gt; wrapper mean</span>
+  pr$set_current(list(mu = vc$get_current()$mu))      <span class="c"># VC-BART's fit -&gt; wrapper mean</span>
   pr$step()                                           <span class="c"># draw the latent variable z</span>
   vc$set_current(list(y = pr$get_current()$z))        <span class="c"># z -&gt; VC-BART response</span>
   vc$step()                                           <span class="c"># update VC-BART, keep its ensemble</span>
@@ -173,7 +174,7 @@ for (t in 1:10000) {
 
     <p class="tut-step">Step 5 &middot; Check it and use it</p>
     <p class="tut-say">Once composed, it is just another stateful sampler. Check convergence, and predict at new predictors and modifiers. To run several independent chains for cross-chain diagnostics, wrap the two-block setup in a function of a seed and pass it to <code>run_chains</code>.</p>
-    <pre class="tut-code">ai4b_diagnose(vc$get_history())            <span class="c"># R-hat, ESS, trace, ACF, density</span>
+    <pre class="tut-code">ai4bayescode_diagnose(vc$get_history())    <span class="c"># R-hat, ESS, trace, ACF, density</span>
 pr_hat &lt;- vc$predict_at(list(X = X_new, Z = Z_new))   <span class="c"># fitted score at new inputs</span></pre>
 
     <div class="tut-prose">
