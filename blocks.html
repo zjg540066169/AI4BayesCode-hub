@@ -609,12 +609,14 @@ my_block/
   function installHTML(name){
     return '<div class="bc-install"><h4>Install this block</h4>'
       + '<div class="bc-way"><p class="bc-way-label">R / Python package</p>'
-      + '<pre class="code-block"><span class="com"># downloads the bundle from the hub and installs it locally</span>\n'
+      + '<pre class="code-block"><span class="com"># downloads from the hub registry into the fixed store ~/.AI4BayesCode/blocks_download/</span>\n'
       + '<span class="fn">ai4bayescode_install_block</span>(<span class="lit">"' + esc(name) + '"</span>)   <span class="com"># R</span>\n'
       + '<span class="ty">AI4BayesCode</span>.<span class="fn">install_block</span>(<span class="lit">"' + esc(name) + '"</span>)   <span class="com"># Python</span></pre></div>'
       + '<div class="bc-way"><p class="bc-way-label">Coding agent</p>'
       + '<pre class="code-block"><span class="com"># in Claude Code / Codex / any coding agent with the skill:</span>\n'
-      + 'Install the ' + esc(name) + ' block from the AI4BayesCode hub.</pre></div>'
+      + 'Install the ' + esc(name) + ' block from the AI4BayesCode hub registry\n'
+      + 'at https://github.com/' + OWNER + '/' + HUBREPO + '/tree/main/registry\n'
+      + 'into the fixed block library ~/.AI4BayesCode/blocks_download/.</pre></div>'
       + '<div class="bc-way"><p class="bc-way-label">Download</p>'
       + '<p style="margin-top:0;"><a class="accent" href="https://github.com/' + OWNER + '/' + HUBREPO
       + '/tree/main/registry/' + esc(name) + '" target="_blank" rel="noopener">Browse the bundle</a> on GitHub.</p></div></div>';

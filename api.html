@@ -193,7 +193,7 @@ Python  AI4BayesCode.doc(MyModel)</pre>
 Python  AI4BayesCode.available_blocks()</pre>
 
         <h3 id="install_block">ai4bayescode_install_block</h3>
-        <p>Install a contributed block into your library, like <code>install.packages()</code>. It downloads a reviewed bundle from the hub and adds the block, with any vendored dependencies, to the compile path, so the next <code>ai4bayescode_source</code> or <code>ai4bayescode_generate</code> can use it. The registry is curated and pre-validated, so installing is a download and version check, not a compile.</p>
+        <p>Install a contributed block into your library, like <code>install.packages()</code>. It downloads a reviewed bundle from the <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode-hub/tree/main/registry" target="_blank" rel="noopener">hub registry</a> into a fixed per-user library at <code>~/.AI4BayesCode/blocks_download/</code>, shared across R, Python, and C++, and adds the block, with any vendored dependencies, to the compile path, so the next <code>ai4bayescode_source</code> or <code>ai4bayescode_generate</code> can use it. The registry is curated and pre-validated, so installing is a download and version check, not a compile.</p>
         <pre class="api__sig">R       ai4bayescode_install_block("nngp_gaussian_gibbs_block")
 Python  AI4BayesCode.install_block("nngp_gaussian_gibbs_block")</pre>
         <dl class="api__params">
