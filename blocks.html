@@ -628,7 +628,7 @@ my_block/
       return { intro: b.ExampleIntro || '', r: null, fetch: b.name };  // R fetched from the bundle
     }
     if (!b.example_r) return null;
-    return { intro: b.example_intro || '', r: b.example_r, fetch: null };
+    return { intro: b.example_intro || '', r: b.example_r, py: b.example_py || null, fetch: null };
   }
 
   function openModal(b, kind){
@@ -672,9 +672,19 @@ my_block/
     var ed = exampleData(b, contrib);
     if (ed) {
       h += '<div class="bex"><h4>Example</h4>'
-        + (ed.intro ? '<p class="bex-intro">' + esc(ed.intro) + '</p>' : '')
-        + '<div class="bex-lang">R, runnable</div>'
-        + '<pre class="code-block" id="bex-r">' + (ed.r ? esc(ed.r) : 'Loading the example...') + '</pre></div>';
+        + (ed.intro ? '<p class="bex-intro">' + esc(ed.intro) + '</p>' : '');
+      if (ed.py) {
+        h += '<div class="lang-toggle bex-toggle" data-bex-toggle>'
+           + '<button type="button" class="lang-btn is-active" data-lang="r">R</button>'
+           + '<button type="button" class="lang-btn" data-lang="py">Python</button>'
+           + '</div>'
+           + '<pre class="code-block" data-lang="r" id="bex-r">' + esc(ed.r) + '</pre>'
+           + '<pre class="code-block is-hidden" data-lang="py" id="bex-py">' + esc(ed.py) + '</pre>';
+      } else {
+        h += '<div class="bex-lang">R, runnable</div>'
+           + '<pre class="code-block" id="bex-r">' + (ed.r ? esc(ed.r) : 'Loading the example...') + '</pre>';
+      }
+      h += '</div>';
     }
 
     if (contrib) h += installHTML(b.name);
@@ -698,6 +708,18 @@ my_block/
           .catch(function () { pre.textContent = 'Could not load ' + file + ' here. Browse it on GitHub.'; });
       });
     });
+
+    var bexToggle = body.querySelector('[data-bex-toggle]');
+    if (bexToggle) {
+      bexToggle.addEventListener('click', function (e) {
+        var btn = e.target.closest('.lang-btn'); if (!btn) return;
+        var lang = btn.getAttribute('data-lang');
+        bexToggle.querySelectorAll('.lang-btn').forEach(function (x) { x.classList.toggle('is-active', x === btn); });
+        body.querySelectorAll('.bex pre[data-lang]').forEach(function (p) {
+          p.classList.toggle('is-hidden', p.getAttribute('data-lang') !== lang);
+        });
+      });
+    }
   }
 
   function mini(b, kind){

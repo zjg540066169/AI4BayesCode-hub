@@ -428,6 +428,10 @@ a.hero__meta-item:hover strong {
 /* Per-example code toggle: fixed colors per language, not per example. */
 .example__codehead .lang-btn.is-active[data-lang="r"]  { background: rgb(var(--c-prob)); border-color: rgb(var(--c-prob)); }
 .example__codehead .lang-btn.is-active[data-lang="py"] { background: rgb(var(--c-semi)); border-color: rgb(var(--c-semi)); }
+/* Block-modal example toggle: same fixed per-language colors. */
+.bex-toggle { margin: .2rem 0 .55rem; }
+.bex .lang-btn.is-active[data-lang="r"]  { background: rgb(var(--c-prob)); border-color: rgb(var(--c-prob)); }
+.bex .lang-btn.is-active[data-lang="py"] { background: rgb(var(--c-semi)); border-color: rgb(var(--c-semi)); }
 
 /* ----- install ----- */
 .install {
