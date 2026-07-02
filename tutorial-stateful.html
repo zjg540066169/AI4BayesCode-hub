@@ -81,7 +81,7 @@
       <p>VC-BART is a varying-coefficient model. Instead of one fixed effect per predictor, each effect is allowed to change with some modifiers \(Z\), and each of those changing effects is learned by its own BART ensemble. For a continuous outcome it models</p>
       <p>\[ y_i \;=\; \beta_0(Z_i) + \sum_{j=1}^{p} \beta_j(Z_i)\, x_{ij} + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0,\, \sigma^2), \]</p>
       <p>where each coefficient function \(\beta_j(Z)\) is its own BART ensemble in the modifiers \(Z\). It is built for that continuous outcome, and has no publicly available implementation for a binary outcome.</p>
-      <p>We will build one by composition. Introduce a latent variable behind each binary outcome, with the outcome equal to 1 when the latent variable is positive and 0 otherwise, and let VC-BART model that latent variable. A probit model fixes the latent variable's residual variance at 1, since binary data cannot identify its scale, so here VC-BART uses a unit residual variance rather than a free one. The plan: generate that VC-BART sampler, generate a small probit wrapper for the latent variable, and compose the two through the stateful interface. Here is the whole workflow.</p>
+      <p>We will build one by composition. Introduce a latent variable behind each binary outcome, with the outcome equal to 1 when the latent variable is positive and 0 otherwise, and let VC-BART model that latent variable. A probit model needs the latent variable's residual variance fixed at 1, since binary data cannot identify its scale. So we generate VC-BART with its residual scale <code>sigma</code> as an input rather than a sampled parameter, a value another block supplies through <code>set_current</code>. For a binary outcome we hold <code>sigma</code> at 1. The same VC-BART also serves a continuous outcome, where you instead pair it with a small block that samples <code>sigma</code> and passes it in. One VC-BART, two models. The plan: generate that VC-BART, generate a probit wrapper for the latent variable, and compose the two through the stateful interface.</p>
     </div>
 
     <p class="tut-step">Before you start</p>
@@ -90,10 +90,10 @@
 ai4bayescode_set_key("sk-ant-...")   <span class="c"># replace with your own Anthropic or OpenAI key</span></pre>
 
     <p class="tut-step">Step 1 &middot; Generate the continuous VC-BART sampler</p>
-    <p class="tut-say">You describe the model in plain words, with the residual variance fixed at 1 so the probit model will be identified. <code>generate()</code> parses it, assigns each part to a built-in sampler, writes a C++ sampler, and validates it. <code>source()</code> compiles and loads that sampler, so the <code>VCBART</code> class is then ready to build.</p>
+    <p class="tut-say">You describe the model in plain words. The one twist is that <code>sigma</code>, the residual scale, is supplied from outside rather than sampled, so another block can set it. <code>generate()</code> parses it, assigns each part to a built-in sampler, writes a C++ sampler, and validates it. <code>source()</code> compiles and loads that sampler, so the <code>VCBART</code> class is then ready to build.</p>
     <pre class="tut-code">ai4bayescode_generate(
-  "varying-coefficient regression, y ~ N(sum_j beta_j(Z) * x_j, 1),
-   residual variance fixed at 1 (needed to identify the probit model below),
+  "varying-coefficient regression, y ~ N(sum_j beta_j(Z) * x_j, sigma^2),
+   with sigma supplied as an input, set from outside on each iteration,
    each coefficient beta_j(Z) is a BART ensemble in the modifiers Z",
   classname = "VCBART")
 ai4bayescode_source("./generated/VCBART.cpp")</pre>
@@ -117,6 +117,7 @@ y &lt;- rbinom(n, 1, 0.5)           <span class="c"># your 0/1 outcome</span></p
     <p class="tut-say">Now build both blocks and run one chain that alternates between them. On each iteration, the wrapper draws the latent variable <code>z</code> from VC-BART's current fit, then VC-BART fits <code>z</code>. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
     <pre class="tut-code">pr &lt;- new(Probit, y)                            <span class="c"># the probit wrapper, holding y</span>
 vc &lt;- new(VCBART, y = pr$get_current()$z, X, Z)  <span class="c"># VC-BART on the latent variable z</span>
+vc$set_current(list(sigma = 1))                  <span class="c"># probit: hold the latent scale at 1</span>
 
 for (t in 1:10000) {
   pr$set_current(list(mu = vc$get_current()$fitted))  <span class="c"># VC-BART's fit -&gt; wrapper mean</span>
