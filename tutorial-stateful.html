@@ -99,12 +99,13 @@ ai4bayescode_set_key("sk-ant-...")   <span class="c"># replace with your own Ant
 ai4bayescode_source("./generated/VCBART.cpp")</pre>
 
     <p class="tut-step">Step 2 &middot; Generate the probit wrapper</p>
-    <p class="tut-say">The wrapper is small. It only states how the latent variable relates to the binary outcome, and that its mean is supplied by another block. Same two calls.</p>
+    <p class="tut-say">The wrapper is small. It only states how the latent variable relates to the binary outcome, and that its mean is supplied by another block. Generate it, compile it, and print its constructor the same way as VC-BART.</p>
     <pre class="tut-code">ai4bayescode_generate(
   "probit data augmentation, y_i = 1 if z_i > 0 else 0,
    z_i ~ N(mu_i, 1) with the mean mu_i an exposed mean vector inputted from other blocks",
   classname = "Probit")
-ai4bayescode_source("./generated/Probit.cpp")</pre>
+ai4bayescode_source("./generated/Probit.cpp")
+ai4bayescode_doc("./generated/Probit.cpp")   <span class="c"># print the class and its constructor</span></pre>
 
     <p class="tut-step">Step 3 &middot; Prepare your data</p>
     <p class="tut-say">You need three things: the binary outcome <code>y</code>, the predictors <code>X</code>, and the modifiers <code>Z</code> that the coefficients vary with. Plug in your own data, or simulate a set. Here we simulate one where each effect genuinely varies with <code>Z</code> and the outcome comes through a probit link, so the fitted model has something real to recover.</p>
