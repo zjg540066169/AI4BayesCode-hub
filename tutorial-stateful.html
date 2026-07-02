@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>What &ldquo;stateful&rdquo; means · AI4BayesCode</title>
-  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode: why stateful blocks keep their internal state and compose into one sampler, using a latent-outcome classification model as the example." />
+  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode: why stateful blocks keep their internal state, compose through a shared pool, and run together as one sampler, using a latent-outcome classification model as the example." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,6 +14,7 @@
     .tut-prose { max-width: 44rem; }
     .tut-prose h2 { margin-top: 2.75rem; }
     .tut-prose p { font-family: 'Lora', Georgia, serif; font-size: 1.08rem; line-height: 1.65; color: rgb(var(--ink-soft)); margin: 1rem 0 0; }
+    .tut-prose code { font-family: 'IBM Plex Mono', monospace; }
     .tut-fig { max-width: 52rem; margin: 2rem 0 0; padding: 1.5rem 1.25rem 1rem; background: rgb(var(--panel)); border: 1px solid rgb(var(--rule)); border-radius: 14px; }
     .tut-fig figcaption { font-size: .9rem; line-height: 1.5; color: rgb(var(--ink-faint)); margin-top: 1rem; }
     .tut-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; font-family: 'Inter',sans-serif; font-size: .8rem; color: rgb(var(--ink-soft)); margin-top: .5rem; }
@@ -61,8 +62,8 @@
 
     <div class="tut-prose">
       <h2 style="margin-top:0;">The idea</h2>
-      <p>A sampler in AI4BayesCode is built from blocks, and every block is stateful. That means each block remembers where it is between iterations. On each sweep a block takes in the latest values it depends on from the other blocks, advances one step, and hands its updated state back for the next block to use.</p>
-      <p>Because a block never throws away what it has already learned, blocks written separately, even by different people, slot together into one chain that just keeps running. The same small interface, take in and step and hand back, is shared by every block, from a one-line conjugate update to a full tree ensemble.</p>
+      <p>A normal sampler assumes the things it conditions on stay fixed. Inside a larger model that is no longer true. The quantities a block depends on are themselves being updated by other blocks, sweep after sweep. A block that is not built for this has to throw away its current state and reinitialize for the changed target every single time.</p>
+      <p>A stateful block does not. On each sweep it takes in the updated quantities from the other blocks, advances one step from where it is, and hands its new state back for the others to use. It never reinitializes, so it keeps everything it has already learned. Those three moves are the whole interface every block shares: <code>set_current</code> takes in the updates, <code>step</code> advances the chain, and <code>get_current</code> hands the state back. A block can also record its full trajectory with <code>get_history</code>.</p>
 
       <h2>An example: classification with a hidden score</h2>
       <p>Suppose you want to predict a yes or no outcome from some features, with a flexible model for how the chance of a yes depends on them. A classic way to do this is to imagine a hidden continuous score behind each outcome. The outcome is yes when the score is positive and no when it is negative, and a regression models that hidden score instead of the raw 0 or 1.</p>
@@ -109,24 +110,55 @@
 
     <div class="tut-prose">
       <h2>Why stateful matters here</h2>
-      <p>Notice that the regression's response, the hidden scores, changes every sweep. A block that is not stateful would have to start over each time, because its input moved, and starting over throws away the block's internal state. If the regression is a tree ensemble like BART, that state is the current forest, and the whole method works by nudging one tree at a time while holding the others fixed. Discard the forest and that incremental update is gone.</p>
-      <p>A stateful block avoids this. It takes in the freshly drawn scores, keeps its forest, and takes one more step from where it was. Take in, step, hand back, every sweep. The classification model and the regression inside it run as one coherent chain instead of a stack of restarts.</p>
+      <p>Notice that the regression's response, the hidden scores, changes every sweep. A block that is not stateful would have to start over each time, and starting over throws away the block's internal state. If the regression is a tree ensemble like BART, that state is the current forest, and the whole method works by nudging one tree at a time while holding the others fixed. Discard the forest and that incremental update is gone.</p>
+      <p>A stateful block avoids this. It takes in the freshly drawn scores, keeps its forest, and takes one more step from where it was. The classification model and the regression inside it run as one coherent chain instead of a stack of restarts.</p>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1.5rem;max-width:52rem;">
       <div style="padding:1.1rem 1.25rem;border:1px solid rgb(var(--rule));border-radius:12px;background:rgb(var(--panel));">
         <div style="font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--ink-faint));font-weight:600;margin-bottom:.5rem;">Without statefulness</div>
-        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The regression block restarts every sweep because its response changed. Restarting throws away its internal state. A tree ensemble loses its forest and can no longer make its incremental, tree-by-tree updates.</p>
+        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block reinitializes every sweep because its inputs changed, throwing away its internal state. A tree ensemble loses its forest and can no longer make its incremental, tree-by-tree updates.</p>
       </div>
       <div style="padding:1.1rem 1.25rem;border:1px solid rgb(var(--accent) / .5);border-radius:12px;background:rgb(var(--accent) / .05);">
         <div style="font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--accent));font-weight:600;margin-bottom:.5rem;">With statefulness</div>
-        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block takes in the updated response, keeps its forest, and steps once more from where it was. Nothing is discarded, so the composed model runs as one coherent chain.</p>
+        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block takes in the updated inputs, keeps its forest, and steps once more from where it was. Nothing is discarded, so the composed model runs as one coherent chain.</p>
       </div>
     </div>
 
     <div class="tut-prose">
+      <h2>How blocks compose</h2>
+      <p>Real models stack blocks. A sampler can hold several blocks, and a block can itself hold smaller blocks, so one step of the whole sampler cascades down to each piece. The tricky part is keeping everyone in sync without wiring every block to every other one.</p>
+      <p>AI4BayesCode handles this with a shared pool. The pool holds the current value of every quantity in the model. Before a block updates, it reads what it needs from the pool. After it updates, it writes its new state back. Blocks never talk to each other directly, so a block written on its own drops into a larger model unchanged and the information still flows correctly.</p>
+    </div>
+
+    <figure class="tut-fig">
+      <svg viewBox="0 0 820 275" role="img" aria-label="Diagram of sampling blocks reading from and writing to a shared pool" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
+        <defs>
+          <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#8b88a6"/>
+          </marker>
+        </defs>
+        <text x="405" y="30" text-anchor="middle" font-size="12.5" fill="#7a788e">read &middot; write</text>
+        <g stroke="#8b88a6" stroke-width="1.5" fill="none" marker-start="url(#ah3)" marker-end="url(#ah3)">
+          <path d="M256 95 H554"/>
+          <path d="M256 150 H554"/>
+          <path d="M256 205 H554"/>
+        </g>
+        <rect x="50" y="70" width="200" height="170" rx="14" fill="#ecebf8" stroke="#4e4ea8" stroke-width="2"/>
+        <text x="150" y="151" text-anchor="middle" font-size="15" fill="#141226">shared pool</text>
+        <text x="150" y="173" text-anchor="middle" font-size="12" fill="#5f5e72">current values</text>
+        <g font-size="13.5" fill="#141226" text-anchor="middle">
+          <rect x="560" y="73" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="100">NUTS block</text>
+          <rect x="560" y="128" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="155">Gibbs block</text>
+          <rect x="560" y="183" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="210">BART block</text>
+        </g>
+      </svg>
+      <figcaption>Blocks stay in sync through a shared pool. Each block reads the current values it needs, updates, and writes its result back. Nothing is wired block to block, so independently built blocks compose into one sampler.</figcaption>
+    </figure>
+
+    <div class="tut-prose">
       <h2>Using the fitted sampler</h2>
-      <p>Because every block shares the same interface, the whole model is just another stateful sampler. You run several chains and check convergence the usual way, with <code>run_chains</code> and <code>ai4b_diagnose</code>, and you predict at new features with <code>predict_at</code>, which follows the model graph to return the chance of a yes and simulated outcomes. Nothing special is needed for the block inside. It composes like any other.</p>
+      <p>Because every block shares the same interface, the whole model is just another stateful sampler. Run several chains and check convergence the usual way with <code>run_chains</code> and <code>ai4b_diagnose</code>. To predict, <code>predict_at</code> follows the model graph: give it new covariates and it predicts the downstream quantities, or give it nothing and it does unconditional prediction such as density estimation. When the full trajectory was kept it predicts across the whole posterior, otherwise from the current draw.</p>
     </div>
 
     <p style="max-width:44rem;margin-top:2.5rem;">
