@@ -107,11 +107,16 @@ ai4bayescode_source("./generated/VCBART.cpp")</pre>
 ai4bayescode_source("./generated/Probit.cpp")</pre>
 
     <p class="tut-step">Step 3 &middot; Prepare your data</p>
-    <p class="tut-say">You need three things: the binary outcome <code>y</code>, the predictors <code>X</code>, and the modifiers <code>Z</code> that the coefficients vary with. Plug in your own data, or make a small synthetic set to try the workflow.</p>
+    <p class="tut-say">You need three things: the binary outcome <code>y</code>, the predictors <code>X</code>, and the modifiers <code>Z</code> that the coefficients vary with. Plug in your own data, or simulate a set. Here we simulate one where each effect genuinely varies with <code>Z</code> and the outcome comes through a probit link, so the fitted model has something real to recover.</p>
     <pre class="tut-code">n &lt;- 500; p &lt;- 5; r &lt;- 2
 X &lt;- matrix(rnorm(n * p), n, p)   <span class="c"># predictors</span>
 Z &lt;- matrix(runif(n * r), n, r)   <span class="c"># modifiers the effects vary with</span>
-y &lt;- rbinom(n, 1, 0.5)           <span class="c"># your 0/1 outcome</span></pre>
+
+<span class="c"># a varying-coefficient probit outcome: each effect changes with Z</span>
+b0  &lt;- 0.5 * sin(2 * pi * Z[, 1])   <span class="c"># intercept beta_0(Z)</span>
+b   &lt;- cbind(2 * Z[, 1] - 1, Z[, 2], Z[, 1] * Z[, 2], -0.5, cos(2 * pi * Z[, 2]))   <span class="c"># beta_1..5(Z)</span>
+eta &lt;- b0 + rowSums(b * X)   <span class="c"># linear predictor</span>
+y   &lt;- as.integer(eta + rnorm(n) &gt; 0)   <span class="c"># 1 if the latent variable &gt; 0</span></pre>
 
     <p class="tut-step">Step 4 &middot; Compose the two blocks with set / get</p>
     <p class="tut-say">Now build both blocks and run one chain that alternates between them. The probit wrapper takes the outcome and an initial mean <code>mu</code>, which we start at 0. VC-BART takes its <code>doc()</code> arguments in order: the data, <code>sigma</code> fixed at 1 for the probit link, then the standard BART settings. On each iteration, the wrapper draws the latent variable <code>z</code> from VC-BART's current fit, then VC-BART fits <code>z</code>. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
