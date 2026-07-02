@@ -70,48 +70,6 @@
       <p>You can build one anyway, by composition. Put a hidden continuous score behind each binary outcome, a yes when the score is positive, and let the continuous VC-BART model explain that score. In AI4BayesCode you describe the continuous VC-BART model and generate it, then generate a small probit wrapper that adds the hidden-score layer, and drop the two pieces together. They run as one MCMC, and you have a binary-outcome VC-BART without writing a new sampler from scratch.</p>
     </div>
 
-    <figure class="tut-fig">
-      <svg viewBox="0 0 940 210" role="img" aria-label="Directed graph of the binary VC-BART model" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
-        <defs>
-          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="#8b88a6"/>
-          </marker>
-        </defs>
-        <g stroke="#8b88a6" stroke-width="1.5" fill="none" marker-end="url(#ah)">
-          <path d="M184 76 L246 112"/>
-          <path d="M184 164 L246 134"/>
-          <path d="M337 70 V96"/>
-          <path d="M424 123 H486"/>
-          <path d="M650 123 H714"/>
-        </g>
-        <g font-size="13.5" fill="#141226" text-anchor="middle">
-          <rect x="32" y="54" width="150" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="107" y="79">predictors</text>
-
-          <rect x="32" y="146" width="150" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="107" y="171">modifiers</text>
-
-          <rect x="248" y="28" width="178" height="40" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
-          <text x="337" y="53">coefficient ensembles</text>
-
-          <rect x="250" y="100" width="174" height="46" rx="10" fill="#ecebf8" stroke="#4e4ea8" stroke-width="2"/>
-          <text x="337" y="128">VC-BART block</text>
-
-          <rect x="490" y="101" width="160" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
-          <text x="570" y="128">hidden score</text>
-
-          <rect x="718" y="101" width="184" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="810" y="128">binary outcome</text>
-        </g>
-      </svg>
-      <div class="tut-legend">
-        <span><i style="background:#eeebf6;border:1px solid #cdc7e0;"></i> observed</span>
-        <span><i style="background:#fdfcff;border:1px solid #cdc7e0;"></i> latent or parameter</span>
-        <span><i style="background:#ecebf8;border:1px solid #4e4ea8;"></i> the composed block</span>
-      </div>
-      <figcaption>How binary VC-BART is wired. The varying-coefficient model lets each predictor's effect change with the modifiers, learned as tree ensembles. Here it explains a hidden score, and the observed outcome is a yes when that score is positive.</figcaption>
-    </figure>
-
     <div class="tut-prose">
       <h2>Why stateful matters here</h2>
       <p>Every sweep, the probit wrapper draws a fresh hidden score for each observation and hands those scores to the VC-BART block as its response. The VC-BART block's internal state is its coefficient ensembles, the forests it has grown so far, and the method works by nudging one tree at a time while holding the rest fixed. A block that is not stateful would rebuild those forests from scratch every sweep, because its response just changed, and that incremental update would be gone.</p>
@@ -162,7 +120,7 @@
 
     <div class="tut-prose">
       <h2>Using the fitted sampler</h2>
-      <p>Because every block shares the same interface, the whole model is just another stateful sampler. Run several chains and check convergence the usual way with <code>run_chains</code> and <code>ai4b_diagnose</code>. To predict, <code>predict_at</code> follows the model graph: give it new predictors and modifiers and it predicts the chance of a yes, or give it nothing and it does unconditional prediction such as density estimation. When the full trajectory was kept it predicts across the whole posterior, otherwise from the current draw.</p>
+      <p>Because every block shares the same interface, the whole model is just another stateful sampler. You run several chains and check convergence the usual way with <code>run_chains</code> and <code>ai4b_diagnose</code>, and predict at new predictors and modifiers with <code>predict_at</code>. Nothing special is needed for the composed pieces inside.</p>
     </div>
 
     <p style="max-width:44rem;margin-top:2.5rem;">
