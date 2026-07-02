@@ -10,11 +10,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
   <style>
     .tut-prose { max-width: 44rem; }
     .tut-prose h2 { margin-top: 2.75rem; }
     .tut-prose p { font-family: 'Lora', Georgia, serif; font-size: 1.08rem; line-height: 1.65; color: rgb(var(--ink-soft)); margin: 1rem 0 0; }
     .tut-prose code { font-family: 'IBM Plex Mono', monospace; }
+    .tut-prose .katex-display { text-align: left; margin: .9rem 0 .2rem; }
+    .tut-prose .katex { font-size: 1.02em; }
     .tut-fig { max-width: 52rem; margin: 2rem 0 0; padding: 1.5rem 1.25rem 1rem; background: rgb(var(--panel)); border: 1px solid rgb(var(--rule)); border-radius: 14px; }
     .tut-fig figcaption { font-size: .9rem; line-height: 1.5; color: rgb(var(--ink-faint)); margin-top: 1rem; }
     .tut-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; font-family: 'Inter',sans-serif; font-size: .8rem; color: rgb(var(--ink-soft)); margin-top: .5rem; }
@@ -62,8 +68,12 @@
 
     <div class="tut-prose">
       <h2 style="margin-top:0;">The idea</h2>
-      <p>A normal sampler assumes the things it conditions on stay fixed. Inside a larger model that is no longer true. The quantities a block depends on are themselves being updated by other blocks, sweep after sweep. A block that is not built for this has to throw away its current state and reinitialize for the changed target every single time.</p>
-      <p>A stateful block does not. On each sweep it takes in the updated quantities from the other blocks, advances one step from where it is, and hands its new state back for the others to use. It never reinitializes, so it keeps everything it has already learned. Those three moves are the whole interface every block shares: <code>set_current</code> takes in the updates, <code>step</code> advances the chain, and <code>get_current</code> hands the state back. A block can also record its full trajectory with <code>get_history</code>.</p>
+      <p>Write \(\Theta\) for a block's own parameters and \(\mathcal{D}\) for the quantities it conditions on, the ones supplied by the other blocks. A normal sampler treats \(\mathcal{D}\) as fixed and simply advances its own state from one sweep \(t\) to the next:</p>
+      <p>\[ (\Theta^{(t)},\, \mathcal{D}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}). \]</p>
+      <p>Inside a larger model that no longer holds, because the other blocks update \(\mathcal{D}\) every sweep. A sampler built this way has to discard \(\Theta\) and reinitialize for the changed target each time.</p>
+      <p>A stateful block instead takes the update to \(\mathcal{D}\) while keeping its own state, and only then advances:</p>
+      <p>\[ (\Theta^{(t)},\, \mathcal{D}^{(t)}) \;\longrightarrow\; (\Theta^{(t)},\, \mathcal{D}^{(t+1)}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}^{(t+1)}). \]</p>
+      <p>The two arrows are exactly the interface every block shares. <code>set_current</code> takes in the updated \(\mathcal{D}^{(t+1)}\), <code>step</code> advances \(\Theta^{(t)}\) to \(\Theta^{(t+1)}\) given it, and <code>get_current</code> hands the new state on to the other blocks. A block can also record its full trajectory with <code>get_history</code>. Because it never reinitializes, it keeps everything it has already learned.</p>
 
       <h2>An example: a binary model with no implementation</h2>
       <p>Say your outcome is yes or no, and you want a flexible model where the effect of each predictor can change with other variables. That is a varying-coefficient model: instead of one fixed effect per predictor, each effect is a function of some modifiers, so how strongly one factor matters can shift with, say, age. VC-BART is a well-tested Bayesian method that learns each of those changing effects with its own tree ensemble. It is built for a continuous outcome, and there is no ready-made version for a yes-or-no one.</p>
