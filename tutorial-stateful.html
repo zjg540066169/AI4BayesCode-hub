@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>What &ldquo;stateful&rdquo; means · AI4BayesCode</title>
-  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode: why stateful blocks keep their internal state, compose through a shared pool, and run together as one sampler, using a latent-outcome classification model as the example." />
+  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode: why stateful blocks keep their internal state and compose into one sampler, shown by building a binary-outcome VC-BART from a continuous one and a probit wrapper." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -49,8 +49,8 @@
     <h1 class="hero__title" style="font-size:clamp(2.2rem,4.5vw,3.2rem);margin-bottom:1rem;">What &ldquo;stateful&rdquo; means.</h1>
     <p class="hero__lede">
       Statefulness is the idea that lets AI4BayesCode take blocks built separately and run them
-      together as one sampler. Here is what it means and why it matters, using a classification
-      model as the example.
+      together as one sampler. Here is what it means and why it matters, shown by turning a
+      continuous-outcome model into a binary one.
     </p>
   </section>
 </header>
@@ -65,39 +65,43 @@
       <p>A normal sampler assumes the things it conditions on stay fixed. Inside a larger model that is no longer true. The quantities a block depends on are themselves being updated by other blocks, sweep after sweep. A block that is not built for this has to throw away its current state and reinitialize for the changed target every single time.</p>
       <p>A stateful block does not. On each sweep it takes in the updated quantities from the other blocks, advances one step from where it is, and hands its new state back for the others to use. It never reinitializes, so it keeps everything it has already learned. Those three moves are the whole interface every block shares: <code>set_current</code> takes in the updates, <code>step</code> advances the chain, and <code>get_current</code> hands the state back. A block can also record its full trajectory with <code>get_history</code>.</p>
 
-      <h2>An example: classification with a hidden score</h2>
-      <p>Suppose you want to predict a yes or no outcome from some features, with a flexible model for how the chance of a yes depends on them. A classic way to do this is to imagine a hidden continuous score behind each outcome. The outcome is yes when the score is positive and no when it is negative, and a regression models that hidden score instead of the raw 0 or 1.</p>
-      <p>This turns an awkward yes-or-no problem into a clean regression on a continuous response. Any regression can model the hidden score, including a flexible one like BART. Each MCMC sweep does two things: given the current regression, it draws a fresh hidden score for every observation, then it updates the regression using those scores as its response.</p>
+      <h2>An example: a binary model with no implementation</h2>
+      <p>Say your outcome is yes or no, and you want a flexible model where the effect of each predictor can change with other variables. That is a varying-coefficient model: instead of one fixed effect per predictor, each effect is a function of some modifiers, so how strongly one factor matters can shift with, say, age. VC-BART is a well-tested Bayesian method that learns each of those changing effects with its own tree ensemble. It is built for a continuous outcome, and there is no ready-made version for a yes-or-no one.</p>
+      <p>You can build one anyway, by composition. Put a hidden continuous score behind each binary outcome, a yes when the score is positive, and let the continuous VC-BART model explain that score. In AI4BayesCode you describe the continuous VC-BART model and generate it, then generate a small probit wrapper that adds the hidden-score layer, and drop the two pieces together. They run as one MCMC, and you have a binary-outcome VC-BART without writing a new sampler from scratch.</p>
     </div>
 
     <figure class="tut-fig">
-      <svg viewBox="0 0 900 200" role="img" aria-label="Directed graph of the latent-outcome classification model" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
+      <svg viewBox="0 0 940 210" role="img" aria-label="Directed graph of the binary VC-BART model" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
         <defs>
           <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0 0 L10 5 L0 10 z" fill="#8b88a6"/>
           </marker>
         </defs>
         <g stroke="#8b88a6" stroke-width="1.5" fill="none" marker-end="url(#ah)">
-          <path d="M202 112 H241"/>
-          <path d="M335 62 V86"/>
-          <path d="M427 112 H476"/>
-          <path d="M652 112 H696"/>
+          <path d="M184 76 L246 112"/>
+          <path d="M184 164 L246 134"/>
+          <path d="M337 70 V96"/>
+          <path d="M424 123 H486"/>
+          <path d="M650 123 H714"/>
         </g>
         <g font-size="13.5" fill="#141226" text-anchor="middle">
-          <rect x="32" y="90" width="170" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="117" y="116">features</text>
+          <rect x="32" y="54" width="150" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
+          <text x="107" y="79">predictors</text>
 
-          <rect x="250" y="22" width="170" height="40" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
-          <text x="335" y="46">regression params</text>
+          <rect x="32" y="146" width="150" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
+          <text x="107" y="171">modifiers</text>
 
-          <rect x="245" y="90" width="182" height="44" rx="10" fill="#ecebf8" stroke="#4e4ea8" stroke-width="2"/>
-          <text x="336" y="116">regression block</text>
+          <rect x="248" y="28" width="178" height="40" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
+          <text x="337" y="53">coefficient ensembles</text>
 
-          <rect x="480" y="90" width="172" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
-          <text x="566" y="116">hidden score</text>
+          <rect x="250" y="100" width="174" height="46" rx="10" fill="#ecebf8" stroke="#4e4ea8" stroke-width="2"/>
+          <text x="337" y="128">VC-BART block</text>
 
-          <rect x="700" y="90" width="176" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="788" y="116">observed outcome</text>
+          <rect x="490" y="101" width="160" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
+          <text x="570" y="128">hidden score</text>
+
+          <rect x="718" y="101" width="184" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
+          <text x="810" y="128">binary outcome</text>
         </g>
       </svg>
       <div class="tut-legend">
@@ -105,23 +109,23 @@
         <span><i style="background:#fdfcff;border:1px solid #cdc7e0;"></i> latent or parameter</span>
         <span><i style="background:#ecebf8;border:1px solid #4e4ea8;"></i> the composed block</span>
       </div>
-      <figcaption>How the model is wired. The regression block explains a hidden continuous score behind each observation. The observed outcome is a yes when that score is positive and a no when it is negative.</figcaption>
+      <figcaption>How binary VC-BART is wired. The varying-coefficient model lets each predictor's effect change with the modifiers, learned as tree ensembles. Here it explains a hidden score, and the observed outcome is a yes when that score is positive.</figcaption>
     </figure>
 
     <div class="tut-prose">
       <h2>Why stateful matters here</h2>
-      <p>Notice that the regression's response, the hidden scores, changes every sweep. A block that is not stateful would have to start over each time, and starting over throws away the block's internal state. If the regression is a tree ensemble like BART, that state is the current forest, and the whole method works by nudging one tree at a time while holding the others fixed. Discard the forest and that incremental update is gone.</p>
-      <p>A stateful block avoids this. It takes in the freshly drawn scores, keeps its forest, and takes one more step from where it was. The classification model and the regression inside it run as one coherent chain instead of a stack of restarts.</p>
+      <p>Every sweep, the probit wrapper draws a fresh hidden score for each observation and hands those scores to the VC-BART block as its response. The VC-BART block's internal state is its coefficient ensembles, the forests it has grown so far, and the method works by nudging one tree at a time while holding the rest fixed. A block that is not stateful would rebuild those forests from scratch every sweep, because its response just changed, and that incremental update would be gone.</p>
+      <p>A stateful block keeps them. It takes in the fresh scores, holds on to its forests, and takes one more step. The probit wrapper and the VC-BART block, generated separately, compose into a single coherent chain instead of a stack of restarts.</p>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1.5rem;max-width:52rem;">
       <div style="padding:1.1rem 1.25rem;border:1px solid rgb(var(--rule));border-radius:12px;background:rgb(var(--panel));">
         <div style="font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--ink-faint));font-weight:600;margin-bottom:.5rem;">Without statefulness</div>
-        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block reinitializes every sweep because its inputs changed, throwing away its internal state. A tree ensemble loses its forest and can no longer make its incremental, tree-by-tree updates.</p>
+        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The VC-BART block rebuilds its forests every sweep because its response changed, throwing away the ensembles it has grown. Its incremental, tree-by-tree updates cannot work.</p>
       </div>
       <div style="padding:1.1rem 1.25rem;border:1px solid rgb(var(--accent) / .5);border-radius:12px;background:rgb(var(--accent) / .05);">
         <div style="font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--accent));font-weight:600;margin-bottom:.5rem;">With statefulness</div>
-        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block takes in the updated inputs, keeps its forest, and steps once more from where it was. Nothing is discarded, so the composed model runs as one coherent chain.</p>
+        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block takes in the fresh scores, keeps its forests, and steps once more. Two separately generated pieces, the probit wrapper and VC-BART, run as one coherent chain.</p>
       </div>
     </div>
 
@@ -148,17 +152,17 @@
         <text x="150" y="151" text-anchor="middle" font-size="15" fill="#141226">shared pool</text>
         <text x="150" y="173" text-anchor="middle" font-size="12" fill="#5f5e72">current values</text>
         <g font-size="13.5" fill="#141226" text-anchor="middle">
-          <rect x="560" y="73" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="100">NUTS block</text>
-          <rect x="560" y="128" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="155">Gibbs block</text>
-          <rect x="560" y="183" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="210">BART block</text>
+          <rect x="560" y="73" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="100">probit wrapper</text>
+          <rect x="560" y="128" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="155">VC-BART block</text>
+          <rect x="560" y="183" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="210">other blocks</text>
         </g>
       </svg>
-      <figcaption>Blocks stay in sync through a shared pool. Each block reads the current values it needs, updates, and writes its result back. Nothing is wired block to block, so independently built blocks compose into one sampler.</figcaption>
+      <figcaption>Blocks stay in sync through a shared pool. The probit wrapper writes the fresh hidden scores, the VC-BART block reads them and writes back its fit. Nothing is wired block to block, so independently built blocks compose into one sampler.</figcaption>
     </figure>
 
     <div class="tut-prose">
       <h2>Using the fitted sampler</h2>
-      <p>Because every block shares the same interface, the whole model is just another stateful sampler. Run several chains and check convergence the usual way with <code>run_chains</code> and <code>ai4b_diagnose</code>. To predict, <code>predict_at</code> follows the model graph: give it new covariates and it predicts the downstream quantities, or give it nothing and it does unconditional prediction such as density estimation. When the full trajectory was kept it predicts across the whole posterior, otherwise from the current draw.</p>
+      <p>Because every block shares the same interface, the whole model is just another stateful sampler. Run several chains and check convergence the usual way with <code>run_chains</code> and <code>ai4b_diagnose</code>. To predict, <code>predict_at</code> follows the model graph: give it new predictors and modifiers and it predicts the chance of a yes, or give it nothing and it does unconditional prediction such as density estimation. When the full trajectory was kept it predicts across the whole posterior, otherwise from the current draw.</p>
     </div>
 
     <p style="max-width:44rem;margin-top:2.5rem;">
