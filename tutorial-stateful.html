@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>What &ldquo;stateful&rdquo; means · AI4BayesCode</title>
-  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode: why stateful blocks keep their internal state and compose into one sampler, shown by building a binary-outcome VC-BART from a continuous one and a probit wrapper." />
+  <meta name="description" content="A complete, plain-language tutorial on statefulness in AI4BayesCode: what it means, and a full worked workflow that builds a binary-outcome VC-BART by composing a continuous VC-BART sampler with a probit wrapper through the stateful interface." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,11 +21,11 @@
     .tut-prose code { font-family: 'IBM Plex Mono', monospace; }
     .tut-prose .katex-display { text-align: left; margin: .9rem 0 .2rem; }
     .tut-prose .katex { font-size: 1.02em; }
-    .tut-fig { max-width: 52rem; margin: 2rem 0 0; padding: 1.5rem 1.25rem 1rem; background: rgb(var(--panel)); border: 1px solid rgb(var(--rule)); border-radius: 14px; }
-    .tut-fig figcaption { font-size: .9rem; line-height: 1.5; color: rgb(var(--ink-faint)); margin-top: 1rem; }
-    .tut-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; font-family: 'Inter',sans-serif; font-size: .8rem; color: rgb(var(--ink-soft)); margin-top: .5rem; }
-    .tut-legend span { display: inline-flex; align-items: center; gap: .4rem; }
-    .tut-legend i { width: .8rem; height: .8rem; border-radius: 3px; display: inline-block; }
+    .tut-step { max-width: 52rem; margin: 2.4rem 0 .2rem; font-family: 'Inter', sans-serif; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 600; color: rgb(var(--accent)); }
+    .tut-say { max-width: 46rem; margin: .5rem 0 0; font-family: 'Lora', Georgia, serif; font-size: 1.04rem; line-height: 1.6; color: rgb(var(--ink-soft)); }
+    .tut-say code { font-family: 'IBM Plex Mono', monospace; }
+    .tut-code { max-width: 52rem; margin: .7rem 0 0; background: rgb(var(--sunk)); border: 1px solid rgb(var(--rule)); border-radius: 12px; padding: 1.1rem 1.3rem; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: .84rem; line-height: 1.65; color: rgb(var(--ink)); white-space: pre; overflow-x: auto; }
+    .tut-code .c { color: rgb(var(--ink-faint)); font-style: italic; }
   </style>
 </head>
 <body>
@@ -55,8 +55,8 @@
     <h1 class="hero__title" style="font-size:clamp(2.2rem,4.5vw,3.2rem);margin-bottom:1rem;">What &ldquo;stateful&rdquo; means.</h1>
     <p class="hero__lede">
       Statefulness is the idea that lets AI4BayesCode take blocks built separately and run them
-      together as one sampler. Here is what it means and why it matters, shown by turning a
-      continuous-outcome model into a binary one.
+      together as one sampler. This walks through what it means, then builds a working example from
+      scratch: a binary-outcome VC-BART, made by composing two pieces.
     </p>
   </section>
 </header>
@@ -68,69 +68,68 @@
 
     <div class="tut-prose">
       <h2 style="margin-top:0;">The idea</h2>
-      <p>Write \(\Theta\) for a block's own parameters and \(\mathcal{D}\) for the quantities it conditions on, the ones supplied by the other blocks. A normal sampler treats \(\mathcal{D}\) as fixed and simply advances its own state from one sweep \(t\) to the next:</p>
-      <p>\[ (\Theta^{(t)},\, \mathcal{D}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}). \]</p>
-      <p>Inside a larger model that no longer holds, because the other blocks update \(\mathcal{D}\) every sweep. A sampler built this way has to discard \(\Theta\) and reinitialize for the changed target each time.</p>
-      <p>A stateful block instead takes the update to \(\mathcal{D}\) while keeping its own state, and only then advances:</p>
+      <p>A sampler in AI4BayesCode is built from blocks, and every block is stateful. A normal sampler assumes the things it conditions on stay fixed. Inside a larger model that is no longer true: the quantities a block depends on are being updated by the other blocks, sweep after sweep. A block that is not built for this has to throw away its current state and reinitialize for the changed target every single time.</p>
+      <p>A stateful block does not. On each sweep it takes in the updated quantities from the other blocks, advances one step from where it is, and hands its new state back for the others to use. It never reinitializes, so it keeps everything it has already learned. Those are the three functions every block shares: <code>set_current</code> takes in the updates, <code>step</code> advances the chain, and <code>get_current</code> hands the state back. (<code>get_history</code> records the full trajectory.)</p>
+      <p>To put that precisely, write \(\Theta\) for a block's own parameters and \(\mathcal{D}\) for the quantities it conditions on. A normal sampler holds \(\mathcal{D}\) fixed and just advances,</p>
+      <p>\[ (\Theta^{(t)},\, \mathcal{D}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}), \]</p>
+      <p>while a stateful block takes the update to \(\mathcal{D}\) first, then advances:</p>
       <p>\[ (\Theta^{(t)},\, \mathcal{D}^{(t)}) \;\longrightarrow\; (\Theta^{(t)},\, \mathcal{D}^{(t+1)}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}^{(t+1)}). \]</p>
-      <p>The two arrows are exactly the interface every block shares. <code>set_current</code> takes in the updated \(\mathcal{D}^{(t+1)}\), <code>step</code> advances \(\Theta^{(t)}\) to \(\Theta^{(t+1)}\) given it, and <code>get_current</code> hands the new state on to the other blocks. A block can also record its full trajectory with <code>get_history</code>. Because it never reinitializes, it keeps everything it has already learned.</p>
+      <p>The first arrow is <code>set_current</code>, the second is <code>step</code>. That is the whole idea. The rest of this page is one example where it pays off, written so you can follow it even if this is your first time with AI4BayesCode.</p>
 
-      <h2>An example: a binary model with no implementation</h2>
-      <p>Say your outcome is yes or no, and you want a flexible model where the effect of each predictor can change with other variables. That is a varying-coefficient model: instead of one fixed effect per predictor, each effect is a function of some modifiers, so how strongly one factor matters can shift with, say, age. VC-BART is a well-tested Bayesian method that learns each of those changing effects with its own tree ensemble. It is built for a continuous outcome, and there is no ready-made version for a yes-or-no one.</p>
-      <p>You can build one anyway, by composition. Put a hidden continuous score behind each binary outcome, a yes when the score is positive, and let the continuous VC-BART model explain that score. In AI4BayesCode you describe the continuous VC-BART model and generate it, then generate a small probit wrapper that adds the hidden-score layer, and drop the two pieces together. They run as one MCMC, and you have a binary-outcome VC-BART without writing a new sampler from scratch.</p>
+      <h2>The example: binary VC-BART</h2>
+      <p>VC-BART is a varying-coefficient model: instead of one fixed effect per predictor, each effect is allowed to change with some modifiers, and each of those changing effects is learned by its own BART ensemble. It is built for a continuous outcome, and there is no ready-made version for a yes-or-no one.</p>
+      <p>We will build one anyway, by composition. Put a hidden continuous score behind each binary outcome, a yes when the score is positive, and let the continuous VC-BART model that score. The plan: generate the continuous VC-BART sampler, generate a small probit wrapper for the hidden score, and stitch the two together through the stateful interface. Here is the whole workflow.</p>
     </div>
+
+    <p class="tut-step">Before you start</p>
+    <p class="tut-say">Install the R package (see the <a class="accent" href="install.html">Install</a> page), load it, and set your LLM provider key once. That key is what lets <code>ai4bayescode_generate</code> write the samplers for you.</p>
+    <pre class="tut-code">library(AI4BayesCode)
+ai4bayescode_set_key("sk-ant-...")   <span class="c"># replace with your own Anthropic or OpenAI key</span></pre>
+
+    <p class="tut-step">Step 1 &middot; Generate the continuous VC-BART sampler</p>
+    <p class="tut-say">You describe the continuous model in plain words. <code>generate()</code> parses it, assigns each part to a built-in sampler, writes a C++ sampler, and validates it. <code>source()</code> compiles and loads that sampler, so the <code>VCBART</code> class is then ready to build.</p>
+    <pre class="tut-code">ai4bayescode_generate(
+  "varying-coefficient regression, y ~ N(sum_j beta_j(Z) * x_j, sigma^2),
+   each coefficient beta_j(Z) is a BART ensemble in the modifiers Z,
+   sigma ~ HalfNormal(0, 1)",
+  classname = "VCBART")
+ai4bayescode_source("./generated/VCBART.cpp")</pre>
+
+    <p class="tut-step">Step 2 &middot; Generate the probit wrapper</p>
+    <p class="tut-say">The wrapper is tiny. It only says how the hidden score relates to the binary outcome, and that its mean is supplied from outside. Same two calls.</p>
+    <pre class="tut-code">ai4bayescode_generate(
+  "probit data augmentation, y_i = 1 if z_i > 0 else 0,
+   z_i ~ N(mu_i, 1) with the mean mu_i supplied from another block",
+  classname = "Probit")
+ai4bayescode_source("./generated/Probit.cpp")</pre>
+
+    <p class="tut-step">Step 3 &middot; Prepare your data</p>
+    <p class="tut-say">You need three things: the binary outcome <code>y</code>, the predictors <code>X</code>, and the modifiers <code>Z</code> that the coefficients vary with. Plug in your own data, or make a small synthetic set to try the workflow.</p>
+    <pre class="tut-code">n &lt;- 500; p &lt;- 5; r &lt;- 2
+X &lt;- matrix(rnorm(n * p), n, p)   <span class="c"># predictors</span>
+Z &lt;- matrix(runif(n * r), n, r)   <span class="c"># modifiers the effects vary with</span>
+y &lt;- rbinom(n, 1, 0.5)           <span class="c"># your 0/1 outcome</span></pre>
+
+    <p class="tut-step">Step 4 &middot; Compose the two blocks with set / get</p>
+    <p class="tut-say">Now build both blocks and run one chain that alternates between them. Each sweep, the wrapper draws fresh hidden scores from VC-BART's current fit, then VC-BART fits those scores. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
+    <pre class="tut-code">pr &lt;- new(Probit, y)                            <span class="c"># the probit wrapper, holding y</span>
+vc &lt;- new(VCBART, y = pr$get_current()$z, X, Z)  <span class="c"># VC-BART on the hidden scores</span>
+
+for (t in 1:10000) {
+  pr$set_current(list(mu = vc$get_current()$fitted))  <span class="c"># VC-BART's fit -&gt; wrapper mean</span>
+  pr$step()                                           <span class="c"># draw fresh hidden scores z</span>
+  vc$set_current(list(y = pr$get_current()$z))        <span class="c"># scores -&gt; VC-BART response</span>
+  vc$step()                                           <span class="c"># update VC-BART, keep its forest</span>
+}</pre>
+    <p class="tut-say">That loop is the whole point. It only works because both blocks are stateful. VC-BART's response, the hidden scores, changes on every pass, but <code>vc$step()</code> continues from its current forest instead of rebuilding it. A block that restarted each sweep would throw its forest away, and the tree-by-tree updates that make BART work would be lost. Two pieces, generated separately, run as one coherent chain.</p>
+
+    <p class="tut-step">Step 5 &middot; Check it and use it</p>
+    <p class="tut-say">Once composed, it is just another stateful sampler. Check convergence, and predict at new predictors and modifiers. To run several independent chains for cross-chain diagnostics, wrap the two-block setup in a function of a seed and pass it to <code>run_chains</code>.</p>
+    <pre class="tut-code">ai4b_diagnose(vc$get_history())            <span class="c"># R-hat, ESS, trace, ACF, density</span>
+pr_hat &lt;- vc$predict_at(list(X = X_new, Z = Z_new))   <span class="c"># fitted score at new inputs</span></pre>
 
     <div class="tut-prose">
-      <h2>Why stateful matters here</h2>
-      <p>Every sweep, the probit wrapper draws a fresh hidden score for each observation and hands those scores to the VC-BART block as its response. The VC-BART block's internal state is its coefficient ensembles, the forests it has grown so far, and the method works by nudging one tree at a time while holding the rest fixed. A block that is not stateful would rebuild those forests from scratch every sweep, because its response just changed, and that incremental update would be gone.</p>
-      <p>A stateful block keeps them. It takes in the fresh scores, holds on to its forests, and takes one more step. The probit wrapper and the VC-BART block, generated separately, compose into a single coherent chain instead of a stack of restarts.</p>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1.5rem;max-width:52rem;">
-      <div style="padding:1.1rem 1.25rem;border:1px solid rgb(var(--rule));border-radius:12px;background:rgb(var(--panel));">
-        <div style="font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--ink-faint));font-weight:600;margin-bottom:.5rem;">Without statefulness</div>
-        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The VC-BART block rebuilds its forests every sweep because its response changed, throwing away the ensembles it has grown. Its incremental, tree-by-tree updates cannot work.</p>
-      </div>
-      <div style="padding:1.1rem 1.25rem;border:1px solid rgb(var(--accent) / .5);border-radius:12px;background:rgb(var(--accent) / .05);">
-        <div style="font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--accent));font-weight:600;margin-bottom:.5rem;">With statefulness</div>
-        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block takes in the fresh scores, keeps its forests, and steps once more. Two separately generated pieces, the probit wrapper and VC-BART, run as one coherent chain.</p>
-      </div>
-    </div>
-
-    <div class="tut-prose">
-      <h2>How blocks compose</h2>
-      <p>Real models stack blocks. A sampler can hold several blocks, and a block can itself hold smaller blocks, so one step of the whole sampler cascades down to each piece. The tricky part is keeping everyone in sync without wiring every block to every other one.</p>
-      <p>AI4BayesCode handles this with a shared pool. The pool holds the current value of every quantity in the model. Before a block updates, it reads what it needs from the pool. After it updates, it writes its new state back. Blocks never talk to each other directly, so a block written on its own drops into a larger model unchanged and the information still flows correctly.</p>
-    </div>
-
-    <figure class="tut-fig">
-      <svg viewBox="0 0 820 275" role="img" aria-label="Diagram of sampling blocks reading from and writing to a shared pool" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
-        <defs>
-          <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="#8b88a6"/>
-          </marker>
-        </defs>
-        <text x="405" y="30" text-anchor="middle" font-size="12.5" fill="#7a788e">read &middot; write</text>
-        <g stroke="#8b88a6" stroke-width="1.5" fill="none" marker-start="url(#ah3)" marker-end="url(#ah3)">
-          <path d="M256 95 H554"/>
-          <path d="M256 150 H554"/>
-          <path d="M256 205 H554"/>
-        </g>
-        <rect x="50" y="70" width="200" height="170" rx="14" fill="#ecebf8" stroke="#4e4ea8" stroke-width="2"/>
-        <text x="150" y="151" text-anchor="middle" font-size="15" fill="#141226">shared pool</text>
-        <text x="150" y="173" text-anchor="middle" font-size="12" fill="#5f5e72">current values</text>
-        <g font-size="13.5" fill="#141226" text-anchor="middle">
-          <rect x="560" y="73" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="100">probit wrapper</text>
-          <rect x="560" y="128" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="155">VC-BART block</text>
-          <rect x="560" y="183" width="210" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/><text x="665" y="210">other blocks</text>
-        </g>
-      </svg>
-      <figcaption>Blocks stay in sync through a shared pool. The probit wrapper writes the fresh hidden scores, the VC-BART block reads them and writes back its fit. Nothing is wired block to block, so independently built blocks compose into one sampler.</figcaption>
-    </figure>
-
-    <div class="tut-prose">
-      <h2>Using the fitted sampler</h2>
-      <p>Because every block shares the same interface, the whole model is just another stateful sampler. You run several chains and check convergence the usual way with <code>run_chains</code> and <code>ai4b_diagnose</code>, and predict at new predictors and modifiers with <code>predict_at</code>. Nothing special is needed for the composed pieces inside.</p>
+      <p>That is the full loop, from an empty session to a fitted binary VC-BART. The only new idea beyond ordinary MCMC is statefulness: because each block keeps its own state and shares the same small interface, you compose two separately generated pieces into one model instead of writing a new sampler from scratch.</p>
     </div>
 
     <p style="max-width:44rem;margin-top:2.5rem;">
