@@ -81,7 +81,7 @@
       <p>VC-BART is a varying-coefficient model. Instead of one fixed effect per predictor, each effect is allowed to change with some modifiers \(Z\), and each of those changing effects is learned by its own BART ensemble. For a continuous outcome it models</p>
       <p>\[ y_i \;=\; \beta_0(Z_i) + \sum_{j=1}^{p} \beta_j(Z_i)\, x_{ij} + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0,\, \sigma^2), \]</p>
       <p>where each coefficient function \(\beta_j(Z)\) is its own BART ensemble in the modifiers \(Z\). It is built for that continuous outcome, and has no publicly available implementation for a binary outcome.</p>
-      <p>We will build one by composition. Introduce a latent variable behind each binary outcome, with the outcome equal to 1 when the latent variable is positive and 0 otherwise, and let the continuous VC-BART model that latent variable. The plan: generate the continuous VC-BART sampler, generate a small probit wrapper that adds the latent variable, and compose the two through the stateful interface. Here is the whole workflow.</p>
+      <p>We will build one by composition. Introduce a latent variable behind each binary outcome, with the outcome equal to 1 when the latent variable is positive and 0 otherwise, and let VC-BART model that latent variable. A probit model fixes the latent variable's residual variance at 1, since binary data cannot identify its scale, so here VC-BART uses a unit residual variance rather than a free one. The plan: generate that VC-BART sampler, generate a small probit wrapper for the latent variable, and compose the two through the stateful interface. Here is the whole workflow.</p>
     </div>
 
     <p class="tut-step">Before you start</p>
@@ -90,11 +90,11 @@
 ai4bayescode_set_key("sk-ant-...")   <span class="c"># replace with your own Anthropic or OpenAI key</span></pre>
 
     <p class="tut-step">Step 1 &middot; Generate the continuous VC-BART sampler</p>
-    <p class="tut-say">You describe the continuous model in plain words. <code>generate()</code> parses it, assigns each part to a built-in sampler, writes a C++ sampler, and validates it. <code>source()</code> compiles and loads that sampler, so the <code>VCBART</code> class is then ready to build.</p>
+    <p class="tut-say">You describe the model in plain words, with the residual variance fixed at 1 so the probit model will be identified. <code>generate()</code> parses it, assigns each part to a built-in sampler, writes a C++ sampler, and validates it. <code>source()</code> compiles and loads that sampler, so the <code>VCBART</code> class is then ready to build.</p>
     <pre class="tut-code">ai4bayescode_generate(
-  "varying-coefficient regression, y ~ N(sum_j beta_j(Z) * x_j, sigma^2),
-   each coefficient beta_j(Z) is a BART ensemble in the modifiers Z,
-   sigma ~ HalfNormal(0, 1)",
+  "varying-coefficient regression, y ~ N(sum_j beta_j(Z) * x_j, 1),
+   residual variance fixed at 1 (needed to identify the probit model below),
+   each coefficient beta_j(Z) is a BART ensemble in the modifiers Z",
   classname = "VCBART")
 ai4bayescode_source("./generated/VCBART.cpp")</pre>
 
