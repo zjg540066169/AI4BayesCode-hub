@@ -144,6 +144,7 @@
 run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
   <span class="kw">function</span>(s) <span class="fn">new</span>(BayesLinReg, y, X, seed = s, keep_history = <span class="kw">TRUE</span>),
   n_chains = <span class="lit">4</span>)
+
 <span class="fn">AI4BayesCode_rhat_summary</span>(run)         <span class="com"># cross-chain R-hat and ESS</span>
 <span class="fn">ai4b_diagnose</span>(run$histories[[<span class="lit">1</span>]])    <span class="com"># trace, ACF, density</span>
 
@@ -162,6 +163,7 @@ mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span 
 runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
   <span class="kw">lambda</span> s: mod.<span class="fn">BayesLinReg</span>(y, X, seed=s, keep_history=<span class="kw">True</span>),
   seeds=<span class="fn">range</span>(<span class="lit">4</span>))
+
 <span class="ty">AI4BayesCode</span>.<span class="fn">ai4b_diagnose</span>(runs[<span class="lit">0</span>])      <span class="com"># R-hat, ESS, trace, ACF, density</span>
 
 <span class="com"># optional: stateful usage, drive a single chain yourself</span>
@@ -177,8 +179,9 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
         <div class="example__side example__side--prompt">
           <p class="example__label">Natural-language prompt</p>
           <p class="example__prompt-body">
-            Spike-and-slab regression. beta_j ~ Laplace(b*sigma) if gamma_j = 1, else 0.
-            gamma_j ~ Bernoulli(pi), pi ~ Beta(1, 1).
+            Spike-and-slab regression, y ~ N(Xbeta, sigma^2). beta_j ~ Laplace(b*sigma) if
+            gamma_j = 1, else 0. gamma_j ~ Bernoulli(pi). pi ~ Beta(1, 1),
+            half-Normal priors on sigma and b.
           </p>
           <p class="example__label" style="margin-top: 1.25rem;">Blocks selected</p>
           <p class="muted" style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.7;">
@@ -197,7 +200,7 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
           </div>
 <pre class="code-block" data-lang="r"><span class="fn">library</span>(<span class="ty">AI4BayesCode</span>)
 <span class="fn">ai4bayescode_generate</span>(
-  <span class="lit">"spike and slab, beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1)"</span>,
+  <span class="lit">"spike and slab, y ~ N(Xbeta, sigma^2), beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1), sigma ~ HalfNormal(0,1), b ~ HalfNormal(0,1)"</span>,
   classname = <span class="lit">"SpikeLaplace"</span>, output_path = <span class="lit">"./generated"</span>)
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
 
@@ -205,6 +208,7 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
 run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
   <span class="kw">function</span>(s) <span class="fn">new</span>(SpikeLaplace, y, X, seed = s, keep_history = <span class="kw">TRUE</span>),
   n_chains = <span class="lit">4</span>)
+
 <span class="fn">AI4BayesCode_rhat_summary</span>(run)
 inc &lt;- <span class="fn">colMeans</span>(run$histories[[<span class="lit">1</span>]]$gamma)   <span class="com"># posterior inclusion probabilities</span>
 
@@ -216,7 +220,7 @@ m$<span class="fn">step</span>(<span class="lit">10000</span>)
 <span class="fn">ai4b_diagnose</span>(m$<span class="fn">get_history</span>())</pre>
 <pre class="code-block is-hidden" data-lang="py"><span class="kw">import</span> <span class="ty">AI4BayesCode</span>
 <span class="ty">AI4BayesCode</span>.<span class="fn">generate</span>(
-  <span class="lit">"spike and slab, beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1)"</span>,
+  <span class="lit">"spike and slab, y ~ N(Xbeta, sigma^2), beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1), sigma ~ HalfNormal(0,1), b ~ HalfNormal(0,1)"</span>,
   classname=<span class="lit">"SpikeLaplace"</span>, output_path=<span class="lit">"./generated"</span>)
 mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
 
@@ -224,6 +228,7 @@ mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span 
 runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
   <span class="kw">lambda</span> s: mod.<span class="fn">SpikeLaplace</span>(y, X, seed=s, keep_history=<span class="kw">True</span>),
   seeds=<span class="fn">range</span>(<span class="lit">4</span>))
+
 inc = runs[<span class="lit">0</span>][<span class="lit">"gamma"</span>].<span class="fn">mean</span>(axis=<span class="lit">0</span>)        <span class="com"># posterior inclusion probabilities</span>
 
 <span class="com"># optional: stateful usage, drive one chain with full control</span>
