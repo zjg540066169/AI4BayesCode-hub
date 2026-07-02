@@ -141,12 +141,12 @@
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
-run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
+run &lt;- <span class="fn">ai4bayescode_run_chains</span>(
   <span class="kw">function</span>(s) <span class="fn">new</span>(BayesLinReg, y, X, seed = s, keep_history = <span class="kw">TRUE</span>),
   n_chains = <span class="lit">4</span>, n_burn = <span class="lit">5000</span>, n_keep = <span class="lit">5000</span>)
 
-<span class="fn">AI4BayesCode_rhat_summary</span>(run)         <span class="com"># cross-chain R-hat and ESS</span>
-<span class="fn">ai4b_diagnose</span>(run$histories[[<span class="lit">1</span>]])    <span class="com"># trace, ACF, density</span>
+<span class="fn">ai4bayescode_rhat_summary</span>(run)         <span class="com"># cross-chain R-hat and ESS</span>
+<span class="fn">ai4bayescode_diagnose</span>(run$histories[[<span class="lit">1</span>]])    <span class="com"># trace, ACF, density</span>
 
 <span class="com"># optional: stateful usage, drive a single chain yourself</span>
 m &lt;- <span class="fn">new</span>(BayesLinReg, y, X, seed = <span class="lit">1L</span>, keep_history = <span class="kw">TRUE</span>)
@@ -164,7 +164,7 @@ runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
   <span class="kw">lambda</span> s: mod.<span class="fn">BayesLinReg</span>(y, X, seed=s, keep_history=<span class="kw">True</span>),
   seeds=<span class="fn">range</span>(<span class="lit">4</span>), n_burn=<span class="lit">5000</span>, n_keep=<span class="lit">5000</span>)
 
-<span class="ty">AI4BayesCode</span>.<span class="fn">ai4b_diagnose</span>(runs[<span class="lit">0</span>])      <span class="com"># R-hat, ESS, trace, ACF, density</span>
+<span class="ty">AI4BayesCode</span>.<span class="fn">diagnose</span>(runs[<span class="lit">0</span>])      <span class="com"># R-hat, ESS, trace, ACF, density</span>
 
 <span class="com"># optional: stateful usage, drive a single chain yourself</span>
 m = mod.<span class="fn">BayesLinReg</span>(y, X, seed=<span class="lit">1</span>, keep_history=<span class="kw">True</span>)
@@ -205,11 +205,11 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
-run &lt;- <span class="fn">AI4BayesCode_run_chains</span>(
+run &lt;- <span class="fn">ai4bayescode_run_chains</span>(
   <span class="kw">function</span>(s) <span class="fn">new</span>(SpikeLaplace, y, X, seed = s, keep_history = <span class="kw">TRUE</span>),
   n_chains = <span class="lit">4</span>, n_burn = <span class="lit">5000</span>, n_keep = <span class="lit">5000</span>)
 
-<span class="fn">AI4BayesCode_rhat_summary</span>(run)
+<span class="fn">ai4bayescode_rhat_summary</span>(run)
 inc &lt;- <span class="fn">colMeans</span>(run$histories[[<span class="lit">1</span>]]$gamma)   <span class="com"># posterior inclusion probabilities</span>
 
 <span class="com"># optional: stateful usage, drive one chain with full control</span>
@@ -217,7 +217,7 @@ m &lt;- <span class="fn">new</span>(SpikeLaplace, y, X, seed = <span class="lit"
 m$<span class="fn">set_current</span>(<span class="fn">list</span>(sigma = <span class="lit">1.0</span>))   <span class="com"># warm-start a parameter</span>
 m$<span class="fn">step</span>(<span class="lit">2000</span>); m$<span class="fn">readapt_NUTS</span>(<span class="lit">500</span>)    <span class="com"># warm up, then re-tune NUTS</span>
 m$<span class="fn">step</span>(<span class="lit">10000</span>)
-<span class="fn">ai4b_diagnose</span>(m$<span class="fn">get_history</span>())</pre>
+<span class="fn">ai4bayescode_diagnose</span>(m$<span class="fn">get_history</span>())</pre>
 <pre class="code-block is-hidden" data-lang="py"><span class="kw">import</span> <span class="ty">AI4BayesCode</span>
 <span class="ty">AI4BayesCode</span>.<span class="fn">generate</span>(
   <span class="lit">"spike and slab, y ~ N(Xbeta, sigma^2), beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1), sigma ~ HalfNormal(0,1), b ~ HalfNormal(0,1)"</span>,
@@ -236,7 +236,7 @@ m = mod.<span class="fn">SpikeLaplace</span>(y, X, seed=<span class="lit">1</spa
 m.<span class="fn">set_current</span>({<span class="lit">"sigma"</span>: <span class="lit">1.0</span>})           <span class="com"># warm-start a parameter</span>
 m.<span class="fn">step</span>(<span class="lit">2000</span>); m.<span class="fn">readapt_NUTS</span>(<span class="lit">500</span>)        <span class="com"># warm up, then re-tune NUTS</span>
 m.<span class="fn">step</span>(<span class="lit">10000</span>)
-<span class="ty">AI4BayesCode</span>.<span class="fn">ai4b_diagnose</span>(m.<span class="fn">get_history</span>())</pre>
+<span class="ty">AI4BayesCode</span>.<span class="fn">diagnose</span>(m.<span class="fn">get_history</span>())</pre>
         </div>
       </article>
 
