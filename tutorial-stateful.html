@@ -78,7 +78,9 @@
       <p>The first arrow is <code>set_current</code>, the second is <code>step</code>. Because every block works this way, blocks built separately drop into one larger sampler and keep running, instead of restarting from scratch. The rest of this page builds one such model from nothing, written so you can follow it even on your first time with AI4BayesCode.</p>
 
       <h2>The example: binary VC-BART</h2>
-      <p>VC-BART is a varying-coefficient model: instead of one fixed effect per predictor, each effect is allowed to change with some modifiers, and each of those changing effects is learned by its own BART ensemble. It is built for a continuous outcome, and there is no ready-made version for a yes-or-no one.</p>
+      <p>VC-BART is a varying-coefficient model. Instead of one fixed effect per predictor, each effect is allowed to change with some modifiers \(Z\), and each of those changing effects is learned by its own BART ensemble. For a continuous outcome it models</p>
+      <p>\[ y_i \;=\; \beta_0(Z_i) + \sum_{j=1}^{p} \beta_j(Z_i)\, x_{ij} + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0,\, \sigma^2), \]</p>
+      <p>where each coefficient function \(\beta_j(Z)\) is its own BART ensemble in the modifiers \(Z\). It is built for that continuous outcome, and has no publicly available implementation for a yes-or-no one.</p>
       <p>We will build one anyway, by composition. Put a hidden continuous score behind each binary outcome, a yes when the score is positive, and let the continuous VC-BART model that score. The plan: generate the continuous VC-BART sampler, generate a small probit wrapper for the hidden score, and stitch the two together through the stateful interface. Here is the whole workflow.</p>
     </div>
 
