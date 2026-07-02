@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>What &ldquo;stateful&rdquo; means · AI4BayesCode</title>
-  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode: why stateful blocks compose into one sampler, and how prediction follows the model graph, using a meta-regression example." />
+  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode: why stateful blocks keep their internal state and compose into one sampler, using a latent-outcome classification model as the example." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -48,8 +48,8 @@
     <h1 class="hero__title" style="font-size:clamp(2.2rem,4.5vw,3.2rem);margin-bottom:1rem;">What &ldquo;stateful&rdquo; means.</h1>
     <p class="hero__lede">
       Statefulness is the idea that lets AI4BayesCode take blocks built separately and run them
-      together as one sampler. Here is what it means and why it matters, with a meta-regression as
-      the example.
+      together as one sampler. Here is what it means and why it matters, using a classification
+      model as the example.
     </p>
   </section>
 </header>
@@ -64,47 +64,39 @@
       <p>A sampler in AI4BayesCode is built from blocks, and every block is stateful. That means each block remembers where it is between iterations. On each sweep a block takes in the latest values it depends on from the other blocks, advances one step, and hands its updated state back for the next block to use.</p>
       <p>Because a block never throws away what it has already learned, blocks written separately, even by different people, slot together into one chain that just keeps running. The same small interface, take in and step and hand back, is shared by every block, from a one-line conjugate update to a full tree ensemble.</p>
 
-      <h2>An example: meta-regression</h2>
-      <p>Suppose you are combining results from several studies. Each study reports an effect and how precisely it was measured, a known variance. You want to explain those effects with a regression on study-level features, while letting the studies vary around the regression line by some unknown amount.</p>
-      <p>There is a clean way to set this up. Give each study a latent true effect, and let the regression explain those latent effects with a single, simple noise term. Each study's known measurement noise is handled in a separate layer. The payoff is that the regression block never has to know about per-study measurement noise. Any regression can play the role of the mean, even a brand-new model that was never written with meta-analysis in mind.</p>
+      <h2>An example: classification with a hidden score</h2>
+      <p>Suppose you want to predict a yes or no outcome from some features, with a flexible model for how the chance of a yes depends on them. A classic way to do this is to imagine a hidden continuous score behind each outcome. The outcome is yes when the score is positive and no when it is negative, and a regression models that hidden score instead of the raw 0 or 1.</p>
+      <p>This turns an awkward yes-or-no problem into a clean regression on a continuous response. Any regression can model the hidden score, including a flexible one like BART. Each MCMC sweep does two things: given the current regression, it draws a fresh hidden score for every observation, then it updates the regression using those scores as its response.</p>
     </div>
 
     <figure class="tut-fig">
-      <svg viewBox="0 0 900 300" role="img" aria-label="Directed graph of the meta-regression model" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
+      <svg viewBox="0 0 900 200" role="img" aria-label="Directed graph of the latent-outcome classification model" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
         <defs>
           <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0 0 L10 5 L0 10 z" fill="#8b88a6"/>
           </marker>
         </defs>
         <g stroke="#8b88a6" stroke-width="1.5" fill="none" marker-end="url(#ah)">
-          <path d="M182 160 H236"/>
-          <path d="M330 82 V134"/>
-          <path d="M422 160 H481"/>
-          <path d="M560 82 V134"/>
-          <path d="M637 160 H701"/>
-          <path d="M785 238 V186"/>
+          <path d="M202 112 H241"/>
+          <path d="M335 62 V86"/>
+          <path d="M427 112 H476"/>
+          <path d="M652 112 H696"/>
         </g>
         <g font-size="13.5" fill="#141226" text-anchor="middle">
-          <rect x="22" y="138" width="160" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="102" y="164">study features</text>
+          <rect x="32" y="90" width="170" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
+          <text x="117" y="116">features</text>
 
-          <rect x="245" y="42" width="170" height="40" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
-          <text x="330" y="66">regression params</text>
+          <rect x="250" y="22" width="170" height="40" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
+          <text x="335" y="46">regression params</text>
 
-          <rect x="240" y="138" width="182" height="44" rx="10" fill="#ecebf8" stroke="#4e4ea8" stroke-width="2"/>
-          <text x="331" y="164">regression block</text>
+          <rect x="245" y="90" width="182" height="44" rx="10" fill="#ecebf8" stroke="#4e4ea8" stroke-width="2"/>
+          <text x="336" y="116">regression block</text>
 
-          <rect x="475" y="42" width="170" height="40" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
-          <text x="560" y="66">between-study spread</text>
+          <rect x="480" y="90" width="172" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
+          <text x="566" y="116">hidden score</text>
 
-          <rect x="485" y="138" width="152" height="44" rx="10" fill="#fdfcff" stroke="#cdc7e0"/>
-          <text x="561" y="164">true effect</text>
-
-          <rect x="705" y="240" width="160" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="785" y="264">known variance</text>
-
-          <rect x="705" y="138" width="160" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
-          <text x="785" y="164">observed effect</text>
+          <rect x="700" y="90" width="176" height="44" rx="10" fill="#eeebf6" stroke="#cdc7e0"/>
+          <text x="788" y="116">observed outcome</text>
         </g>
       </svg>
       <div class="tut-legend">
@@ -112,13 +104,13 @@
         <span><i style="background:#fdfcff;border:1px solid #cdc7e0;"></i> latent or parameter</span>
         <span><i style="background:#ecebf8;border:1px solid #4e4ea8;"></i> the composed block</span>
       </div>
-      <figcaption>How the model is wired. The regression block turns study features into each study's true effect, with the between-study spread. The observed effect then adds that study's known measurement noise.</figcaption>
+      <figcaption>How the model is wired. The regression block explains a hidden continuous score behind each observation. The observed outcome is a yes when that score is positive and a no when it is negative.</figcaption>
     </figure>
 
     <div class="tut-prose">
       <h2>Why stateful matters here</h2>
-      <p>Now fit it with MCMC. Each sweep does two things: update the latent true effects and the between-study spread, then update the regression block using those latent effects as its response.</p>
-      <p>Here is the catch. The regression's response changes every sweep. A block that is not stateful would have to start over each time, because its input moved, and starting over throws away the block's internal state. If the regression is a tree ensemble like BART, that state is the current forest, and the whole method works by nudging one tree at a time while holding the others fixed. Discard the forest and that incremental update is gone.</p>
+      <p>Notice that the regression's response, the hidden scores, changes every sweep. A block that is not stateful would have to start over each time, because its input moved, and starting over throws away the block's internal state. If the regression is a tree ensemble like BART, that state is the current forest, and the whole method works by nudging one tree at a time while holding the others fixed. Discard the forest and that incremental update is gone.</p>
+      <p>A stateful block avoids this. It takes in the freshly drawn scores, keeps its forest, and takes one more step from where it was. Take in, step, hand back, every sweep. The classification model and the regression inside it run as one coherent chain instead of a stack of restarts.</p>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1.5rem;max-width:52rem;">
@@ -128,68 +120,18 @@
       </div>
       <div style="padding:1.1rem 1.25rem;border:1px solid rgb(var(--accent) / .5);border-radius:12px;background:rgb(var(--accent) / .05);">
         <div style="font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--accent));font-weight:600;margin-bottom:.5rem;">With statefulness</div>
-        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block takes in the updated response, keeps its forest, and steps once more from where it was. Nothing is discarded, so the composed model runs as one coherent chain instead of a stack of restarts.</p>
+        <p style="margin:0;font-size:.98rem;line-height:1.55;color:rgb(var(--ink-soft));">The block takes in the updated response, keeps its forest, and steps once more from where it was. Nothing is discarded, so the composed model runs as one coherent chain.</p>
       </div>
     </div>
 
     <div class="tut-prose">
-      <h2>Prediction follows the graph</h2>
-      <p>The sampler keeps that same wiring diagram inside it, and uses it to predict. You hand it whatever new inputs you have, and prediction starts from the top and flows downstream as far as the inputs allow.</p>
-      <p>Give new study features and their known variance, and it predicts all the way to a new observed effect. Give only the features, and it can still predict the regression value and the latent true effect, but it stops before the observed effect, because that step needs the new study's measurement noise. Give nothing new, and the same machinery becomes density estimation from the fitted parameters. It always predicts everything it can reach, and stops where the inputs run out.</p>
+      <h2>Using the fitted sampler</h2>
+      <p>Because every block shares the same interface, the whole model is just another stateful sampler. You run several chains and check convergence the usual way, with <code>run_chains</code> and <code>ai4b_diagnose</code>, and you predict at new features with <code>predict_at</code>, which follows the model graph to return the chance of a yes and simulated outcomes. Nothing special is needed for the block inside. It composes like any other.</p>
     </div>
-
-    <figure class="tut-fig">
-      <svg viewBox="0 0 900 330" role="img" aria-label="Two prediction graphs showing how far prediction reaches under full and partial inputs" style="width:100%;height:auto;font-family:'Inter',sans-serif;">
-        <defs>
-          <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="#8b88a6"/>
-          </marker>
-        </defs>
-        <line x1="450" y1="20" x2="450" y2="310" stroke="#e4e0ee" stroke-width="1"/>
-        <text x="225" y="28" text-anchor="middle" font-size="12.5" font-weight="600" fill="#7a788e" font-family="Inter,sans-serif">Features and known variance given</text>
-        <text x="675" y="28" text-anchor="middle" font-size="12.5" font-weight="600" fill="#7a788e" font-family="Inter,sans-serif">Only features given</text>
-
-        <!-- LEFT: full reach -->
-        <g stroke="#8b88a6" stroke-width="1.5" fill="none" marker-end="url(#ah2)">
-          <path d="M225 92 V126"/>
-          <path d="M225 170 V204"/>
-          <path d="M225 248 V282"/>
-          <path d="M330 300 H272"/>
-        </g>
-        <g font-size="13" text-anchor="middle" font-family="Inter,sans-serif">
-          <rect x="140" y="52" width="170" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/><text x="225" y="76" fill="#141226">new features</text>
-          <rect x="140" y="126" width="170" height="40" rx="10" fill="#e9e9f7" stroke="#4e4ea8"/><text x="225" y="150" fill="#2f2d66">regression value</text>
-          <rect x="140" y="204" width="170" height="40" rx="10" fill="#e9e9f7" stroke="#4e4ea8"/><text x="225" y="228" fill="#2f2d66">new true effect</text>
-          <rect x="140" y="282" width="170" height="40" rx="10" fill="#e9e9f7" stroke="#4e4ea8"/><text x="225" y="306" fill="#2f2d66">new observation</text>
-          <rect x="328" y="280" width="118" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/><text x="387" y="304" fill="#141226">known var.</text>
-        </g>
-
-        <!-- RIGHT: partial reach -->
-        <g stroke="#8b88a6" stroke-width="1.5" fill="none" marker-end="url(#ah2)">
-          <path d="M675 92 V126"/>
-          <path d="M675 170 V204"/>
-        </g>
-        <g stroke="#b8b4c6" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
-          <path d="M675 248 V286"/>
-        </g>
-        <g font-size="13" text-anchor="middle" font-family="Inter,sans-serif">
-          <rect x="590" y="52" width="170" height="40" rx="10" fill="#eeebf6" stroke="#cdc7e0"/><text x="675" y="76" fill="#141226">new features</text>
-          <rect x="590" y="126" width="170" height="40" rx="10" fill="#e9e9f7" stroke="#4e4ea8"/><text x="675" y="150" fill="#2f2d66">regression value</text>
-          <rect x="590" y="204" width="170" height="40" rx="10" fill="#e9e9f7" stroke="#4e4ea8"/><text x="675" y="228" fill="#2f2d66">new true effect</text>
-          <rect x="590" y="286" width="170" height="40" rx="10" fill="#fdfcff" stroke="#cdc7e0" stroke-dasharray="4 4" opacity="0.6"/><text x="675" y="310" fill="#9a98ab">new observation</text>
-        </g>
-      </svg>
-      <div class="tut-legend">
-        <span><i style="background:#eeebf6;border:1px solid #cdc7e0;"></i> given input</span>
-        <span><i style="background:#e9e9f7;border:1px solid #4e4ea8;"></i> predicted</span>
-        <span><i style="background:#fdfcff;border:1px dashed #b8b4c6;"></i> not reachable</span>
-      </div>
-      <figcaption>Prediction follows the graph. With both new features and their known variance (left), prediction reaches the new observation. With only features (right), it reaches the latent true effect but stops there, since the new observation needs a known variance.</figcaption>
-    </figure>
 
     <p style="max-width:44rem;margin-top:2.5rem;">
       <a class="btn" href="tutorial.html">&larr; All tutorials</a>
-      <a class="btn" href="api.html#predict_at">predict_at in the API</a>
+      <a class="btn" href="api.html#ctor">The stateful interface in the API</a>
     </p>
 
   </div>
