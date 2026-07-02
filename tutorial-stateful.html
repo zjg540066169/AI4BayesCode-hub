@@ -102,7 +102,7 @@ ai4bayescode_source("./generated/VCBART.cpp")</pre>
     <p class="tut-say">The wrapper is small. It only states how the latent variable relates to the binary outcome, and that its mean is supplied by another block. Same two calls.</p>
     <pre class="tut-code">ai4bayescode_generate(
   "probit data augmentation, y_i = 1 if z_i > 0 else 0,
-   z_i ~ N(mu_i, 1) with the mean mu_i as input",
+   z_i ~ N(mu_i, 1) with the mean mu_i an exposed mean vector inputted from other blocks",
   classname = "Probit")
 ai4bayescode_source("./generated/Probit.cpp")</pre>
 
@@ -114,9 +114,11 @@ Z &lt;- matrix(runif(n * r), n, r)   <span class="c"># modifiers the effects var
 y &lt;- rbinom(n, 1, 0.5)           <span class="c"># your 0/1 outcome</span></pre>
 
     <p class="tut-step">Step 4 &middot; Compose the two blocks with set / get</p>
-    <p class="tut-say">Now build both blocks and run one chain that alternates between them. On each iteration, the wrapper draws the latent variable <code>z</code> from VC-BART's current fit, then VC-BART fits <code>z</code>. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
-    <pre class="tut-code">pr &lt;- new(Probit, y)                            <span class="c"># the probit wrapper, holding y</span>
-vc &lt;- new(VCBART, y = pr$get_current()$z, X, Z, sigma = 1)  <span class="c"># sigma fixed at 1 (probit)</span>
+    <p class="tut-say">Now build both blocks and run one chain that alternates between them. The probit wrapper takes the outcome and an initial mean <code>mu</code>, which we start at 0. VC-BART takes its <code>doc()</code> arguments in order: the data, <code>sigma</code> fixed at 1 for the probit link, then the standard BART settings. On each iteration, the wrapper draws the latent variable <code>z</code> from VC-BART's current fit, then VC-BART fits <code>z</code>. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
+    <pre class="tut-code">pr &lt;- new(Probit, y, rep(0, n))   <span class="c"># outcome y, initial mean mu = 0</span>
+vc &lt;- new(VCBART,
+          X, Z, pr$get_current()$z, 1,   <span class="c"># X, Z, y (= latent z), sigma (fixed at 1 for probit)</span>
+          200L, 2, 2, 0.95, 100L, 1L)    <span class="c"># ntrees, k, power, base, numcut, rng_seed (demo defaults)</span>
 
 for (t in 1:10000) {
   pr$set_current(list(mu = vc$get_current()$fitted))  <span class="c"># VC-BART's fit -&gt; wrapper mean</span>
