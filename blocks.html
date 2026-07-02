@@ -320,6 +320,19 @@
       contribute your own block, and download and install any block here into your own copy. To
       design and submit one, see the <a class="accent" href="#upload">Block upload</a> tab.
     </p>
+
+    <div style="max-width:46rem;margin-top:1.25rem;padding:1rem 1.25rem;border:1px solid rgb(var(--rule));border-radius:12px;background:rgb(var(--sunk) / .55);">
+      <p style="margin:0 0 .6rem;font-family:'Inter',sans-serif;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:rgb(var(--ink-faint));">Installing a block</p>
+      <p style="margin:0;font-size:.95rem;line-height:1.6;color:rgb(var(--ink-soft));">
+        Contributed blocks install on demand, like R packages. List what is available with
+        <code>ai4bayescode_available_blocks()</code>, install one with
+        <code>ai4bayescode_install_block("&lt;name&gt;")</code>, and remove it with
+        <code>ai4bayescode_remove_block("&lt;name&gt;")</code>. The Python module mirrors each name
+        under <code>AI4BayesCode.</code> (for example <code>AI4BayesCode.install_block("&lt;name&gt;")</code>).
+        Once installed, a block works like a built-in one. Or just ask a coding agent to install a block by name.
+      </p>
+    </div>
+
     <div id="contrib-sort" class="bsort" style="display:none;">
       <span class="bsort__label">Sort</span>
       <button class="bsort__btn is-active" type="button" data-sort="name">By name</button>
