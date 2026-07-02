@@ -68,20 +68,20 @@
 
     <div class="tut-prose">
       <h2 style="margin-top:0;">The idea</h2>
-      <p>Most MCMC samplers are self-contained. You hand one your data, specify a number of iterations, and it runs on its own from start to finish. That is fine when the sampler is the whole model. But you often want to put a sampler <em>inside</em> a bigger model, where the things it depends on are not fixed data. They are quantities the rest of the model is still estimating, and they change on every sweep. Its predictors might have missing values that get imputed each sweep, or its response might be a latent variable that another block re-draws each sweep.</p>
-      <p>An ordinary self-contained sampler has no way to accept a changed input except to start over, and starting over throws away everything it has built up. Take BART, which fits a response with a whole forest of trees, refined one tree at a time. Put BART inside a larger model whose response is re-estimated each sweep, and restarting it every sweep discards the forest, so it can never actually refine it. The sampler that was meant to do the work cannot.</p>
-      <p>A stateful block removes that restart. It pauses after each step. On every sweep it takes in the latest values from the other blocks, advances one step from where it is, keeping its own internal state (the forest and all), and hands its updated state back for the others to use. It never reinitializes, so nothing is thrown away. Those are the three functions every block shares: <code>set_current</code> takes in the updates, <code>step</code> advances one step, and <code>get_current</code> hands the state back. (<code>get_history</code> records the full trajectory.)</p>
-      <p>To put that precisely, write \(\Theta\) for a block's own parameters and \(\mathcal{D}\) for the quantities it conditions on. A normal sampler holds \(\mathcal{D}\) fixed and just advances,</p>
+      <p>A standard MCMC sampler is a closed loop. You give it your data, tell it how many iterations to run, and it runs to the end on its own. It assumes the quantities it conditions on are fixed. That holds when the sampler is the whole model. But when you place a sampler inside a larger model, those quantities are no longer fixed. Other blocks update them on every iteration. Missing predictors might be imputed each iteration, or the response might be a latent variable that another block samples each iteration.</p>
+      <p>A standard sampler cannot take a changed input. The only way to give it the updated values is to reinitialize it every iteration, and reinitializing discards its internal state. Take BART. Its state is the ensemble of trees it has built, and it works by updating one tree at a time, conditional on the others. If BART sits inside a larger model whose response is updated each iteration, reinitializing it every iteration throws away the ensemble, so it can never carry out its one-tree-at-a-time updates.</p>
+      <p>A stateful block solves this. It keeps its internal state across iterations. On each iteration it receives the updated values from the other blocks, advances its own parameters by one step, and returns its new state, without reinitializing. Three functions carry it out: <code>set_current</code> receives the updated inputs, <code>step</code> advances one iteration, and <code>get_current</code> returns the current state. (<code>get_history</code> keeps the full trajectory.)</p>
+      <p>To put that precisely, write \(\Theta\) for a block's own parameters and \(\mathcal{D}\) for the quantities it conditions on. A standard sampler holds \(\mathcal{D}\) fixed and just advances,</p>
       <p>\[ (\Theta^{(t)},\, \mathcal{D}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}), \]</p>
       <p>while a stateful block takes the update to \(\mathcal{D}\) first, then advances:</p>
       <p>\[ (\Theta^{(t)},\, \mathcal{D}^{(t)}) \;\longrightarrow\; (\Theta^{(t)},\, \mathcal{D}^{(t+1)}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}^{(t+1)}). \]</p>
-      <p>The first arrow is <code>set_current</code>, the second is <code>step</code>. Because every block works this way, blocks built separately drop into one larger sampler and keep running, instead of restarting from scratch. The rest of this page builds one such model from nothing, written so you can follow it even on your first time with AI4BayesCode.</p>
+      <p>The first arrow is <code>set_current</code>, the second is <code>step</code>. Because every block works this way, blocks built separately drop into one larger sampler and keep running, instead of reinitializing from scratch. The rest of this page builds one such model from nothing, written so you can follow it even on your first time with AI4BayesCode.</p>
 
       <h2>The example: binary VC-BART</h2>
       <p>VC-BART is a varying-coefficient model. Instead of one fixed effect per predictor, each effect is allowed to change with some modifiers \(Z\), and each of those changing effects is learned by its own BART ensemble. For a continuous outcome it models</p>
       <p>\[ y_i \;=\; \beta_0(Z_i) + \sum_{j=1}^{p} \beta_j(Z_i)\, x_{ij} + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0,\, \sigma^2), \]</p>
-      <p>where each coefficient function \(\beta_j(Z)\) is its own BART ensemble in the modifiers \(Z\). It is built for that continuous outcome, and has no publicly available implementation for a yes-or-no one.</p>
-      <p>We will build one anyway, by composition. Put a hidden continuous score behind each binary outcome, a yes when the score is positive, and let the continuous VC-BART model that score. The plan: generate the continuous VC-BART sampler, generate a small probit wrapper for the hidden score, and stitch the two together through the stateful interface. Here is the whole workflow.</p>
+      <p>where each coefficient function \(\beta_j(Z)\) is its own BART ensemble in the modifiers \(Z\). It is built for that continuous outcome, and has no publicly available implementation for a binary outcome.</p>
+      <p>We will build one by composition. Introduce a latent variable behind each binary outcome, with the outcome equal to 1 when the latent variable is positive and 0 otherwise, and let the continuous VC-BART model that latent variable. The plan: generate the continuous VC-BART sampler, generate a small probit wrapper that adds the latent variable, and compose the two through the stateful interface. Here is the whole workflow.</p>
     </div>
 
     <p class="tut-step">Before you start</p>
@@ -99,7 +99,7 @@ ai4bayescode_set_key("sk-ant-...")   <span class="c"># replace with your own Ant
 ai4bayescode_source("./generated/VCBART.cpp")</pre>
 
     <p class="tut-step">Step 2 &middot; Generate the probit wrapper</p>
-    <p class="tut-say">The wrapper is tiny. It only says how the hidden score relates to the binary outcome, and that its mean is supplied from outside. Same two calls.</p>
+    <p class="tut-say">The wrapper is small. It only states how the latent variable relates to the binary outcome, and that its mean is supplied by another block. Same two calls.</p>
     <pre class="tut-code">ai4bayescode_generate(
   "probit data augmentation, y_i = 1 if z_i > 0 else 0,
    z_i ~ N(mu_i, 1) with the mean mu_i supplied from another block",
@@ -114,17 +114,17 @@ Z &lt;- matrix(runif(n * r), n, r)   <span class="c"># modifiers the effects var
 y &lt;- rbinom(n, 1, 0.5)           <span class="c"># your 0/1 outcome</span></pre>
 
     <p class="tut-step">Step 4 &middot; Compose the two blocks with set / get</p>
-    <p class="tut-say">Now build both blocks and run one chain that alternates between them. Each sweep, the wrapper draws fresh hidden scores from VC-BART's current fit, then VC-BART fits those scores. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
+    <p class="tut-say">Now build both blocks and run one chain that alternates between them. On each iteration, the wrapper draws the latent variable <code>z</code> from VC-BART's current fit, then VC-BART fits <code>z</code>. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
     <pre class="tut-code">pr &lt;- new(Probit, y)                            <span class="c"># the probit wrapper, holding y</span>
-vc &lt;- new(VCBART, y = pr$get_current()$z, X, Z)  <span class="c"># VC-BART on the hidden scores</span>
+vc &lt;- new(VCBART, y = pr$get_current()$z, X, Z)  <span class="c"># VC-BART on the latent variable z</span>
 
 for (t in 1:10000) {
   pr$set_current(list(mu = vc$get_current()$fitted))  <span class="c"># VC-BART's fit -&gt; wrapper mean</span>
-  pr$step()                                           <span class="c"># draw fresh hidden scores z</span>
-  vc$set_current(list(y = pr$get_current()$z))        <span class="c"># scores -&gt; VC-BART response</span>
-  vc$step()                                           <span class="c"># update VC-BART, keep its forest</span>
+  pr$step()                                           <span class="c"># draw the latent variable z</span>
+  vc$set_current(list(y = pr$get_current()$z))        <span class="c"># z -&gt; VC-BART response</span>
+  vc$step()                                           <span class="c"># update VC-BART, keep its ensemble</span>
 }</pre>
-    <p class="tut-say">That loop is the whole point. It only works because both blocks are stateful. VC-BART's response, the hidden scores, changes on every pass, but <code>vc$step()</code> continues from its current forest instead of rebuilding it. A block that restarted each sweep would throw its forest away, and the tree-by-tree updates that make BART work would be lost. Two pieces, generated separately, run as one coherent chain.</p>
+    <p class="tut-say">That loop is the whole point, and it only works because both blocks are stateful. VC-BART's response, the latent variable, changes on every iteration, but <code>vc$step()</code> continues from its current ensemble instead of reinitializing. A block that reinitialized each iteration would discard its ensemble, and the tree-by-tree updates that make BART work would be lost. Two pieces, generated separately, run as one chain.</p>
 
     <p class="tut-step">Step 5 &middot; Check it and use it</p>
     <p class="tut-say">Once composed, it is just another stateful sampler. Check convergence, and predict at new predictors and modifiers. To run several independent chains for cross-chain diagnostics, wrap the two-block setup in a function of a seed and pass it to <code>run_chains</code>.</p>
