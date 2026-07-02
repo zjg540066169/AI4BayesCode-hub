@@ -173,8 +173,8 @@ for (t in 1:10000) {
     <p class="tut-say">That loop is the whole point, and it only works because both blocks are stateful. VC-BART's response, the latent variable, changes on every iteration, but <code>vc$step()</code> continues from its current ensemble instead of reinitializing. A block that reinitialized each iteration would discard its ensemble, and the tree-by-tree updates that make BART work would be lost. Two pieces, generated separately, run as one chain.</p>
 
     <p class="tut-step">Step 5 &middot; Check it and use it</p>
-    <p class="tut-say">Once composed, it is just another stateful sampler. Because VC-BART has one fitted value per observation, its history holds many parameters, so we ask for the R-hat and ESS table with <code>plot = FALSE</code> rather than a plot for each. Then predict at new predictors and modifiers. To run several independent chains for cross-chain diagnostics, wrap the two-block setup in a function of a seed and pass it to <code>run_chains</code>.</p>
-    <pre class="tut-code">ai4bayescode_diagnose(vc$get_history(), plot = FALSE)$summary   <span class="c"># R-hat / ESS per parameter (no per-observation plots)</span>
+    <p class="tut-say">Once composed, it is just another stateful sampler. Check convergence on the latent variable <code>z</code>, the identified quantity the two blocks share. VC-BART's coefficients are additive ensemble pieces that are not separately identified, so you check the shared latent, not each coefficient. There is one <code>z</code> per observation, so ask for the R-hat and ESS table with <code>plot = FALSE</code>. Then predict at new predictors and modifiers. To run several independent chains for cross-chain diagnostics, wrap the two-block setup in a function of a seed and pass it to <code>run_chains</code>.</p>
+    <pre class="tut-code">ai4bayescode_diagnose(pr$get_history(), plot = FALSE)$summary   <span class="c"># R-hat / ESS on the latent variable z</span>
 pr_hat &lt;- vc$predict_at(list(X = X_new, Z = Z_new))            <span class="c"># fitted score at new inputs</span></pre>
 
     <div class="tut-prose">
