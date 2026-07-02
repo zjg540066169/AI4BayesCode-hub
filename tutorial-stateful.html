@@ -96,7 +96,30 @@ ai4bayescode_set_key("sk-ant-...")   <span class="c"># replace with your own Ant
    sigma exposed as a tuning parameter (set from outside, not sampled),
    each coefficient beta_j(Z) is a BART ensemble in the modifiers Z",
   classname = "VCBART")
-ai4bayescode_source("./generated/VCBART.cpp")</pre>
+ai4bayescode_source("./generated/VCBART.cpp")
+ai4bayescode_doc("./generated/VCBART.cpp")   <span class="c"># print the class and its constructor</span></pre>
+
+    <p class="tut-say"><code>doc()</code> prints the class and how to build it. Most of the listing is left out below, keeping the part you need now, the constructor. Note the argument order, and that <code>sigma</code> is a plain argument you pass when you build the block.</p>
+    <pre class="tut-code">────────────────────────────────────────────────────────────────
+  VCBART
+────────────────────────────────────────────────────────────────
+Construct:
+  new(VCBART,
+      X             ,   <span class="c"># numeric matrix</span>
+      Z             ,   <span class="c"># numeric matrix</span>
+      y             ,   <span class="c"># numeric vector</span>
+      sigma         ,   <span class="c"># numeric</span>
+      ntrees        ,   <span class="c"># integer (e.g. 1L)</span>
+      k             ,   <span class="c"># numeric</span>
+      power         ,   <span class="c"># numeric</span>
+      base          ,   <span class="c"># numeric</span>
+      numcut        ,   <span class="c"># integer (e.g. 1L)</span>
+      rng_seed      ,   <span class="c"># integer (e.g. 1L)</span>
+      keep_tree     ,   <span class="c"># logical (TRUE/FALSE)  [optional, default false]</span>
+      keep_history  )   <span class="c"># logical (TRUE/FALSE)  [optional, default false]</span>
+
+  <span class="c">... (methods and example omitted)</span>
+────────────────────────────────────────────────────────────────</pre>
 
     <p class="tut-step">Step 2 &middot; Generate the probit wrapper</p>
     <p class="tut-say">The wrapper is small. It only states how the latent variable relates to the binary outcome, and that its mean is supplied by another block. Generate it, compile it, and print its constructor the same way as VC-BART.</p>
