@@ -1,0 +1,31 @@
+Block: particle_gibbs_block # => class particle_gibbs_block; header particle_gibbs_block.hpp;
+ # bundle blocks_local/particle_gibbs_block/
+Version: 0.1.0
+Title: Particle Gibbs (conditional SMC / PGAS) sampler for continuous latent
+ state-space paths
+Description: Samples the continuous latent state path x_{1:T} of a univariate
+ first-order state-space model x_1 ~ m(.), x_t | x_{t-1} ~ f(.|x_{t-1}),
+ y_t | x_t ~ g(.|x_t), where the transition f or emission g is nonlinear or
+ non-Gaussian and admits no closed-form (Kalman/FFBS) conditional. Model
+ structure is supplied through four callbacks (initial draw, transition draw,
+ emission log-weight, transition log-density); the dynamics parameters theta and
+ the observations are read from the block_context each sweep and are sampled by
+ sibling blocks. Sampling uses conditional sequential Monte Carlo (Particle
+ Gibbs) with a bootstrap proposal and optional ancestor sampling (PGAS), which
+ leaves the latent-path full conditional invariant for any particle count
+ N >= 2. The stochastic-volatility log-volatility path is the worked example.
+Author: AI4BayesCode contributors
+License: GPL-3.0-or-later
+EngineKind: mcmc
+ConstraintKinds: none
+RoutingKey: continuous latent state-space path (nonlinear/non-Gaussian SSM)
+SelectWhen: univariate continuous latent state-space path with a nonlinear /
+ non-Gaussian transition or emission (no closed-form smoother)
+Skill: skills/particle_gibbs_block.md
+Tests: test_particle_gibbs_block.cpp
+Depends: core (>= 1.0)
+Example: examples/StochasticVolatility.cpp
+ValidationSkill: skills/particle_gibbs_block_validation.md
+ChecksApplicable: BL1, BL2 (core #1-#26: none triggered by mechanism --
+ gradient-free, fixed-dim, no constraint transform)
+KernelTier: none
