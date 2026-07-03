@@ -179,8 +179,9 @@ Python  AI4BayesCode.doc(MyModel)</pre>
 
         <h3 id="example">ai4bayescode_example</h3>
         <p>Compile and load a bundled example by name, a one-line way to see a working sampler.</p>
-        <pre class="api__sig">R       ai4bayescode_example("GaussianLocationScale")</pre>
-        <p>The remaining helpers list and report: <code>ai4bayescode_list_examples()</code>, <code>ai4bayescode_list_skills()</code>, <code>ai4bayescode_version()</code>, and <code>ai4bayescode_stream_check()</code> to confirm streaming works with your key.</p>
+        <pre class="api__sig">R       ai4bayescode_example("GaussianLocationScale")
+Python  AI4BayesCode.example("GaussianLocationScale")</pre>
+        <p>The remaining helpers list and report: <code>ai4bayescode_list_examples()</code>, <code>ai4bayescode_list_skills()</code>, <code>ai4bayescode_version()</code>, and <code>ai4bayescode_stream_check()</code> to confirm streaming works with your key. Each is mirrored under <code>AI4BayesCode.</code> in Python.</p>
       </article>
 
       <article class="api__section" id="available_blocks">
@@ -273,7 +274,7 @@ Python  AI4BayesCode.diagnose(hist)</pre>
 Python  AI4BayesCode.plot_dag(m)</pre>
 
         <h3 id="run_chains">ai4bayescode_run_chains</h3>
-        <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed. Convergence companions: <code>ai4bayescode_rhat_summary()</code> in R. In Python, <code>rhat()</code>, <code>ess_bulk()</code>, and <code>ess_tail()</code>.</p>
+        <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed. Convergence companion: <code>ai4bayescode_rhat_summary()</code> in R, <code>AI4BayesCode.rhat_summary()</code> in Python (or the lower-level <code>rhat()</code>, <code>ess_bulk()</code>, and <code>ess_tail()</code>).</p>
         <pre class="api__sig">R       ai4bayescode_run_chains(function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
                                 n_chains = 4, n_burn = 5000, n_keep = 5000)
 Python  AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, seed=s, keep_history=True),
