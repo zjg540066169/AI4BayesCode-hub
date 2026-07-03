@@ -127,7 +127,9 @@ m$readapt_NUTS(500)                                    # re-tune NUTS step size 
 # run several chains in parallel for cross-chain R-hat / ESS
 runs &lt;- ai4bayescode_run_chains(
   function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
-  n_chains = 4, n_burn = 5000, n_keep = 5000)</pre>
+  n_chains = 4, n_burn = 5000, n_keep = 5000)
+ai4bayescode_rhat_summary(runs)                        # cross-chain R-hat and ESS
+ai4bayescode_diagnose(runs$histories[[1]])             # full diagnostics on one chain</pre>
       </article>
 
       <article class="api__section" id="set_key">
