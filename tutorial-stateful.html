@@ -183,6 +183,22 @@ pr_hat &lt;- vc$predict_at(list(X = X_new, Z = Z_new))            <span class="c
       <p>That is the full loop, from an empty session to a fitted binary VC-BART. The only new idea beyond ordinary MCMC is statefulness: because each block keeps its own state and shares the same small interface, you compose two separately generated pieces into one model instead of writing a new sampler from scratch.</p>
     </div>
 
+    <div class="tut-prose">
+      <h2>Another use: online learning</h2>
+      <p>The same statefulness powers online learning. Say a lab takes a new measurement every so often, so the data arrives in batches rather than all at once. A standard sampler refits from scratch on each new batch, discarding the chain and paying for warm-up again. A stateful sampler keeps going instead: you feed the new measurements in through <code>set_current</code>, and, for a NUTS-based block, re-tune the step size and mass matrix with <code>readapt_NUTS</code> as the posterior geometry shifts, then sample on from where you were.</p>
+    </div>
+    <pre class="tut-code">m &lt;- new(MyModel, y, X, seed = 1L, keep_history = TRUE)
+m$step(2000)   <span class="c"># warm up and fit on the data so far</span>
+
+<span class="c"># ... later, a new batch of measurements arrives. Feed it in, re-tune NUTS to</span>
+<span class="c"># the shifted geometry, and keep sampling from where you were, no restart:</span>
+m$set_current(list(y = y_new, X = X_new))
+m$readapt_NUTS(200)
+m$step(1000)</pre>
+    <div class="tut-prose">
+      <p>Most probabilistic programming languages assume a fixed dataset and a single warm-up, so a continual update like this means rebuilding the model and re-running from scratch each time. Here it is a few calls on the same live sampler.</p>
+    </div>
+
     <p style="max-width:44rem;margin-top:2.5rem;">
       <a class="btn" href="tutorial.html">&larr; All tutorials</a>
       <a class="btn" href="api.html#ctor">The stateful interface in the API</a>
