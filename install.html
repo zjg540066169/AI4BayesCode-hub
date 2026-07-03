@@ -151,6 +151,10 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
       model in plain text and <code>generate()</code> writes and validates the sampler.
     </p>
 
+    <p class="subtitle install__note" style="max-width:44rem; border-left:3px solid rgb(var(--accent) / .55); padding-left:1rem;">
+      <strong>Which path for generation?</strong> The package&rsquo;s <code>generate()</code> calls the model API directly, so it needs a real API key from your provider&rsquo;s console. For Anthropic that is an <code>sk-ant-api...</code> key, billed per call, which suits generating a handful of samplers now and then. A subscription token from <code>claude setup-token</code> does not work here, because Anthropic no longer allows those on the direct API. If you have a Claude or Codex subscription and generate often, use the <strong>coding agent</strong> path instead, where generation runs through your subscription with no separate API key.
+    </p>
+
     <div class="install mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">R</div>
