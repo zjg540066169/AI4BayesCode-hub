@@ -223,9 +223,9 @@ Python  AI4BayesCode.remove_block("nngp_gaussian_gibbs_block")</pre>
 Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
 
         <h3 id="step">step</h3>
-        <p>Run <code>n</code> sweeps in one call, advancing the chain. Every sweep is recorded when <code>keep_history = TRUE</code>, so there is no separate unrecorded burn-in. Treat the early draws as burn-in when you analyze.</p>
-        <pre class="api__sig">R       m$step(n)        # run n MCMC sweeps
-Python  m.step(n)</pre>
+        <p>Run <code>n</code> sweeps in one call, advancing the chain. <code>n</code> defaults to 1, so <code>m$step()</code> advances a single sweep. Every sweep is recorded when <code>keep_history = TRUE</code>, so there is no separate unrecorded burn-in. Treat the early draws as burn-in when you analyze.</p>
+        <pre class="api__sig">R       m$step(n = 1)        # run n MCMC sweeps
+Python  m.step(n=1)</pre>
 
         <h3 id="get_current">get_current</h3>
         <p>The current draw as a named list (R) or dict (Python), keyed by parameter. Does not advance the chain.</p>
