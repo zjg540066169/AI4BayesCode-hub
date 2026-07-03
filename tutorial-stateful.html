@@ -184,17 +184,46 @@ pr_hat &lt;- vc$predict_at(list(X = X_new, Z = Z_new))            <span class="c
     </div>
 
     <div class="tut-prose">
-      <h2>Another use: online learning</h2>
-      <p>The same statefulness powers online learning. Say a lab takes a new measurement every so often, so the data arrives in batches rather than all at once. A standard sampler refits from scratch on each new batch, discarding the chain and paying for warm-up again. A stateful sampler keeps going instead: you feed the new measurements in through <code>set_current</code>, and, for a NUTS-based block, re-tune the step size and mass matrix with <code>readapt_NUTS</code> as the posterior geometry shifts, then sample on from where you were.</p>
+      <h2>A second example: online learning</h2>
+      <p>Statefulness is not only for composition. It also makes online learning easy. Say a lab takes a new measurement every so often, so the data arrives in batches rather than all at once. A standard sampler refits from scratch on each new batch, discarding the chain and paying for warm-up again. A stateful sampler keeps going: you feed the new measurements in through <code>set_current</code>, re-tune NUTS with <code>readapt_NUTS</code> as the posterior geometry tightens, and sample on from where you were.</p>
     </div>
-    <pre class="tut-code">m &lt;- new(MyModel, y, X, seed = 1L, keep_history = TRUE)
-m$step(2000)   <span class="c"># warm up and fit on the data so far</span>
 
-<span class="c"># ... later, a new batch of measurements arrives. Feed it in, re-tune NUTS to</span>
-<span class="c"># the shifted geometry, and keep sampling from where you were, no restart:</span>
-m$set_current(list(y = y_new, X = X_new))
-m$readapt_NUTS(200)
-m$step(1000)</pre>
+    <p class="tut-step">Step 1 &middot; Generate a model whose data can be updated</p>
+    <p class="tut-say">We fit a logistic regression with NUTS. The one twist, as with VC-BART's <code>sigma</code>, is that we generate it with its data as an input, so later batches can be fed in.</p>
+    <pre class="tut-code">ai4bayescode_generate(
+  "Bayesian logistic regression, y_i ~ Bernoulli(1 / (1 + exp(-x_i . beta))),
+   beta ~ N(0, 5^2), with the data X and y as inputs that can be updated over time",
+  classname = "LogReg")
+ai4bayescode_source("./generated/LogReg.cpp")
+ai4bayescode_doc("./generated/LogReg.cpp")   <span class="c"># confirm the constructor and that X, y are inputs</span></pre>
+
+    <p class="tut-step">Step 2 &middot; The first batch of measurements</p>
+    <p class="tut-say">Simulate an initial batch, build the sampler, and warm it up.</p>
+    <pre class="tut-code">set.seed(1)
+p &lt;- 4
+beta_true &lt;- c(1.5, -2, 0.5, 1)
+batch &lt;- function(n) {                            <span class="c"># one batch of lab measurements</span>
+  X &lt;- matrix(rnorm(n * p), n, p)
+  list(X = X, y = rbinom(n, 1, 1 / (1 + exp(-(X %*% beta_true)))))
+}
+
+b &lt;- batch(100)                                   <span class="c"># the first measurements</span>
+m &lt;- new(LogReg, b$X, b$y, seed = 1L, keep_history = TRUE)
+m$step(2000)                                      <span class="c"># warm up and fit on the data so far</span></pre>
+
+    <p class="tut-step">Step 3 &middot; New measurements arrive over time</p>
+    <p class="tut-say">Each time a batch comes in, append it, feed the updated data through <code>set_current</code>, re-tune NUTS, and keep sampling. No restart, no second warm-up.</p>
+    <pre class="tut-code">X_all &lt;- b$X; y_all &lt;- b$y
+for (t in 1:5) {
+  b &lt;- batch(50)                                  <span class="c"># a new batch from the lab</span>
+  X_all &lt;- rbind(X_all, b$X); y_all &lt;- c(y_all, b$y)
+  m$set_current(list(X = X_all, y = y_all))       <span class="c"># feed the updated data</span>
+  m$readapt_NUTS(200)                             <span class="c"># re-tune NUTS to the tighter geometry</span>
+  m$step(1000)                                    <span class="c"># keep sampling from where you were</span>
+}
+
+ai4bayescode_diagnose(m$get_history(), plot = FALSE)$summary   <span class="c"># R-hat / ESS for beta</span></pre>
+
     <div class="tut-prose">
       <p>Most probabilistic programming languages assume a fixed dataset and a single warm-up, so a continual update like this means rebuilding the model and re-running from scratch each time. Here it is a few calls on the same live sampler.</p>
     </div>
