@@ -62,7 +62,7 @@
       <strong>Recommended:</strong> generate your sampler in a <strong>coding agent</strong>, where
       generation is the most complete and runs through your Claude or Codex subscription. Then use the
       <strong>R or Python package</strong> to load and run the sampler it writes. The package can
-      generate too, but its <code>generate()</code> calls the model API directly, so it needs a real API
+      generate too, but it supports fewer models than the coding agent, and its <code>generate()</code> calls the model API directly, so it needs a real API
       key (for Anthropic, an <code>sk-ant-api...</code> key) billed per call. A subscription token from
       <code>claude setup-token</code> will not work there, since Anthropic no longer allows those on the
       direct API. So the package suits the occasional sampler, and the coding agent suits frequent
