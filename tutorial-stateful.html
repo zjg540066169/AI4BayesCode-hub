@@ -55,8 +55,7 @@
     <h1 class="hero__title" style="font-size:clamp(2.2rem,4.5vw,3.2rem);margin-bottom:1rem;">What &ldquo;stateful&rdquo; means.</h1>
     <p class="hero__lede">
       Statefulness is the coding paradigm that lets AI4BayesCode take blocks built separately and run them
-      together as one sampler. This walks through what it means, then builds a working example from
-      scratch: a binary-outcome VC-BART, made by composing two pieces.
+      together as one sampler. This explains what it means and why it matters.
     </p>
   </section>
 </header>
@@ -75,158 +74,10 @@
       <p>\[ (\Theta^{(t)},\, \mathcal{D}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}), \]</p>
       <p>while a stateful block takes the update to \(\mathcal{D}\) first, then advances:</p>
       <p>\[ (\Theta^{(t)},\, \mathcal{D}^{(t)}) \;\longrightarrow\; (\Theta^{(t)},\, \mathcal{D}^{(t+1)}) \;\longrightarrow\; (\Theta^{(t+1)},\, \mathcal{D}^{(t+1)}). \]</p>
-      <p>The first arrow is <code>set_current</code>, the second is <code>step</code>. Because every block works this way, blocks built separately drop into one larger sampler and keep running, instead of reinitializing from scratch. The rest of this page builds one such model from nothing, written so you can follow it even on your first time with AI4BayesCode.</p>
-
-      <h2>The example: binary VC-BART</h2>
-      <p>VC-BART is a varying-coefficient model. Instead of one fixed effect per predictor, each effect is allowed to change with some modifiers \(Z\), and each of those changing effects is learned by its own BART ensemble. For a continuous outcome it models</p>
-      <p>\[ y_i \;=\; \beta_0(Z_i) + \sum_{j=1}^{p} \beta_j(Z_i)\, x_{ij} + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0,\, \sigma^2), \]</p>
-      <p>where each coefficient function \(\beta_j(Z)\) is its own BART ensemble in the modifiers \(Z\). It is built for that continuous outcome, and has no publicly available implementation for a binary outcome.</p>
-      <p>We will build one by composition. We use the probit transformation, which introduces a latent variable \(z_i\) behind each binary outcome, with the outcome equal to 1 when \(z_i\) is positive and 0 otherwise, and let VC-BART model that latent variable:</p>
-      <p>\[ y_i \;=\; \mathbf{1}(z_i > 0), \qquad z_i \;=\; \beta_0(Z_i) + \sum_{j=1}^{p} \beta_j(Z_i)\, x_{ij} + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0,\, 1). \]</p>
-      <p>A probit model needs the latent variable's residual variance fixed at 1, since binary data cannot identify its scale. So we generate VC-BART with its residual scale <code>sigma</code> exposed as a tuning parameter. For a binary outcome we fix it, passing <code>sigma = 1</code> when we build the block. The plan: generate that VC-BART, generate a probit wrapper for the latent variable, and compose the two samplers through the stateful interface.</p>
+      <p>The first arrow is <code>set_current</code>, the second is <code>step</code>. Because every block works this way, blocks built separately drop into one larger sampler and keep running, instead of reinitializing from scratch.</p>
     </div>
 
-    <p class="tut-step">Before you start</p>
-    <p class="tut-say">The coding agent (Claude Code or Codex) has the fullest, most capable support for AI4BayesCode, so for real work we recommend generating your samplers there. The R and Python packages generate as well, and this tutorial uses the R calls so the whole workflow reads as one script. To follow along, install the package (see the <a class="accent" href="install.html">Install</a> page), load it, and set your LLM key once.</p>
-    <pre class="tut-code">library(AI4BayesCode)
-ai4bayescode_set_key("sk-ant-...")   <span class="c"># replace with your own Anthropic or OpenAI key</span></pre>
-
-    <p class="tut-step">Step 1 &middot; Generate the continuous VC-BART sampler</p>
-    <p class="tut-say">You describe the model in plain words. The one twist is that <code>sigma</code>, the residual scale, is exposed as a tuning parameter you set from outside rather than a sampled one, so another block can drive it. <code>generate()</code> parses it, assigns each part to a built-in sampler, writes a C++ sampler, and validates it. <code>source()</code> compiles and loads that sampler, so the <code>VCBART</code> class is then ready to build.</p>
-    <pre class="tut-code">ai4bayescode_generate(
-  "varying-coefficient regression, y ~ N(sum_j beta_j(Z) * x_j, sigma^2),
-   sigma exposed as a tuning parameter (set from outside, not sampled),
-   each coefficient beta_j(Z) is a BART ensemble in the modifiers Z",
-  classname = "VCBART")
-ai4bayescode_source("./generated/VCBART.cpp")
-ai4bayescode_doc("./generated/VCBART.cpp")   <span class="c"># print the class and its constructor</span></pre>
-
-    <p class="tut-say"><code>doc()</code> prints the class and how to build it. Most of the listing is left out below, keeping the part you need now, the constructor. Note the argument order, and that <code>sigma</code> is a plain argument you pass when you build the block.</p>
-    <pre class="tut-code">────────────────────────────────────────────────────────────────
-  VCBART
-────────────────────────────────────────────────────────────────
-Construct:
-  new(VCBART,
-      X             ,   <span class="c"># numeric matrix</span>
-      Z             ,   <span class="c"># numeric matrix</span>
-      y             ,   <span class="c"># numeric vector</span>
-      sigma         ,   <span class="c"># numeric</span>
-      ntrees        ,   <span class="c"># integer (e.g. 1L)</span>
-      k             ,   <span class="c"># numeric</span>
-      power         ,   <span class="c"># numeric</span>
-      base          ,   <span class="c"># numeric</span>
-      numcut        ,   <span class="c"># integer (e.g. 1L)</span>
-      rng_seed      ,   <span class="c"># integer (e.g. 1L)</span>
-      keep_tree     ,   <span class="c"># logical (TRUE/FALSE)  [optional, default false]</span>
-      keep_history  )   <span class="c"># logical (TRUE/FALSE)  [optional, default false]</span>
-
-  <span class="c">... (methods and example omitted)</span>
-────────────────────────────────────────────────────────────────</pre>
-
-    <p class="tut-step">Step 2 &middot; Generate the probit wrapper</p>
-    <p class="tut-say">The wrapper is small. It only states how the latent variable relates to the binary outcome, and that its mean is supplied by another block. Generate it, compile it, and print its constructor the same way as VC-BART.</p>
-    <pre class="tut-code">ai4bayescode_generate(
-  "probit data augmentation, y_i = 1 if z_i > 0 else 0,
-   z_i ~ N(mu_i, 1) with the mean mu_i an exposed mean vector inputted from other blocks",
-  classname = "Probit")
-ai4bayescode_source("./generated/Probit.cpp")
-ai4bayescode_doc("./generated/Probit.cpp")   <span class="c"># print the class and its constructor</span></pre>
-
-    <p class="tut-say">Its constructor is shorter: the outcome <code>y</code>, the mean <code>mu</code> that another block supplies, and the usual seed and history flag.</p>
-    <pre class="tut-code">────────────────────────────────────────────────────────────────
-  Probit
-────────────────────────────────────────────────────────────────
-Construct:
-  new(Probit,
-      y             ,   <span class="c"># numeric vector</span>
-      mu            ,   <span class="c"># numeric vector</span>
-      rng_seed      ,   <span class="c"># integer (e.g. 1L)</span>
-      keep_history  )   <span class="c"># logical (TRUE/FALSE)</span>
-
-  <span class="c">... (methods and example omitted)</span>
-────────────────────────────────────────────────────────────────</pre>
-
-    <p class="tut-step">Step 3 &middot; Prepare your data</p>
-    <p class="tut-say">You need three things: the binary outcome <code>y</code>, the predictors <code>X</code>, and the modifiers <code>Z</code> that the coefficients vary with. Plug in your own data, or simulate a set. Here we simulate one where each effect genuinely varies with <code>Z</code> and the outcome comes through a probit link, so the fitted model has something real to recover.</p>
-    <pre class="tut-code">n &lt;- 500; p &lt;- 5; r &lt;- 2
-X &lt;- matrix(rnorm(n * p), n, p)   <span class="c"># predictors</span>
-Z &lt;- matrix(runif(n * r), n, r)   <span class="c"># modifiers the effects vary with</span>
-
-<span class="c"># a varying-coefficient probit outcome: each effect changes with Z</span>
-b0  &lt;- 0.5 * sin(2 * pi * Z[, 1])   <span class="c"># intercept beta_0(Z)</span>
-b   &lt;- cbind(2 * Z[, 1] - 1, Z[, 2], Z[, 1] * Z[, 2], -0.5, cos(2 * pi * Z[, 2]))   <span class="c"># beta_1..5(Z)</span>
-eta &lt;- b0 + rowSums(b * X)   <span class="c"># linear predictor</span>
-y   &lt;- as.integer(eta + rnorm(n) &gt; 0)   <span class="c"># 1 if the latent variable &gt; 0</span></pre>
-
-    <p class="tut-step">Step 4 &middot; Compose the two blocks with set / get</p>
-    <p class="tut-say">Now build both blocks and run one chain that alternates between them. The probit wrapper takes the outcome, an initial mean <code>mu</code> we start at 0, and the usual seed and history flag. VC-BART takes its <code>doc()</code> arguments in order: the data, <code>sigma</code> fixed at 1 for the probit link, then the standard BART settings. On each iteration, the wrapper draws the latent variable <code>z</code> from VC-BART's current fit, then VC-BART fits <code>z</code>. The values pass through <code>get_current</code> and <code>set_current</code>, and <code>step</code> advances each block.</p>
-    <pre class="tut-code">pr &lt;- new(Probit, y, rep(0, n), 1L, TRUE)   <span class="c"># y, initial mean mu = 0, rng_seed, keep_history = TRUE</span>
-vc &lt;- new(VCBART,
-          X, Z, pr$get_current()$z, 1,   <span class="c"># X, Z, y (= latent z), sigma (fixed at 1 for probit)</span>
-          200L, 2, 2, 0.95, 100L, 1L,    <span class="c"># ntrees, k, power, base, numcut, rng_seed (demo defaults)</span>
-          FALSE, TRUE)                   <span class="c"># keep_tree, keep_history (keep history so we can diagnose)</span>
-
-for (t in 1:10000) {
-  pr$set_current(list(mu = vc$get_current()$mu))      <span class="c"># VC-BART's fit -&gt; wrapper mean</span>
-  pr$step()                                           <span class="c"># draw the latent variable z</span>
-  vc$set_current(list(y = pr$get_current()$z))        <span class="c"># z -&gt; VC-BART response</span>
-  vc$step()                                           <span class="c"># update VC-BART, keep its ensemble</span>
-}</pre>
-    <p class="tut-say">That loop is the whole point, and it only works because both blocks are stateful. VC-BART's response, the latent variable, changes on every iteration, but <code>vc$step()</code> continues from its current ensemble instead of reinitializing. A block that reinitialized each iteration would discard its ensemble, and the tree-by-tree updates that make BART work would be lost. Two pieces, generated separately, run as one chain.</p>
-
-    <p class="tut-step">Step 5 &middot; Check it and use it</p>
-    <p class="tut-say">Both blocks keep their draws, so once the loop finishes you can check convergence and predict. Track the latent variable <code>z</code> that the two share. There is one <code>z</code> per observation, so ask for the R-hat and ESS table with <code>plot = FALSE</code>. Then predict at new predictors and modifiers from VC-BART.</p>
-    <pre class="tut-code">ai4bayescode_diagnose(pr$get_history(), plot = FALSE)$summary   <span class="c"># R-hat / ESS on the latent variable z</span>
-pr_hat &lt;- vc$predict_at(list(X = X_new, Z = Z_new))            <span class="c"># fitted score at new inputs</span></pre>
-
-    <div class="tut-prose">
-      <p>That is the full loop, from an empty session to a fitted binary VC-BART. The only new idea beyond ordinary MCMC is statefulness: because each block keeps its own state and shares the same small interface, you compose two separately generated pieces into one model instead of writing a new sampler from scratch.</p>
-    </div>
-
-    <div class="tut-prose">
-      <h2>A second example: online learning</h2>
-      <p>Statefulness is not only for composition. It also makes online learning easy. Say a lab takes a new measurement every so often, so the data arrives in batches rather than all at once. A standard sampler refits from scratch on each new batch, discarding the chain and paying for warm-up again. A stateful sampler keeps going: you feed the new measurements in through <code>set_current</code>, re-tune NUTS with <code>readapt_NUTS</code> as the posterior geometry tightens, and sample on from where you were.</p>
-    </div>
-
-    <p class="tut-step">Step 1 &middot; Generate a model whose data can be updated</p>
-    <p class="tut-say">We fit a logistic regression with NUTS. The one twist, as with VC-BART's <code>sigma</code>, is that we generate it with its data as an input, so later batches can be fed in.</p>
-    <pre class="tut-code">ai4bayescode_generate(
-  "Bayesian logistic regression, y_i ~ Bernoulli(1 / (1 + exp(-x_i . beta))),
-   beta ~ N(0, 5^2), with the data X and y as inputs that can be updated over time",
-  classname = "LogReg")
-ai4bayescode_source("./generated/LogReg.cpp")
-ai4bayescode_doc("./generated/LogReg.cpp")   <span class="c"># confirm the constructor and that X, y are inputs</span></pre>
-
-    <p class="tut-step">Step 2 &middot; The first batch of measurements</p>
-    <p class="tut-say">Simulate an initial batch, build the sampler, and warm it up.</p>
-    <pre class="tut-code">set.seed(1)
-p &lt;- 4
-beta_true &lt;- c(1.5, -2, 0.5, 1)
-batch &lt;- function(n) {                            <span class="c"># one batch of lab measurements</span>
-  X &lt;- matrix(rnorm(n * p), n, p)
-  list(X = X, y = rbinom(n, 1, 1 / (1 + exp(-(X %*% beta_true)))))
-}
-
-b &lt;- batch(100)                                   <span class="c"># the first measurements</span>
-m &lt;- new(LogReg, b$X, b$y, seed = 1L, keep_history = TRUE)
-m$step(2000)                                      <span class="c"># warm up and fit on the data so far</span></pre>
-
-    <p class="tut-step">Step 3 &middot; New measurements arrive over time</p>
-    <p class="tut-say">Each time a batch comes in, append it, feed the updated data through <code>set_current</code>, re-tune NUTS, and keep sampling. No restart, no second warm-up.</p>
-    <pre class="tut-code">X_all &lt;- b$X; y_all &lt;- b$y
-for (t in 1:5) {
-  b &lt;- batch(50)                                  <span class="c"># a new batch from the lab</span>
-  X_all &lt;- rbind(X_all, b$X); y_all &lt;- c(y_all, b$y)
-  m$set_current(list(X = X_all, y = y_all))       <span class="c"># feed the updated data</span>
-  m$readapt_NUTS(200)                             <span class="c"># re-tune NUTS to the tighter geometry</span>
-  m$step(1000)                                    <span class="c"># keep sampling from where you were</span>
-}
-
-ai4bayescode_diagnose(m$get_history(), plot = FALSE)$summary   <span class="c"># R-hat / ESS for beta</span></pre>
-
-    <div class="tut-prose">
-      <p>Most probabilistic programming languages assume a fixed dataset and a single warm-up, so a continual update like this means rebuilding the model and re-running from scratch each time. Here it is a few calls on the same live sampler.</p>
-    </div>
+    <p class="tut-say" style="max-width:46rem;margin-top:2rem;">Worked examples are coming soon: a binary-outcome VC-BART built by composing two blocks, and an online-learning walkthrough that feeds fresh data in with <code>set_current</code>.</p>
 
     <p style="max-width:44rem;margin-top:2.5rem;">
       <a class="btn" href="tutorial.html">&larr; All tutorials</a>
