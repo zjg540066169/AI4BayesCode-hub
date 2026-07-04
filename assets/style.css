@@ -128,7 +128,7 @@ p code, li code {
 .news-list { list-style: none; margin: 1rem 0 0; padding: 0; max-width: 44rem; }
 .news-item { display: flex; gap: 1.1rem; padding: .7rem 0; border-top: 1px solid rgb(var(--rule)); }
 .news-item:first-child { border-top: none; padding-top: .2rem; }
-.news-date { flex: 0 0 4.5rem; font-family: 'IBM Plex Mono', monospace; font-size: .82rem; color: rgb(var(--ink-faint)); padding-top: .15rem; }
+.news-date { flex: 0 0 6rem; font-family: 'IBM Plex Mono', monospace; font-size: .82rem; color: rgb(var(--ink-faint)); padding-top: .15rem; }
 .news-text { color: rgb(var(--ink-soft)); line-height: 1.55; }
 
 /* ----- nav / header ----- */
