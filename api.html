@@ -153,14 +153,16 @@ Python  AI4BayesCode.models()</pre>
 
         <h3 id="generate">ai4bayescode_generate</h3>
         <p>Parse and validate the model description, then write a sampler <code>.cpp</code> to <code>output_path</code>. A validate-then-repair loop (up to <code>max_attempts</code>) keeps going until the code compiles and passes the checks. Pass <code>API_key</code> here, or set it once with <code>ai4bayescode_set_key</code>.</p>
-        <pre class="api__sig">R       ai4bayescode_generate(model_description, LLM = "claude-opus-4-8",
-          effort = "high", output_path = "./generated", API_key = NULL)
-Python  AI4BayesCode.generate(model_description, LLM="claude-opus-4-8",
-          effort="high", output_path="./generated", API_key=None)</pre>
+        <pre class="api__sig">R       ai4bayescode_generate(model_description, LLM = NULL, effort = NULL,
+          backend = NULL, output_path = NULL, max_attempts = NULL, API_key = NULL)
+Python  AI4BayesCode.generate(model_description, LLM=None, effort=None,
+          backend=None, output_path=None, max_attempts=None, API_key=None)</pre>
         <dl class="api__params">
           <dt>model_description</dt> <dd>Plain-language model spec (text, or a path to a <code>.txt</code>).</dd>
-          <dt>LLM, effort</dt>       <dd>Which model writes the sampler, and how hard it thinks. See <code>ai4bayescode_models()</code>.</dd>
-          <dt>output_path</dt>       <dd>Where the generated <code>.cpp</code> is written.</dd>
+          <dt>LLM, effort</dt>       <dd>Which model writes the sampler, and how hard it thinks. Left unset (<code>NULL</code>/<code>None</code>) they are asked interactively; see <code>ai4bayescode_models()</code>.</dd>
+          <dt>backend</dt>           <dd>Target runtime: <code>"R"</code>, <code>"Python"</code>, or <code>"both"</code> &mdash; one dual-module <code>.cpp</code> usable from both (the default when unset). Asked interactively if unset.</dd>
+          <dt>output_path</dt>       <dd>Where the generated <code>.cpp</code> is written (default <code>./generated/</code>).</dd>
+          <dt>max_attempts</dt>      <dd>Validate-then-repair budget (default 5). Asked interactively if unset.</dd>
           <dt>API_key</dt>           <dd>Provider key for this call. Optional if you used <code>ai4bayescode_set_key</code>.</dd>
         </dl>
 
@@ -256,9 +258,9 @@ Python  m.predict_at({"X": X_new})</pre>
 Python  m.get_dag()</pre>
 
         <h3 id="readapt">readapt_NUTS</h3>
-        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. NUTS-family blocks only, others are skipped.</p>
-        <pre class="api__sig">R       m$readapt_NUTS(n, reset = FALSE)
-Python  m.readapt_NUTS(n)</pre>
+        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. The optional <code>max_tree_depth</code> caps the tree-doubling depth per iteration; <code>-1</code> (the default) uses the block's configured depth. NUTS-family blocks only, others are skipped.</p>
+        <pre class="api__sig">R       m$readapt_NUTS(n, reset = FALSE, max_tree_depth = -1)
+Python  m.readapt_NUTS(n, reset = False, max_tree_depth = -1)</pre>
       </article>
 
       <article class="api__section" id="diagnose">
