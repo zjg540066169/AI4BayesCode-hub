@@ -260,7 +260,7 @@ Python  m.get_dag()</pre>
         <h3 id="readapt">readapt_NUTS</h3>
         <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. The optional <code>max_tree_depth</code> caps the tree-doubling depth per iteration; <code>-1</code> (the default) uses the block's configured depth. NUTS-family blocks only, others are skipped.</p>
         <pre class="api__sig">R       m$readapt_NUTS(n, reset = FALSE, max_tree_depth = -1)
-Python  m.readapt_NUTS(n, reset = False, max_tree_depth = -1)</pre>
+Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1)</pre>
       </article>
 
       <article class="api__section" id="diagnose">
