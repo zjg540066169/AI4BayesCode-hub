@@ -102,6 +102,8 @@
 <span class="fn">ai4bayescode_generate</span>(
   <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-normal on sigma"</span>,
   classname = <span class="lit">"BayesLinReg"</span>, output_path = <span class="lit">"./generated"</span>)
+
+<span class="com"># a sampler written by the coding agent is loaded the same way</span>
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
@@ -121,6 +123,8 @@ cur  &lt;- m$<span class="fn">get_current</span>()           <span class="com">#
 <span class="ty">AI4BayesCode</span>.<span class="fn">generate</span>(
   <span class="lit">"linear regression, y ~ N(Xbeta, sigma^2), normal prior on beta, half-normal on sigma"</span>,
   classname=<span class="lit">"BayesLinReg"</span>, output_path=<span class="lit">"./generated"</span>)
+
+<span class="com"># a sampler written by the coding agent is loaded the same way</span>
 mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
