@@ -87,6 +87,7 @@
         <li><a href="#predict_at">predict_at</a></li>
         <li><a href="#get_dag">get_dag</a></li>
         <li><a href="#readapt">readapt_NUTS</a></li>
+        <li><a href="#freeze">freeze / unfreeze</a></li>
       </ul>
 
       <div class="api__nav-group">Diagnostics &amp; DAG</div>
@@ -261,6 +262,12 @@ Python  m.get_dag()</pre>
         <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. The optional <code>max_tree_depth</code> caps the tree-doubling depth per iteration; <code>-1</code> (the default) uses the block's configured depth. NUTS-family blocks only, others are skipped.</p>
         <pre class="api__sig">R       m$readapt_NUTS(n, reset = FALSE, max_tree_depth = -1)
 Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1)</pre>
+
+        <h3 id="freeze">freeze / unfreeze / get_frozen</h3>
+        <p>Hold part of a model fixed while the rest keeps sampling. <code>freeze</code> pins the named sub-kernels at their current values, so they stay constant on later steps. <code>unfreeze</code> releases them, and with no argument it releases all of them. <code>get_frozen</code> returns the names that are currently frozen. Use this to condition on a component, to profile one part of a model, or to run a what-if with some parameters held at chosen values. Set those values with <code>set_current</code> first, then freeze.</p>
+        <pre class="api__sig">R       m$freeze(c("sigma", "beta"))
+Python  m.freeze(["sigma", "beta"])</pre>
+        <p>In Python, <code>AI4BayesCode.new_frozen()</code> does this in one call. It builds the sampler, sets the chosen components, and freezes them together, so <code>new_frozen(mod.MyModel, y, X, fixed={"sigma": 1.0})</code> is the same as constructing, then <code>set_current</code>, then <code>freeze</code>.</p>
       </article>
 
       <article class="api__section" id="diagnose">

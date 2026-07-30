@@ -105,7 +105,7 @@
       </article>
       <article class="feature" data-cat="semi">
         <h3>2 &middot; Semantic</h3>
-        <p>Twenty-five static checks for bugs that compile and run but still give a wrong posterior: distribution parameterization, dimension mismatch, Jacobian handling, dependency consistency, update logic, gradient correctness, and more.</p>
+        <p>Twenty-six static checks for bugs that compile and run but still give a wrong posterior: distribution parameterization, dimension mismatch, Jacobian handling, dependency consistency, update logic, gradient correctness, and more.</p>
       </article>
       <article class="feature" data-cat="emp">
         <h3>3 &middot; Runtime</h3>
@@ -114,7 +114,7 @@
     </div>
 
     <details class="checks">
-      <summary>Show the 25 semantic checks</summary>
+      <summary>Show the 26 semantic checks</summary>
       <ol class="checks__list">
         <li><strong>Distribution parameterization.</strong> Every distribution is annotated with its exact parameterization and mean.</li>
         <li><strong>Parallel vs sequential update.</strong> Vector Gibbs updates use the correct sequential order.</li>
@@ -141,6 +141,7 @@
         <li><strong>Re-adaptation safety.</strong> Re-tuning NUTS preserves chain state and RNG separation.</li>
         <li><strong>Joint-NUTS pre-flight.</strong> Funnel reparameterization, constraints, and callbacks are complete.</li>
         <li><strong>Trans-dimensional models use RJMCMC.</strong> Dirac spikes and varying dimension go through reversible-jump.</li>
+        <li><strong>Freeze controls.</strong> The controls that hold part of a model fixed while the rest keeps sampling are present and behave safely, warning you if you re-freeze something already frozen or leave a stale derived value behind.</li>
       </ol>
     </details>
 
