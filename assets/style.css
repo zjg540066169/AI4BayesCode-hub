@@ -814,3 +814,11 @@ a.tut-link:hover .tut-link__arrow { color: rgb(var(--accent)); }
   .brand__sub { display: none; }
   .hide-on-small { display: none; }
 }
+
+/* clickable feature taglines (homepage hero) */
+.feature-v__tagline a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .15s;
+}
+.feature-v__tagline a:hover { color: rgb(var(--accent)); }
