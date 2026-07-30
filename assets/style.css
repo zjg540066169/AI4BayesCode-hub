@@ -417,7 +417,7 @@ a.hero__meta-item:hover strong {
   font-size: .82rem;
   line-height: 1.65;
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   margin: 0;
   color: rgb(var(--ink));
 }

@@ -88,21 +88,23 @@
     <div class="install mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">Claude Code</div>
-<pre><span class="com"># clone, then copy in (re-running overwrites any existing install)</span>
+<pre><span class="com"># clone, copy in, then delete the clone (re-run to update)</span>
 git clone https://github.com/zjg540066169/AI4BayesCode.git
 cd AI4BayesCode
 mkdir -p ~/.claude/skills
-rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.claude/skills/AI4BayesCode/</pre>
+rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.claude/skills/AI4BayesCode/
+cd .. &amp;&amp; rm -rf AI4BayesCode</pre>
         <p class="install__note" style="margin-top:.75rem;">Reload Claude Code, then type <code>/AI4BayesCode</code>.</p>
       </div>
 
       <div class="install__card" data-cat="semi">
         <div class="install__lang">Codex</div>
-<pre><span class="com"># clone, then copy in (re-running overwrites any existing install)</span>
+<pre><span class="com"># clone, copy in, then delete the clone (re-run to update)</span>
 git clone https://github.com/zjg540066169/AI4BayesCode.git
 cd AI4BayesCode
 mkdir -p ~/.codex/skills
-rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.codex/skills/AI4BayesCode/</pre>
+rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.codex/skills/AI4BayesCode/
+cd .. &amp;&amp; rm -rf AI4BayesCode</pre>
         <p class="install__note" style="margin-top:.75rem;">Restart Codex, then type <code>/Ai4bayescode</code> <span class="muted">(Codex lowercases the skill name, so only the first letter is capitalized)</span>.</p>
       </div>
 

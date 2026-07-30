@@ -166,6 +166,8 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
 <span class="fn">ai4bayescode_generate</span>(
   <span class="lit">"spike and slab, y ~ N(Xbeta, sigma^2), beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1), sigma ~ HalfNormal(0,1), b ~ HalfNormal(0,1)"</span>,
   classname = <span class="lit">"SpikeLaplace"</span>, output_path = <span class="lit">"./generated"</span>)
+
+<span class="com"># a sampler written by the coding agent is loaded the same way</span>
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
@@ -186,6 +188,8 @@ m$<span class="fn">step</span>(<span class="lit">10000</span>)
 <span class="ty">AI4BayesCode</span>.<span class="fn">generate</span>(
   <span class="lit">"spike and slab, y ~ N(Xbeta, sigma^2), beta_j ~ Laplace(b*sigma) if gamma_j=1 else 0, gamma_j ~ Bernoulli(pi), pi ~ Beta(1,1), sigma ~ HalfNormal(0,1), b ~ HalfNormal(0,1)"</span>,
   classname=<span class="lit">"SpikeLaplace"</span>, output_path=<span class="lit">"./generated"</span>)
+
+<span class="com"># a sampler written by the coding agent is loaded the same way</span>
 mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
