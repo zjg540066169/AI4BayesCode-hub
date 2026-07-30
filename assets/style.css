@@ -416,8 +416,8 @@ a.hero__meta-item:hover strong {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: .82rem;
   line-height: 1.65;
-  white-space: pre;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   margin: 0;
   color: rgb(var(--ink));
 }
