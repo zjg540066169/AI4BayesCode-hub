@@ -47,27 +47,21 @@
   <section class="section">
     <p class="eyebrow">Installation</p>
     <h2 class="mt-1">Get AI4BayesCode running.</h2>
-    <p class="subtitle mt-1" style="max-width:44rem;">
-      Two ways to use it. Drive it from a <strong>coding agent</strong> (install
-      it as a skill, then describe your model in plain language), or install the
-      <strong>R / Python package</strong> and call it from code. Install steps for each:
+    <p class="subtitle mt-1" style="max-width:44rem;">Two ways to use AI4BayesCode:</p>
+
+    <ul class="subtitle" style="max-width:44rem; list-style:disc; padding-left:1.35rem; margin-top:.6rem;">
+      <li style="margin-bottom:.65rem;"><strong>Coding agent</strong> (Claude Code, Cursor, Codex): describe your model in plain language and it writes the sampler for you. This is the most complete way to generate, and it runs on your existing Claude or Codex subscription.</li>
+      <li><strong>R / Python package</strong>: install it like any package and call it from your own code, to load, run, and diagnose samplers. It can generate too, though with fewer models and a paid API key.</li>
+    </ul>
+
+    <p class="subtitle install__note" style="max-width:44rem; border-left:3px solid rgb(var(--accent) / .55); padding-left:1rem;">
+      <strong>New here?</strong> Generate your sampler with a coding agent, then run it with the R or Python package. Installing both is the smoothest path.
     </p>
 
-    <div class="toggle">
+    <div class="toggle" style="margin-top:1.75rem;">
       <button class="btn btn--primary toggle__btn" data-target="llm">Coding agent</button>
       <button class="btn toggle__btn" data-target="pkg">R / Python package</button>
     </div>
-
-    <p class="subtitle install__note" style="max-width:44rem; border-left:3px solid rgb(var(--accent) / .55); padding-left:1rem;">
-      <strong>Recommended:</strong> generate your sampler in a <strong>coding agent</strong>, where
-      generation is the most complete and runs through your Claude or Codex subscription. Then use the
-      <strong>R or Python package</strong> to load and run the sampler it writes. The package can
-      generate too, but it supports fewer models than the coding agent, and its <code>generate()</code> calls the model API directly, so it needs a real API
-      key (for Anthropic, an <code>sk-ant-api...</code> key) billed per call. A subscription token from
-      <code>claude setup-token</code> will not work there, since Anthropic no longer allows those on the
-      direct API. So the package suits the occasional sampler, and the coding agent suits frequent
-      generation on a subscription. Installing both gives the smoothest workflow.
-    </p>
   </section>
 </header>
 
@@ -194,7 +188,9 @@ AI4BayesCode.generate(
 
     <p class="subtitle install__note">
       <strong><code>"sk-ant-..."</code> is a placeholder.</strong> Replace it with your own LLM
-      provider key (your Anthropic or OpenAI key).
+      provider key (Anthropic or OpenAI). It must be a real API key billed per call
+      (for Anthropic, an <code>sk-ant-api...</code> key), not a subscription token from
+      <code>claude setup-token</code>, which Anthropic no longer allows on the direct API.
       <code>ai4bayescode_generate()</code> (R) / <code>AI4BayesCode.generate()</code> (Python)
       uses that key to write the sampler. Set it once with
       <code>ai4bayescode_set_key()</code> / <code>AI4BayesCode.set_key()</code>, or pass
