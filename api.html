@@ -67,6 +67,10 @@
         <li><a href="#source">source</a></li>
         <li><a href="#doc">doc</a></li>
         <li><a href="#example">example</a></li>
+        <li><a href="#list_examples">list_examples</a></li>
+        <li><a href="#list_skills">list_skills</a></li>
+        <li><a href="#version">version</a></li>
+        <li><a href="#stream_check">stream_check</a></li>
       </ul>
 
       <div class="api__nav-group">Contributed blocks</div>
@@ -95,6 +99,10 @@
         <li><a href="#diagnose">ai4bayescode_diagnose</a></li>
         <li><a href="#plot_dag">ai4bayescode_plot_dag</a></li>
         <li><a href="#run_chains">run_chains</a></li>
+        <li><a href="#rhat_summary">rhat_summary</a></li>
+        <li><a href="#rhat">rhat / ess / summary</a></li>
+        <li><a href="#perf_hint">perf_hint</a></li>
+        <li><a href="#paths">paths</a></li>
       </ul>
     </aside>
 
@@ -186,7 +194,25 @@ Python  AI4BayesCode.doc(MyModel)</pre>
         <p>Compile and load a bundled example by name, a one-line way to see a working sampler.</p>
         <pre class="api__sig">R       ai4bayescode_example("GaussianLocationScale")
 Python  AI4BayesCode.example("GaussianLocationScale")</pre>
-        <p>The remaining helpers list and report: <code>ai4bayescode_list_examples()</code>, <code>ai4bayescode_list_skills()</code>, <code>ai4bayescode_version()</code>, and <code>ai4bayescode_stream_check()</code> to confirm streaming works with your key. Each is mirrored under <code>AI4BayesCode.</code> in Python.</p>
+        <h3 id="list_examples">ai4bayescode_list_examples</h3>
+        <p>List the built-in example samplers that ship with the package. Load any of them by name with <code>ai4bayescode_example()</code>.</p>
+        <pre class="api__sig">R       ai4bayescode_list_examples()
+Python  AI4BayesCode.list_examples()</pre>
+
+        <h3 id="list_skills">ai4bayescode_list_skills</h3>
+        <p>List the bundled skill files, the written instructions a coding agent reads to run the AI4BayesCode workflow.</p>
+        <pre class="api__sig">R       ai4bayescode_list_skills()
+Python  AI4BayesCode.list_skills()</pre>
+
+        <h3 id="version">ai4bayescode_version</h3>
+        <p>Report the installed AI4BayesCode version. A generated runner records it, so you know which version produced a sampler.</p>
+        <pre class="api__sig">R       ai4bayescode_version()
+Python  AI4BayesCode.version()</pre>
+
+        <h3 id="stream_check">ai4bayescode_stream_check</h3>
+        <p>Send a short prompt to your LLM with streaming turned on and print the reply as it arrives, so you can confirm the connection and key work before a full <code>generate</code> run. Anthropic keys only.</p>
+        <pre class="api__sig">R       ai4bayescode_stream_check(LLM = "claude-opus-4-8", API_key = NULL)
+Python  AI4BayesCode.stream_check(LLM="claude-opus-4-8", API_key=None)</pre>
       </article>
 
       <article class="api__section" id="available_blocks">
@@ -285,11 +311,36 @@ Python  AI4BayesCode.diagnose(hist)</pre>
 Python  AI4BayesCode.plot_dag(m)</pre>
 
         <h3 id="run_chains">ai4bayescode_run_chains</h3>
-        <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed. Convergence companion: <code>ai4bayescode_rhat_summary()</code> in R, <code>AI4BayesCode.rhat_summary()</code> in Python (or the lower-level <code>rhat()</code>, <code>ess_bulk()</code>, and <code>ess_tail()</code>).</p>
+        <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed.</p>
         <pre class="api__sig">R       ai4bayescode_run_chains(function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
                                 n_chains = 4, n_burn = 5000, n_keep = 5000)
 Python  AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, seed=s, keep_history=True),
                                 seeds=range(4), n_burn=5000, n_keep=5000)</pre>
+
+        <h3 id="rhat_summary">ai4bayescode_rhat_summary</h3>
+        <p>Take the chains that <code>run_chains</code> returns and report the split-R-hat and bulk-ESS convergence diagnostics for every parameter in one table. When a matrix parameter shows a high R-hat only because of label switching, it says so. This is the convergence companion to <code>run_chains</code>.</p>
+        <pre class="api__sig">R       ai4bayescode_rhat_summary(run, keys = NULL, drop_burn = 0)
+Python  AI4BayesCode.rhat_summary(chains, keys=None, drop_burn=0)</pre>
+
+        <h3 id="rhat">rhat / ess_bulk / ess_tail / posterior_summary</h3>
+        <p>The lower-level diagnostics behind those tables, computed one parameter at a time. <code>rhat</code> is the split-R-hat, where a value near 1.0 means the chains agree. <code>ess_bulk</code> and <code>ess_tail</code> are the effective sample sizes for the bulk and the tails of the distribution. <code>posterior_summary</code> returns the mean, median, standard deviation, a credible interval, R-hat, and ESS for one parameter. These are Python only.</p>
+        <pre class="api__sig">Python  AI4BayesCode.rhat(samples)
+Python  AI4BayesCode.ess_bulk(samples)
+Python  AI4BayesCode.ess_tail(samples)
+Python  AI4BayesCode.posterior_summary(samples, prob=0.90)</pre>
+
+        <h3 id="perf_hint">ai4bayescode_perf_hint</h3>
+        <p>Report how long each sweep took after a run, and when it is slow, suggest moving tightly-coupled parameters into a single joint NUTS block. A generated runner calls it for you, and you can also call it on your own timings.</p>
+        <pre class="api__sig">R       ai4bayescode_perf_hint(wall_sec, n_sweeps_total)
+Python  AI4BayesCode.perf_hint(wall_sec, n_sweeps_total)</pre>
+
+        <h3 id="paths">include_path / blocks_path / examples_path / skills_path</h3>
+        <p>Find the files that ship inside the package. <code>include_path</code> is the C++ header directory that goes on the compile path. <code>blocks_path</code> is your per-user library of installed contributed blocks. <code>examples_path</code> and <code>skills_path</code> point to the bundled examples and skill files. Give any of them a name to get the path to a single item. These are mainly for build tooling and coding agents, and each is mirrored under <code>AI4BayesCode.</code> in Python.</p>
+        <pre class="api__sig">R       ai4bayescode_include_path()
+        ai4bayescode_blocks_path(name = NULL)
+        ai4bayescode_examples_path(name = NULL)
+        ai4bayescode_skills_path(name = NULL)
+Python  AI4BayesCode.include_path()</pre>
       </article>
 
     </main>
