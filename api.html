@@ -264,10 +264,10 @@ Python  m.get_dag()</pre>
 Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1)</pre>
 
         <h3 id="freeze">freeze / unfreeze / get_frozen</h3>
-        <p>Hold part of a model fixed while the rest keeps sampling. <code>freeze</code> pins the named sub-kernels at their current values, so they stay constant on later steps. <code>unfreeze</code> releases them, and with no argument it releases all of them. <code>get_frozen</code> returns the names that are currently frozen. Use this to condition on a component, to profile one part of a model, or to run a what-if with some parameters held at chosen values. Set those values with <code>set_current</code> first, then freeze.</p>
+        <p>Hold part of a model fixed while the rest keeps sampling. <code>freeze</code> takes one or more block names, the same names <code>get_current</code> reports, and holds those blocks at their current values, so they do not change on the steps that follow. <code>unfreeze</code> returns them to being sampled, and with no name given it releases all of them. <code>get_frozen</code> lists the blocks that are currently frozen. This is useful when you want to condition on one part of a model, or hold some values fixed while you study the rest. Set the values you want with <code>set_current</code> first, then freeze.</p>
         <pre class="api__sig">R       m$freeze(c("sigma", "beta"))
 Python  m.freeze(["sigma", "beta"])</pre>
-        <p>In Python, <code>AI4BayesCode.new_frozen()</code> does this in one call. It builds the sampler, sets the chosen components, and freezes them together, so <code>new_frozen(mod.MyModel, y, X, fixed={"sigma": 1.0})</code> is the same as constructing, then <code>set_current</code>, then <code>freeze</code>.</p>
+        <p>In Python, <code>AI4BayesCode.new_frozen()</code> does this in one call. It builds the sampler, sets the chosen blocks to the values you give, and freezes them, so <code>new_frozen(mod.MyModel, y, X, fixed={"sigma": 1.0})</code> is the same as building the sampler, then <code>set_current</code>, then <code>freeze</code>.</p>
       </article>
 
       <article class="api__section" id="diagnose">
