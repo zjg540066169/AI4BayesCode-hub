@@ -292,7 +292,11 @@ Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1)</pre>
         <h3 id="freeze">freeze / unfreeze / get_frozen</h3>
         <p>Hold part of a model fixed while the rest keeps sampling. <code>freeze</code> takes one or more block names, the same names <code>get_current</code> reports, and holds those blocks at their current values, so they do not change on the steps that follow. <code>unfreeze</code> returns them to being sampled, and with no name given it releases all of them. <code>get_frozen</code> lists the blocks that are currently frozen. This is useful when you want to condition on one part of a model, or hold some values fixed while you study the rest. Set the values you want with <code>set_current</code> first, then freeze.</p>
         <pre class="api__sig">R       m$freeze(c("sigma", "beta"))
-Python  m.freeze(["sigma", "beta"])</pre>
+        m$unfreeze()
+        m$get_frozen()
+Python  m.freeze(["sigma", "beta"])
+        m.unfreeze()
+        m.get_frozen()</pre>
         <p>In Python, <code>AI4BayesCode.new_frozen()</code> does this in one call. It builds the sampler, sets the chosen blocks to the values you give, and freezes them, so <code>new_frozen(mod.MyModel, y, X, fixed={"sigma": 1.0})</code> is the same as building the sampler, then <code>set_current</code>, then <code>freeze</code>.</p>
       </article>
 
@@ -340,7 +344,10 @@ Python  AI4BayesCode.perf_hint(wall_sec, n_sweeps_total)</pre>
         ai4bayescode_blocks_path(name = NULL)
         ai4bayescode_examples_path(name = NULL)
         ai4bayescode_skills_path(name = NULL)
-Python  AI4BayesCode.include_path()</pre>
+Python  AI4BayesCode.include_path()
+        AI4BayesCode.blocks_path(name=None)
+        AI4BayesCode.examples_path(name=None)
+        AI4BayesCode.skills_path(name=None)</pre>
       </article>
 
     </main>
