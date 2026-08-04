@@ -105,6 +105,7 @@
 
 <span class="com"># a sampler written by the coding agent is loaded the same way</span>
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
+<span class="fn">ai4bayescode_doc</span>(BayesLinReg)   <span class="com"># what the constructor needs</span>
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 run &lt;- <span class="fn">ai4bayescode_run_chains</span>(
@@ -127,6 +128,7 @@ cur  &lt;- m$<span class="fn">get_current</span>()           <span class="com">#
 
 <span class="com"># a sampler written by the coding agent is loaded the same way</span>
 mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span class="lit">"./generated/BayesLinReg.cpp"</span>)
+<span class="ty">AI4BayesCode</span>.<span class="fn">doc</span>(mod.BayesLinReg)   <span class="com"># what the constructor needs</span>
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
@@ -175,6 +177,7 @@ cur  = m.<span class="fn">get_current</span>()              <span class="com"># 
 
 <span class="com"># a sampler written by the coding agent is loaded the same way</span>
 <span class="fn">ai4bayescode_source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
+<span class="fn">ai4bayescode_doc</span>(SpikeLaplace)   <span class="com"># what the constructor needs</span>
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 run &lt;- <span class="fn">ai4bayescode_run_chains</span>(
@@ -199,6 +202,7 @@ m$<span class="fn">step</span>(<span class="lit">10000</span>)
 
 <span class="com"># a sampler written by the coding agent is loaded the same way</span>
 mod = <span class="ty">AI4BayesCode</span>.<span class="fn">source</span>(<span class="lit">"./generated/SpikeLaplace.cpp"</span>)
+<span class="ty">AI4BayesCode</span>.<span class="fn">doc</span>(mod.SpikeLaplace)   <span class="com"># what the constructor needs</span>
 
 <span class="com"># run several chains and check convergence (the usual workflow)</span>
 runs = <span class="ty">AI4BayesCode</span>.<span class="fn">run_chains</span>(
