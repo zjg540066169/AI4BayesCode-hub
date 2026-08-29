@@ -91,18 +91,19 @@
         <li><a href="#predict_at">predict_at</a></li>
         <li><a href="#get_dag">get_dag</a></li>
         <li><a href="#readapt">readapt_NUTS</a></li>
-        <li><a href="#freeze">freeze / unfreeze</a></li>
+        <li><a href="#freeze">freeze / unfreeze / get_frozen</a></li>
+        <li><a href="#new_frozen">new_frozen</a></li>
       </ul>
 
       <div class="api__nav-group">Diagnostics &amp; DAG</div>
       <ul>
-        <li><a href="#diagnose">ai4bayescode_diagnose</a></li>
-        <li><a href="#plot_dag">ai4bayescode_plot_dag</a></li>
+        <li><a href="#diagnose">diagnose</a></li>
+        <li><a href="#plot_dag">plot_dag</a></li>
         <li><a href="#run_chains">run_chains</a></li>
         <li><a href="#rhat_summary">rhat_summary</a></li>
-        <li><a href="#rhat">rhat / ess / summary</a></li>
+        <li><a href="#rhat">rhat / ess_bulk / ess_tail / posterior_summary</a></li>
         <li><a href="#perf_hint">perf_hint</a></li>
-        <li><a href="#paths">paths</a></li>
+        <li><a href="#paths">include_path / blocks_path / examples_path / skills_path</a></li>
       </ul>
     </aside>
 
@@ -131,7 +132,7 @@ ai4bayescode_plot_dag(m)                               # model DAG
 
 # optional: warm-start from chosen values, then re-tune NUTS if the geometry shifts
 m$set_current(list(sigma = 1.0, beta = b0))            # overwrite the current draw
-m$readapt_NUTS(500)                                    # re-tune NUTS step size + mass matrix
+m$readapt_NUTS(500, FALSE, -1)                         # re-tune NUTS (R needs all three)
 
 # run several chains in parallel for cross-chain R-hat / ESS
 runs &lt;- ai4bayescode_run_chains(
@@ -146,9 +147,9 @@ ai4bayescode_diagnose(runs$histories[[1]])             # full diagnostics on one
         <p>These functions take you from a model description to a running sampler. Every R name carries the <code>ai4bayescode_</code> prefix. The Python module mirrors them under <code>AI4BayesCode.</code>.</p>
 
         <h3>ai4bayescode_set_key</h3>
-        <p>Store your LLM provider key for the session. Providers are <code>anthropic</code>, <code>openai</code>, and <code>google</code>.</p>
-        <pre class="api__sig">R       ai4bayescode_set_key(key, provider = "anthropic")
-Python  AI4BayesCode.set_key(key, provider="anthropic")</pre>
+        <p>Store your LLM provider key for the session. Providers are <code>anthropic</code> and <code>openai</code>. The key lives in the process environment only. It is never written to disk and never printed in full. With <code>check</code> left on, an Anthropic key gets a short streaming self-check right away, so a bad key fails here instead of part-way through a generate run.</p>
+        <pre class="api__sig">R       ai4bayescode_set_key(key, provider = "anthropic", check = TRUE)
+Python  AI4BayesCode.set_key(key, provider="anthropic", check=True)</pre>
 
         <h3 id="key_status">ai4bayescode_key_status</h3>
         <p>Report which provider keys are set this session.</p>
@@ -162,12 +163,15 @@ Python  AI4BayesCode.models()</pre>
 
         <h3 id="generate">ai4bayescode_generate</h3>
         <p>Parse and validate the model description, then write a sampler <code>.cpp</code> to <code>output_path</code>. A validate-then-repair loop (up to <code>max_attempts</code>) keeps going until the code compiles and passes the checks. Pass <code>API_key</code> here, or set it once with <code>ai4bayescode_set_key</code>.</p>
-        <pre class="api__sig">R       ai4bayescode_generate(model_description, LLM = NULL, effort = NULL,
-          backend = NULL, output_path = NULL, max_attempts = NULL, API_key = NULL)
-Python  AI4BayesCode.generate(model_description, LLM=None, effort=None,
-          backend=None, output_path=None, max_attempts=None, API_key=None)</pre>
+        <pre class="api__sig">R       ai4bayescode_generate(model_description = NULL, classname = NULL, LLM = NULL,
+          effort = NULL, output_path = NULL, backend = NULL, API_key = NULL,
+          max_attempts = NULL, priors = NULL, confirm_model = NULL)
+Python  AI4BayesCode.generate(model_description=None, *, classname=None, LLM=None,
+          effort=None, output_path=None, backend=None, API_key=None,
+          max_attempts=None, priors=None, confirm_model=None)</pre>
         <dl class="api__params">
           <dt>model_description</dt> <dd>Plain-language model spec (text, or a path to a <code>.txt</code>).</dd>
+          <dt>classname</dt>         <dd>C++ class name for the generated sampler. Asked interactively if unset, otherwise derived from the description.</dd>
           <dt>LLM, effort</dt>       <dd>Which model writes the sampler, and how hard it thinks. Left unset (<code>NULL</code>/<code>None</code>) they are asked interactively; see <code>ai4bayescode_models()</code>.</dd>
           <dt>backend</dt>           <dd>Target runtime: <code>"R"</code>, <code>"Python"</code>, or <code>"both"</code> &mdash; one dual-module <code>.cpp</code> usable from both (the default when unset). Asked interactively if unset.</dd>
           <dt>output_path</dt>       <dd>Where the generated <code>.cpp</code> is written (default <code>./generated/</code>).</dd>
@@ -176,24 +180,30 @@ Python  AI4BayesCode.generate(model_description, LLM=None, effort=None,
         </dl>
 
         <h3 id="prompt">ai4bayescode_prompt</h3>
-        <p>Build (and, interactively, confirm) the code-generation prompt without calling the LLM. Useful to inspect or hand-edit what <code>ai4bayescode_generate</code> would send.</p>
-        <pre class="api__sig">R       ai4bayescode_prompt(model_description)
-Python  AI4BayesCode.prompt(model_description)</pre>
+        <p>Build the code-generation prompt without calling the LLM. It is pure and offline, so nothing is sent anywhere and nothing is asked in the console. Use it to inspect or hand-edit exactly what <code>ai4bayescode_generate</code> would send. It returns the system prompt, the user prompt, the class name, the backend, and the list of skill files that went in.</p>
+        <pre class="api__sig">R       ai4bayescode_prompt(model_description, backend = c("both", "R", "Python"),
+          output_path = "./generated", classname = NULL, priors = "noninformative",
+          max_attempts = 5L, include_skills = FALSE, skills = NULL,
+          confirm_model = FALSE)
+Python  AI4BayesCode.prompt(model_description, *, backend="both",
+          output_path="./generated", classname=None, priors="noninformative",
+          max_attempts=5, include_skills=False, skills=None, confirm_model=False)</pre>
 
         <h3 id="source">ai4bayescode_source</h3>
-        <p>Compile the generated <code>.cpp</code> against the bundled library and load it, with no paths to configure. After it returns, the sampler class is available: <code>new(MyModel, ...)</code> in R, <code>mod.MyModel(...)</code> in Python.</p>
-        <pre class="api__sig">R       ai4bayescode_source("./generated/MyModel.cpp")
-Python  AI4BayesCode.source("./generated/MyModel.cpp")</pre>
+        <p>Compile the generated <code>.cpp</code> against the bundled library and load it, with no paths to configure. <code>code</code> is either a path to a <code>.cpp</code> file or a string holding the source itself. R binds the sampler class into the calling environment, so <code>new(MyModel, ...)</code> works straight afterwards. Python returns the imported module, so keep it: <code>mod = AI4BayesCode.source(...)</code>, then <code>mod.MyModel(...)</code>. Set <code>rebuild</code> when you want to force a recompile.</p>
+        <pre class="api__sig">R       ai4bayescode_source(code, rebuild = FALSE, verbose = FALSE, quiet = FALSE)
+Python  AI4BayesCode.source(code, *, rebuild=False, verbose=False, quiet=False)</pre>
 
         <h3 id="doc">ai4bayescode_doc</h3>
         <p>Print a usage card for a compiled sampler: the constructor arguments with their types and defaults, the model description, and the available methods. It answers &ldquo;what does the constructor want?&rdquo;.</p>
-        <pre class="api__sig">R       ai4bayescode_doc(MyModel)
-Python  AI4BayesCode.doc(MyModel)</pre>
+        <pre class="api__sig">R       ai4bayescode_doc(x)
+Python  AI4BayesCode.doc(x)</pre>
+        <p><code>x</code> is the loaded class, the class name as a string, or the path to the <code>.cpp</code> source. Python also accepts the loaded module.</p>
 
         <h3 id="example">ai4bayescode_example</h3>
-        <p>Compile and load a bundled example by name, a one-line way to see a working sampler.</p>
-        <pre class="api__sig">R       ai4bayescode_example("GaussianLocationScale")
-Python  AI4BayesCode.example("GaussianLocationScale")</pre>
+        <p>Compile and load a bundled example by name, a one-line way to see a working sampler. R binds the class into the calling environment, so <code>new(GaussianLocationScale, ...)</code> works afterwards. Python returns the module, so keep the return value: <code>mod = AI4BayesCode.example("GaussianLocationScale")</code>, then <code>mod.GaussianLocationScale(...)</code>. See <code>ai4bayescode_list_examples()</code> for the full set.</p>
+        <pre class="api__sig">R       ai4bayescode_example(name)
+Python  AI4BayesCode.example(name, *, rebuild=False, quiet=False)</pre>
         <h3 id="list_examples">ai4bayescode_list_examples</h3>
         <p>List the built-in example samplers that ship with the package. Load any of them by name with <code>ai4bayescode_example()</code>.</p>
         <pre class="api__sig">R       ai4bayescode_list_examples()
@@ -211,8 +221,10 @@ Python  AI4BayesCode.version()</pre>
 
         <h3 id="stream_check">ai4bayescode_stream_check</h3>
         <p>Send a short prompt to your LLM with streaming turned on and print the reply as it arrives, so you can confirm the connection and key work before a full <code>generate</code> run. Anthropic keys only.</p>
-        <pre class="api__sig">R       ai4bayescode_stream_check(LLM = "claude-opus-4-8", API_key = NULL)
-Python  AI4BayesCode.stream_check(LLM="claude-opus-4-8", API_key=None)</pre>
+        <pre class="api__sig">R       ai4bayescode_stream_check(LLM = "claude-opus-4-8", API_key = NULL,
+          effort = NULL, progress = TRUE)
+Python  AI4BayesCode.stream_check(LLM="claude-opus-4-8", API_key=None,
+          effort=None, progress=True)</pre>
       </article>
 
       <article class="api__section" id="available_blocks">
@@ -226,8 +238,8 @@ Python  AI4BayesCode.available_blocks()</pre>
 
         <h3 id="install_block">ai4bayescode_install_block</h3>
         <p>Install a contributed block into your library, like <code>install.packages()</code>. It downloads a reviewed bundle from the <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode-hub/tree/main/registry" target="_blank" rel="noopener">hub registry</a> into a fixed per-user library at <code>~/.AI4BayesCode/blocks_download/</code>, shared across R, Python, and C++, and adds the block, with any vendored dependencies, to the compile path, so the next <code>ai4bayescode_source</code> or <code>ai4bayescode_generate</code> can use it. The registry is curated and pre-validated, so installing is a download and version check, not a compile.</p>
-        <pre class="api__sig">R       ai4bayescode_install_block("nngp_gaussian_gibbs_block")
-Python  AI4BayesCode.install_block("nngp_gaussian_gibbs_block")</pre>
+        <pre class="api__sig">R       ai4bayescode_install_block(name, force = FALSE, quiet = FALSE)
+Python  AI4BayesCode.install_block(name, force=False, quiet=False)</pre>
         <dl class="api__params">
           <dt>name</dt>  <dd>The block name, as listed by <code>ai4bayescode_available_blocks()</code>.</dd>
           <dt>force</dt> <dd>Reinstall even if it is already present. Off by default.</dd>
@@ -235,14 +247,17 @@ Python  AI4BayesCode.install_block("nngp_gaussian_gibbs_block")</pre>
         </dl>
 
         <h3 id="installed_blocks">ai4bayescode_installed_blocks</h3>
-        <p>List the contributed blocks already installed in your library, like <code>installed.packages()</code>.</p>
-        <pre class="api__sig">R       ai4bayescode_installed_blocks()
-Python  AI4BayesCode.installed_blocks()</pre>
+        <p>List the contributed blocks the compiler can see, like <code>installed.packages()</code>. This covers both tiers. It lists the blocks you downloaded into your per-user library, and it also lists the blocks you are developing under <code>./blocks_local/</code> in the current project. A block that exists in both places is listed once, because the local copy shadows the download on the compile path.</p>
+        <pre class="api__sig">R       ai4bayescode_installed_blocks(tier = c("all", "local", "download"))
+Python  AI4BayesCode.installed_blocks(tier="all")</pre>
+        <dl class="api__params">
+          <dt>tier</dt> <dd>Which tier to list. <code>"all"</code> is the default and covers both. <code>"local"</code> is <code>./blocks_local/</code> in the current project. <code>"download"</code> is the per-user library.</dd>
+        </dl>
 
         <h3 id="remove_block">ai4bayescode_remove_block</h3>
-        <p>Remove an installed contributed block, like <code>remove.packages()</code>. The library folder itself is <code>ai4bayescode_blocks_path()</code>.</p>
-        <pre class="api__sig">R       ai4bayescode_remove_block("nngp_gaussian_gibbs_block")
-Python  AI4BayesCode.remove_block("nngp_gaussian_gibbs_block")</pre>
+        <p>Remove an installed contributed block, like <code>remove.packages()</code>. It deletes the block from your per-user library, the folder <code>ai4bayescode_blocks_path()</code> reports. A block you are developing under <code>./blocks_local/</code> is left alone, so delete that folder yourself when you want it gone.</p>
+        <pre class="api__sig">R       ai4bayescode_remove_block(name)
+Python  AI4BayesCode.remove_block(name)</pre>
       </article>
 
       <article class="api__section" id="ctor">
@@ -250,14 +265,14 @@ Python  AI4BayesCode.remove_block("nngp_gaussian_gibbs_block")</pre>
         <p>Once <code>ai4bayescode_source</code> (or <code>ai4bayescode_example</code>) has loaded a sampler class, build it with your data and drive it through a small stateful interface. Every block, every composite, and the top-level sampler expose the same methods. In R they are <code>m$method()</code>. In Python, <code>m.method()</code>. Each signature below is the general form.</p>
 
         <h3>constructor</h3>
-        <p>Build the sampler with your data. The arguments depend on the model, so run <code>ai4bayescode_doc(MyModel)</code> to see them. <code>seed</code> fixes the RNG. <code>keep_history = TRUE</code> records every draw, otherwise only the latest is kept.</p>
-        <pre class="api__sig">R       m &lt;- new(MyModel, y, X, seed = 1L, keep_history = TRUE)
-Python  m = mod.MyModel(y, X, seed=1, keep_history=True)</pre>
+        <p>Build the sampler with your data. The arguments depend on the model, so run <code>ai4bayescode_doc(MyModel)</code> to see them. The last two are always the same: an integer RNG seed, then <code>keep_history</code>, which records every draw when it is on and otherwise keeps only the latest. R matches constructor arguments by position, so pass them in order. In Python they are keyword arguments and the seed is called <code>rng_seed</code>.</p>
+        <pre class="api__sig">R       m &lt;- new(MyModel, y, X, 1L, TRUE)
+Python  m = mod.MyModel(y, X, rng_seed=1, keep_history=True)</pre>
 
         <h3 id="step">step</h3>
         <p>Run <code>n</code> sweeps in one call, advancing the chain. <code>n</code> defaults to 1, so <code>m$step()</code> advances a single sweep. Every sweep is recorded when <code>keep_history = TRUE</code>, so there is no separate unrecorded burn-in. Treat the early draws as burn-in when you analyze.</p>
         <pre class="api__sig">R       m$step(n = 1)
-Python  m.step(n=1)</pre>
+Python  m.step(n_steps=1)</pre>
 
         <h3 id="get_current">get_current</h3>
         <p>The current draw as a named list (R) or dict (Python), keyed by parameter. Does not advance the chain.</p>
@@ -285,19 +300,30 @@ Python  m.predict_at({"X": X_new})</pre>
 Python  m.get_dag()</pre>
 
         <h3 id="readapt">readapt_NUTS</h3>
-        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. The optional <code>max_tree_depth</code> caps the tree-doubling depth per iteration; <code>-1</code> (the default) uses the block's configured depth. NUTS-family blocks only, others are skipped.</p>
-        <pre class="api__sig">R       m$readapt_NUTS(n, reset = FALSE, max_tree_depth = -1)
-Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1)</pre>
+        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. <code>max_tree_depth</code> caps the tree-doubling depth per iteration, and <code>target_accept</code> overrides the block&rsquo;s target acceptance rate for this readaptation. In both, <code>-1</code> means leave the block&rsquo;s own setting alone. Python fills those defaults in for you. R does not, so pass at least the first three arguments in order. This method exists only on models that contain a NUTS block.</p>
+        <pre class="api__sig">R       m$readapt_NUTS(n, reset, max_tree_depth)
+        m$readapt_NUTS(n, reset, max_tree_depth, target_accept)
+Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1, target_accept=-1.0)</pre>
 
         <h3 id="freeze">freeze / unfreeze / get_frozen</h3>
         <p>Hold part of a model fixed while the rest keeps sampling. <code>freeze</code> takes one or more block names, the same names <code>get_current</code> reports, and holds those blocks at their current values, so they do not change on the steps that follow. <code>unfreeze</code> returns them to being sampled, and with no name given it releases all of them. <code>get_frozen</code> lists the blocks that are currently frozen. This is useful when you want to condition on one part of a model, or hold some values fixed while you study the rest. Set the values you want with <code>set_current</code> first, then freeze.</p>
         <pre class="api__sig">R       m$freeze(c("sigma", "beta"))
+        m$freeze("sigma", TRUE)
+        m$unfreeze("sigma")
         m$unfreeze()
         m$get_frozen()
-Python  m.freeze(["sigma", "beta"])
+Python  m.freeze(["sigma", "beta"], quiet=False)
+        m.unfreeze(["sigma"])
         m.unfreeze()
         m.get_frozen()</pre>
-        <p>In Python, <code>AI4BayesCode.new_frozen()</code> does this in one call. It builds the sampler, sets the chosen blocks to the values you give, and freezes them, so <code>new_frozen(mod.MyModel, y, X, fixed={"sigma": 1.0})</code> is the same as building the sampler, then <code>set_current</code>, then <code>freeze</code>.</p>
+        <p>A name is matched first against the block names, then against a slot name when exactly one block exposes it, and you can always give the full <code>"block.slot"</code> path. Freezing something twice warns instead of failing, and <code>quiet</code> turns that warning off. In R it is positional, so pass <code>TRUE</code> in the second slot.</p>
+
+        <h3 id="new_frozen">ai4bayescode_new_frozen</h3>
+        <p>Do the set-then-freeze in one call. It builds the sampler, sets the blocks named in <code>fixed</code> to the values you give, and freezes them, so every following <code>step</code> samples the parameters left free. R takes <code>fixed</code> as a named list, Python as a dict. The names must be flat block names, the same ones <code>set_current</code> accepts. This exists in both languages.</p>
+        <pre class="api__sig">R       ai4bayescode_new_frozen(module_class, ..., fixed = list(), quiet_freeze = TRUE)
+        ai4bayescode_new_frozen(MyModel, y, X, fixed = list(sigma = 1.0))
+Python  AI4BayesCode.new_frozen(module_class, *args, fixed=None, quiet_freeze=True, **kwargs)
+        AI4BayesCode.new_frozen(mod.MyModel, y, X, fixed={"sigma": 1.0})</pre>
       </article>
 
       <article class="api__section" id="diagnose">
@@ -306,40 +332,42 @@ Python  m.freeze(["sigma", "beta"])
 
         <h3>ai4bayescode_diagnose</h3>
         <p>From <code>get_history()</code>: a summary table (R-hat, bulk / tail ESS) plus a trace, autocorrelation, and density plot. The one call to sanity-check a run.</p>
-        <pre class="api__sig">R       ai4bayescode_diagnose(hist)
-Python  AI4BayesCode.diagnose(hist)</pre>
+        <pre class="api__sig">R       ai4bayescode_diagnose(hist, n_burn = 0, plot = TRUE, order_components = FALSE)
+Python  AI4BayesCode.diagnose(hist, n_burn=0, plot=True, order_components=False)</pre>
 
         <h3 id="plot_dag">ai4bayescode_plot_dag</h3>
-        <p>Draw the model as a plate DAG straight from the sampler, reading its <code>get_dag()</code> under the hood. Leave <code>out_path</code> empty to show it, or pass a path to write a PNG.</p>
-        <pre class="api__sig">R       ai4bayescode_plot_dag(m, out_path = NULL)
-Python  AI4BayesCode.plot_dag(m)</pre>
+        <p>Draw the model as a plate DAG straight from the sampler, reading its <code>get_dag()</code> under the hood. In R, leave <code>out_path</code> empty to draw to the active device, or pass a path to write a PNG. The Python helper always writes a PNG and returns its path, using a temporary directory when <code>out_path</code> is omitted. The plotting arguments follow each language&rsquo;s own convention.</p>
+        <pre class="api__sig">R       ai4bayescode_plot_dag(model, out_path = NULL, main = NULL, width = 1600,
+          height = 1100, res = 150, plate = TRUE)
+Python  AI4BayesCode.plot_dag(model, *, out_path=None, title=None, figsize=(12, 8),
+          dpi=150, plate=True)</pre>
 
         <h3 id="run_chains">ai4bayescode_run_chains</h3>
         <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed.</p>
         <pre class="api__sig">R       ai4bayescode_run_chains(function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
                                 n_chains = 4, n_burn = 5000, n_keep = 5000)
-Python  AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, seed=s, keep_history=True),
-                                seeds=range(4), n_burn=5000, n_keep=5000)</pre>
+Python  AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, rng_seed=s, keep_history=True),
+                                n_chains=4, n_burn=5000, n_keep=5000)</pre>
 
         <h3 id="rhat_summary">ai4bayescode_rhat_summary</h3>
         <p>Take the chains that <code>run_chains</code> returns and report the split-R-hat and bulk-ESS convergence diagnostics for every parameter in one table. When a matrix parameter shows a high R-hat only because of label switching, it says so. This is the convergence companion to <code>run_chains</code>.</p>
-        <pre class="api__sig">R       ai4bayescode_rhat_summary(run, keys = NULL, drop_burn = 0)
-Python  AI4BayesCode.rhat_summary(chains, keys=None, drop_burn=0)</pre>
+        <pre class="api__sig">R       ai4bayescode_rhat_summary(run, keys = NULL, drop_burn = 0, order_components = FALSE)
+Python  AI4BayesCode.rhat_summary(chains, keys=None, drop_burn=0, order_components=False)</pre>
 
         <h3 id="rhat">rhat / ess_bulk / ess_tail / posterior_summary</h3>
-        <p>The lower-level diagnostics behind those tables, computed one parameter at a time. <code>rhat</code> is the split-R-hat, where a value near 1.0 means the chains agree. <code>ess_bulk</code> and <code>ess_tail</code> are the effective sample sizes for the bulk and the tails of the distribution. <code>posterior_summary</code> returns the mean, median, standard deviation, a credible interval, R-hat, and ESS for one parameter. These are Python only.</p>
+        <p>The lower-level diagnostics behind those tables, computed one parameter at a time. <code>rhat</code> is the split-R-hat, where a value near 1.0 means the chains agree. <code>ess_bulk</code> and <code>ess_tail</code> are the effective sample sizes for the bulk and the tails of the distribution. <code>posterior_summary</code> returns the mean, median, standard deviation, MAD, a credible interval, R-hat, and ESS for one parameter. These are Python only.</p>
         <pre class="api__sig">Python  AI4BayesCode.rhat(samples)
 Python  AI4BayesCode.ess_bulk(samples)
-Python  AI4BayesCode.ess_tail(samples)
-Python  AI4BayesCode.posterior_summary(samples, prob=0.90)</pre>
+Python  AI4BayesCode.ess_tail(samples, quantile_lo=0.05, quantile_hi=0.95)
+Python  AI4BayesCode.posterior_summary(samples, prob=0.90, *, chains=False)</pre>
 
         <h3 id="perf_hint">ai4bayescode_perf_hint</h3>
-        <p>Report how long each sweep took after a run, and when it is slow, suggest moving tightly-coupled parameters into a single joint NUTS block. A generated runner calls it for you, and you can also call it on your own timings.</p>
-        <pre class="api__sig">R       ai4bayescode_perf_hint(wall_sec, n_sweeps_total)
-Python  AI4BayesCode.perf_hint(wall_sec, n_sweeps_total)</pre>
+        <p><strong>Deprecated.</strong> It prints the per-sweep timing and suggests moving tightly-coupled parameters into a single joint NUTS block, but it asks you to compute and pass two numbers that <code>run_chains</code> already returns, and its fixed half-second-per-sweep threshold ignores the size of the model. It warns on every call and will be removed, and the generated runners no longer call it. Read the timing off the run object instead: <code>sum(run$wall)</code> in R, <code>sum(c["wall"] for c in runs)</code> in Python.</p>
+        <pre class="api__sig">R       ai4bayescode_perf_hint(wall_sec, n_sweeps_total, uses_joint_nuts = FALSE)   # deprecated
+Python  AI4BayesCode.perf_hint(wall_sec, n_sweeps_total, uses_joint_nuts=False)    # deprecated</pre>
 
         <h3 id="paths">include_path / blocks_path / examples_path / skills_path</h3>
-        <p>Find the files that ship inside the package. <code>include_path</code> is the C++ header directory that goes on the compile path. <code>blocks_path</code> is your per-user library of installed contributed blocks. <code>examples_path</code> and <code>skills_path</code> point to the bundled examples and skill files. Give any of them a name to get the path to a single item. These are mainly for build tooling and coding agents, and each is mirrored under <code>AI4BayesCode.</code> in Python.</p>
+        <p>Find the files AI4BayesCode ships, and the blocks you have installed. <code>include_path</code> is the C++ header directory that goes on the compile path, and it takes no arguments. <code>examples_path</code> and <code>skills_path</code> point at the bundled examples and skill files, and give one a name to get the path to a single item. Those three return an empty string when the target is not there. <code>blocks_path</code> is the odd one out: it is your own per-user library of installed contributed blocks at <code>~/.AI4BayesCode/blocks_download/</code>, which lives outside the package and is shared across R, Python, and C++. These are mainly for build tooling and coding agents.</p>
         <pre class="api__sig">R       ai4bayescode_include_path()
         ai4bayescode_blocks_path(name = NULL)
         ai4bayescode_examples_path(name = NULL)
@@ -347,7 +375,8 @@ Python  AI4BayesCode.perf_hint(wall_sec, n_sweeps_total)</pre>
 Python  AI4BayesCode.include_path()
         AI4BayesCode.blocks_path(name=None)
         AI4BayesCode.examples_path(name=None)
-        AI4BayesCode.skills_path(name=None)</pre>
+        AI4BayesCode.skills_path(name=None)
+        AI4BayesCode.vendored_include_path()   # Python only</pre>
       </article>
 
     </main>
