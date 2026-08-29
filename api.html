@@ -115,7 +115,7 @@
         <p>The whole flow in R: set your key once, describe the model, compile, run, and read it back. Python is identical, with <code>AI4BayesCode.</code> in front of the package calls and <code>m.method()</code> on the sampler.</p>
         <pre class="api__sig">library(AI4BayesCode)
 
-ai4bayescode_set_key("sk-ant-...")                     # your own LLM key here ("sk-ant-..." is a placeholder)
+ai4bayescode_set_key(Sys.getenv("ANTHROPIC_API_KEY"))  # your own key (the library rejects placeholders)
 ai4bayescode_generate(                                 # writes ./generated/MyModel.cpp
   "y ~ N(X beta, sigma^2), beta ~ N(0, 10^2), sigma ~ HalfNormal(0, 1)",
   output_path = "./generated")
@@ -123,7 +123,7 @@ ai4bayescode_source("./generated/MyModel.cpp")         # compiles + loads MyMode
 ai4bayescode_doc(MyModel)                              # what does the constructor want?
 
 # keep_history = TRUE records every sweep, FALSE keeps only the latest draw
-m &lt;- new(MyModel, y, X, seed = 1L, keep_history = TRUE)
+m &lt;- new(MyModel, y, X, 1L, TRUE)                      # data, then seed, then keep_history
 m$step(10000)                                          # run the sampler (treat early draws as burn-in)
 hist &lt;- m$get_history()                                # named list of matrices, one per parameter
 
@@ -131,12 +131,12 @@ ai4bayescode_diagnose(hist)                            # R-hat / ESS table + tra
 ai4bayescode_plot_dag(m)                               # model DAG
 
 # optional: warm-start from chosen values, then re-tune NUTS if the geometry shifts
-m$set_current(list(sigma = 1.0, beta = b0))            # overwrite the current draw
+m$set_current(list(sigma = 1.0))                       # overwrite the current draw
 m$readapt_NUTS(500, FALSE, -1)                         # re-tune NUTS (R needs all three)
 
 # run several chains in parallel for cross-chain R-hat / ESS
 runs &lt;- ai4bayescode_run_chains(
-  function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
+  function(seed) new(MyModel, y, X, as.integer(seed), TRUE),
   n_chains = 4, n_burn = 5000, n_keep = 5000)
 ai4bayescode_rhat_summary(runs)                        # cross-chain R-hat and ESS
 ai4bayescode_diagnose(runs$histories[[1]])             # full diagnostics on one chain</pre>
@@ -147,7 +147,7 @@ ai4bayescode_diagnose(runs$histories[[1]])             # full diagnostics on one
         <p>These functions take you from a model description to a running sampler. Every R name carries the <code>ai4bayescode_</code> prefix. The Python module mirrors them under <code>AI4BayesCode.</code>.</p>
 
         <h3>ai4bayescode_set_key</h3>
-        <p>Store your LLM provider key for the session. Providers are <code>anthropic</code> and <code>openai</code>. The key lives in the process environment only. It is never written to disk and never printed in full. With <code>check</code> left on, an Anthropic key gets a short streaming self-check right away, so a bad key fails here instead of part-way through a generate run.</p>
+        <p>Store your LLM provider key for the session. Providers are <code>anthropic</code> and <code>openai</code>. The key lives in the process environment only. It is never written to disk and never printed in full. With <code>check</code> left on, an Anthropic key gets a short streaming self-check right away, so a bad key is reported here as a warning instead of surfacing part-way through a generate run.</p>
         <pre class="api__sig">R       ai4bayescode_set_key(key, provider = "anthropic", check = TRUE)
 Python  AI4BayesCode.set_key(key, provider="anthropic", check=True)</pre>
 
@@ -165,7 +165,8 @@ Python  AI4BayesCode.models()</pre>
         <p>Parse and validate the model description, then write a sampler <code>.cpp</code> to <code>output_path</code>. A validate-then-repair loop (up to <code>max_attempts</code>) keeps going until the code compiles and passes the checks. Pass <code>API_key</code> here, or set it once with <code>ai4bayescode_set_key</code>.</p>
         <pre class="api__sig">R       ai4bayescode_generate(model_description = NULL, classname = NULL, LLM = NULL,
           effort = NULL, output_path = NULL, backend = NULL, API_key = NULL,
-          max_attempts = NULL, priors = NULL, confirm_model = NULL)
+          interactive = interactive(), use_cli = FALSE, max_attempts = NULL,
+          priors = NULL, confirm_model = NULL)
 Python  AI4BayesCode.generate(model_description=None, *, classname=None, LLM=None,
           effort=None, output_path=None, backend=None, API_key=None,
           max_attempts=None, priors=None, confirm_model=None)</pre>
@@ -191,19 +192,23 @@ Python  AI4BayesCode.prompt(model_description, *, backend="both",
 
         <h3 id="source">ai4bayescode_source</h3>
         <p>Compile the generated <code>.cpp</code> against the bundled library and load it, with no paths to configure. <code>code</code> is either a path to a <code>.cpp</code> file or a string holding the source itself. R binds the sampler class into the calling environment, so <code>new(MyModel, ...)</code> works straight afterwards. Python returns the imported module, so keep it: <code>mod = AI4BayesCode.source(...)</code>, then <code>mod.MyModel(...)</code>. Set <code>rebuild</code> when you want to force a recompile.</p>
-        <pre class="api__sig">R       ai4bayescode_source(code, rebuild = FALSE, verbose = FALSE, quiet = FALSE)
+        <pre class="api__sig">R       ai4bayescode_source(code, rebuild = FALSE, verbose = FALSE,
+          extra_cppflags = character(), extra_libs = character(),
+          env = parent.frame(), quiet = FALSE)
 Python  AI4BayesCode.source(code, *, rebuild=False, verbose=False, quiet=False)</pre>
 
         <h3 id="doc">ai4bayescode_doc</h3>
         <p>Print a usage card for a compiled sampler: the constructor arguments with their types and defaults, the model description, and the available methods. It answers &ldquo;what does the constructor want?&rdquo;.</p>
         <pre class="api__sig">R       ai4bayescode_doc(x)
 Python  AI4BayesCode.doc(x)</pre>
+        <p>In Python the same cards are also browsable as an object. <code>AI4BayesCode.blocks</code> exposes every bundled example as an attribute, so tab completion lists them, <code>AI4BayesCode.blocks.BartNoise?</code> prints that sampler&rsquo;s card in IPython or Jupyter, and <code>dir(AI4BayesCode.blocks)</code> shows everything available. It is the Python counterpart of R&rsquo;s <code>?BartNoise</code>.</p>
         <p><code>x</code> is the loaded class, the class name as a string, or the path to the <code>.cpp</code> source. Python also accepts the loaded module.</p>
 
         <h3 id="example">ai4bayescode_example</h3>
         <p>Compile and load a bundled example by name, a one-line way to see a working sampler. R binds the class into the calling environment, so <code>new(GaussianLocationScale, ...)</code> works afterwards. Python returns the module, so keep the return value: <code>mod = AI4BayesCode.example("GaussianLocationScale")</code>, then <code>mod.GaussianLocationScale(...)</code>. See <code>ai4bayescode_list_examples()</code> for the full set.</p>
-        <pre class="api__sig">R       ai4bayescode_example(name)
+        <pre class="api__sig">R       ai4bayescode_example(name, env = parent.frame(), ...)
 Python  AI4BayesCode.example(name, *, rebuild=False, quiet=False)</pre>
+        <p>R passes <code>...</code> on to <code>ai4bayescode_source</code>, so <code>rebuild</code> and <code>quiet</code> work there too.</p>
         <h3 id="list_examples">ai4bayescode_list_examples</h3>
         <p>List the built-in example samplers that ship with the package. Load any of them by name with <code>ai4bayescode_example()</code>.</p>
         <pre class="api__sig">R       ai4bayescode_list_examples()
@@ -270,8 +275,9 @@ Python  AI4BayesCode.remove_block(name)</pre>
 Python  m = mod.MyModel(y, X, rng_seed=1, keep_history=True)</pre>
 
         <h3 id="step">step</h3>
-        <p>Run <code>n</code> sweeps in one call, advancing the chain. <code>n</code> defaults to 1, so <code>m$step()</code> advances a single sweep. Every sweep is recorded when <code>keep_history = TRUE</code>, so there is no separate unrecorded burn-in. Treat the early draws as burn-in when you analyze.</p>
-        <pre class="api__sig">R       m$step(n = 1)
+        <p>Run <code>n</code> sweeps in one call, advancing the chain. Called with no argument it advances a single sweep. Every sweep is recorded when <code>keep_history = TRUE</code>, so there is no separate unrecorded burn-in. Treat the early draws as burn-in when you analyze.</p>
+        <pre class="api__sig">R       m$step()
+        m$step(n)
 Python  m.step(n_steps=1)</pre>
 
         <h3 id="get_current">get_current</h3>
@@ -300,7 +306,7 @@ Python  m.predict_at({"X": X_new})</pre>
 Python  m.get_dag()</pre>
 
         <h3 id="readapt">readapt_NUTS</h3>
-        <p>Re-tune the NUTS step size and mass matrix for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. <code>max_tree_depth</code> caps the tree-doubling depth per iteration, and <code>target_accept</code> overrides the block&rsquo;s target acceptance rate for this readaptation. In both, <code>-1</code> means leave the block&rsquo;s own setting alone. Python fills those defaults in for you. R does not, so pass at least the first three arguments in order. This method exists only on models that contain a NUTS block.</p>
+        <p>Re-tune the NUTS step size for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. The mass matrix is carried through unchanged, it is not adapted here. <code>max_tree_depth</code> caps the tree-doubling depth per iteration, and <code>target_accept</code> overrides the block&rsquo;s target acceptance rate for this readaptation. In both, <code>-1</code> means leave the block&rsquo;s own setting alone. Python fills those defaults in for you. R does not, so pass at least the first three arguments in order. This method exists only on models that contain a NUTS block.</p>
         <pre class="api__sig">R       m$readapt_NUTS(n, reset, max_tree_depth)
         m$readapt_NUTS(n, reset, max_tree_depth, target_accept)
 Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1, target_accept=-1.0)</pre>
@@ -344,7 +350,7 @@ Python  AI4BayesCode.plot_dag(model, *, out_path=None, title=None, figsize=(12, 
 
         <h3 id="run_chains">ai4bayescode_run_chains</h3>
         <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed.</p>
-        <pre class="api__sig">R       ai4bayescode_run_chains(function(seed) new(MyModel, y, X, seed = seed, keep_history = TRUE),
+        <pre class="api__sig">R       ai4bayescode_run_chains(function(seed) new(MyModel, y, X, as.integer(seed), TRUE),
                                 n_chains = 4, n_burn = 5000, n_keep = 5000)
 Python  AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, rng_seed=s, keep_history=True),
                                 n_chains=4, n_burn=5000, n_keep=5000)</pre>
@@ -363,7 +369,8 @@ Python  AI4BayesCode.posterior_summary(samples, prob=0.90, *, chains=False)</pre
 
         <h3 id="perf_hint">ai4bayescode_perf_hint</h3>
         <p><strong>Deprecated.</strong> It prints the per-sweep timing and suggests moving tightly-coupled parameters into a single joint NUTS block, but it asks you to compute and pass two numbers that <code>run_chains</code> already returns, and its fixed half-second-per-sweep threshold ignores the size of the model. It warns on every call and will be removed, and the generated runners no longer call it. Read the timing off the run object instead: <code>sum(run$wall)</code> in R, <code>sum(c["wall"] for c in runs)</code> in Python.</p>
-        <pre class="api__sig">R       ai4bayescode_perf_hint(wall_sec, n_sweeps_total, uses_joint_nuts = FALSE)   # deprecated
+        <pre class="api__sig">R       ai4bayescode_perf_hint(wall_sec, n_sweeps_total, uses_joint_nuts = FALSE,
+          thresholds = list(slow_sweep_sec = 0.5))                       # deprecated
 Python  AI4BayesCode.perf_hint(wall_sec, n_sweeps_total, uses_joint_nuts=False)    # deprecated</pre>
 
         <h3 id="paths">include_path / blocks_path / examples_path / skills_path</h3>
