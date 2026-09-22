@@ -136,8 +136,9 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
     <p class="subtitle install__note">
       The block-design flow is the other path, for building a new sampling primitive when
       no existing block fits. It runs only in a coding agent, not in the R or Python
-      package. Pure-C++ users need only a C++17 compiler. The bundled
-      <code>include/</code> headers are the install.
+      package. Pure-C++ users need a C++17 compiler and the Armadillo
+      linear-algebra library, with BLAS and LAPACK. The bundled
+      <code>include/</code> headers are the rest of the install.
     </p>
   </div>
 </section>
@@ -157,6 +158,10 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
 <pre><span class="com"># needs a C++17 compiler + Rcpp, RcppArmadillo</span>
 remotes::install_github(
   <span class="lit">"zjg540066169/AI4BayesCode"</span>, subdir = <span class="lit">"r-pkg"</span>)
+<span class="com"># optional packages: httr2 for generate(), posterior and bayesplot for the</span>
+<span class="com"># diagnostics, igraph for plot_dag(), jsonlite for contributed blocks</span>
+install.packages(c(<span class="lit">"httr2"</span>, <span class="lit">"posterior"</span>, <span class="lit">"bayesplot"</span>,
+                   <span class="lit">"igraph"</span>, <span class="lit">"jsonlite"</span>))
 
 library(AI4BayesCode)
 ai4bayescode_set_key(<span class="lit">"sk-ant-..."</span>)   <span class="com"># replace "sk-ant-..." with your own API key</span>
@@ -170,7 +175,9 @@ ai4bayescode_generate(
 
       <div class="install__card" data-cat="semi">
         <div class="install__lang">Python</div>
-<pre><span class="com"># Python >= 3.11; a C++ compiler; brew install armadillo</span>
+<pre><span class="com"># Python &gt;= 3.11, a C++17 compiler, and the Armadillo headers:</span>
+<span class="com">#   macOS: brew install armadillo</span>
+<span class="com">#   Debian / Ubuntu: apt-get install libarmadillo-dev</span>
 pip install anthropic   <span class="com"># the LLM client that generate() calls</span>
 pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.git#subdirectory=python"</span>
 
@@ -194,7 +201,11 @@ AI4BayesCode.generate(
       <code>ai4bayescode_generate()</code> (R) / <code>AI4BayesCode.generate()</code> (Python)
       uses that key to write the sampler. Set it once with
       <code>ai4bayescode_set_key()</code> / <code>AI4BayesCode.set_key()</code>, or pass
-      <code>API_key=</code> to <code>generate()</code> directly. Or run a built-in example:
+      <code>API_key=</code> to <code>generate()</code> directly. For an OpenAI key, pass
+      <code>provider="openai"</code> to <code>set_key()</code>. Then choose an OpenAI model with
+      the <code>LLM</code> argument of <code>generate()</code>. The function
+      <code>ai4bayescode_models()</code> (R) / <code>AI4BayesCode.models()</code> (Python) lists the
+      supported models. Or run a built-in example:
       <code>ai4bayescode_example("GaussianLocationScale")</code>.
     </p>
 

@@ -122,21 +122,22 @@ ai4bayescode_generate(                                 # writes ./generated/MyMo
 ai4bayescode_source("./generated/MyModel.cpp")         # compiles + loads MyModel
 ai4bayescode_doc(MyModel)                              # what does the constructor want?
 
-# keep_history = TRUE records every sweep, FALSE keeps only the latest draw
-m &lt;- new(MyModel, y, X, 1L, TRUE)                      # data, then seed, then keep_history
+# keep_history = TRUE records every sweep, FALSE (the default) keeps only the latest draw
+m &lt;- new(MyModel, y, X, rng_seed = 1L, keep_history = TRUE)   # data first, then name the rest
 m$step(10000)                                          # run the sampler (treat early draws as burn-in)
 hist &lt;- m$get_history()                                # named list of matrices, one per parameter
 
-ai4bayescode_diagnose(hist)                            # R-hat / ESS table + trace, ACF, density
+ai4bayescode_diagnose(hist, n_burn = 5000)             # drop burn-in, then R-hat / ESS table + trace, ACF, density
 ai4bayescode_plot_dag(m)                               # model DAG
 
 # optional: warm-start from chosen values, then re-tune NUTS if the geometry shifts
+# (readapt_NUTS exists only when the model contains a NUTS block)
 m$set_current(list(sigma = 1.0))                       # overwrite the current draw
 m$readapt_NUTS(500, FALSE, -1)                         # re-tune NUTS (R needs all three)
 
 # run several chains in parallel for cross-chain R-hat / ESS
 runs &lt;- ai4bayescode_run_chains(
-  function(seed) new(MyModel, y, X, as.integer(seed), TRUE),
+  function(seed) new(MyModel, y, X, rng_seed = as.integer(seed), keep_history = TRUE),
   n_chains = 4, n_burn = 5000, n_keep = 5000)
 ai4bayescode_rhat_summary(runs)                        # cross-chain R-hat and ESS
 ai4bayescode_diagnose(runs$histories[[1]])             # full diagnostics on one chain</pre>
@@ -270,8 +271,10 @@ Python  AI4BayesCode.remove_block(name)</pre>
         <p>Once <code>ai4bayescode_source</code> (or <code>ai4bayescode_example</code>) has loaded a sampler class, build it with your data and drive it through a small stateful interface. Every block, every composite, and the top-level sampler expose the same methods. In R they are <code>m$method()</code>. In Python, <code>m.method()</code>. Each signature below is the general form.</p>
 
         <h3>constructor</h3>
-        <p>Build the sampler with your data. The arguments depend on the model, so run <code>ai4bayescode_doc(MyModel)</code> to see them. The last two are always the same: an integer RNG seed, then <code>keep_history</code>, which records every draw when it is on and otherwise keeps only the latest. R matches constructor arguments by position, so pass them in order. In Python they are keyword arguments and the seed is called <code>rng_seed</code>.</p>
-        <pre class="api__sig">R       m &lt;- new(MyModel, y, X, 1L, TRUE)
+        <p>Build the sampler with your data. The arguments depend on the model, so run <code>ai4bayescode_doc(MyModel)</code> to see their names, types and defaults. In a sampler you generate, every argument other than the data normally has a default, so the data alone is enough to build it. Two arguments are common to every sampler. <code>rng_seed</code> is the integer RNG seed, and it defaults to 1. <code>keep_history</code> records every draw when it is on and otherwise keeps only the latest, and it is off by default.</p>
+        <p>Pass the data first and give every other argument by name. R matches constructor arguments by name, the same way it matches the arguments of any R function, and fills in the default for each argument you leave out. A name that the constructor does not have stops the call with an error, so a typo is caught instead of being silently ignored. The seed is always spelled <code>rng_seed</code>, so a call with <code>seed = 1L</code> is rejected. Python uses the same names as keyword arguments. Avoid passing the later arguments by position. Many samplers take extra settings after the data, such as a prior scale or a number of trees, so a value passed by position can land on the wrong argument.</p>
+        <pre class="api__sig">R       m &lt;- new(MyModel, y, X, rng_seed = 1L, keep_history = TRUE)
+        m &lt;- new(MyModel, y, X)                     # data only, defaults for the rest
 Python  m = mod.MyModel(y, X, rng_seed=1, keep_history=True)</pre>
 
         <h3 id="step">step</h3>
@@ -286,9 +289,11 @@ Python  m.step(n_steps=1)</pre>
 Python  m.get_current()</pre>
 
         <h3 id="set_current">set_current</h3>
-        <p>Overwrite current values from a named list, to warm-start from a previous run or a chosen starting point. Keys are parameter names (and, for some blocks, the data they condition on).</p>
-        <pre class="api__sig">R       m$set_current(list(sigma = 1.0, beta = b0))
-Python  m.set_current({"sigma": 1.0, "beta": b0})</pre>
+        <p>Overwrite the sampler&rsquo;s current state from a named list (R) or a dict (Python). Its main purpose is feeding data into a running sampler. An outer loop can push in newly arrived observations or imputed values, and the next <code>step</code> uses them. In a sampler you generate, each data argument of the constructor is accepted here under the same name, so a model built from <code>y</code> and <code>X</code> takes <code>y</code> and <code>X</code>. The same call also sets parameter values, which is how you warm-start from a previous run or a chosen starting point. In R, pass one list rather than separate named arguments. In Python, each value must be a 1-D NumPy array, so wrap a scalar as <code>np.array([1.0])</code> and flatten a matrix in column-major order.</p>
+        <pre class="api__sig">R       m$set_current(list(y = y_new, X = X_new))       # feed in new data
+        m$set_current(list(sigma = 1.0, beta = b0))     # warm-start the parameters
+Python  m.set_current({"y": y_new, "X": X_new.ravel(order="F")})
+        m.set_current({"sigma": np.array([1.0]), "beta": b0})</pre>
 
         <h3 id="get_history">get_history</h3>
         <p>All stored draws as a named list of matrices, each <code>(n_draws &times; dim)</code>. Feed it straight to <code>ai4bayescode_diagnose()</code>.</p>
@@ -296,17 +301,23 @@ Python  m.set_current({"sigma": 1.0, "beta": b0})</pre>
 Python  m.get_history()</pre>
 
         <h3 id="predict_at">predict_at</h3>
-        <p>Posterior-predictive draws at new inputs, using the recorded chain. Pass the new data as a named list (column-major flattened where the constructor took a matrix). If you do not supply all of the inputs, it still returns a partial prediction of the intermediate quantities it can reach. Returns a named list and does not mutate state.</p>
-        <pre class="api__sig">R       m$predict_at(list(X = X_new))
-Python  m.predict_at({"X": X_new})</pre>
+        <p>Posterior-predictive draws at new inputs. Pass the new data as a named list (R) or a dict (Python), keyed by the names <code>get_dag()</code> lists under <code>data_inputs</code>. Where the constructor took a matrix, pass it flattened in column-major order. With <code>keep_history</code> on you get one row per recorded draw. With it off you get a single draw from the current state. It returns a named list and does not change the chain or its history.</p>
+        <p>Called with no new data, it predicts at the training data. In R that is <code>m$predict_at()</code> or <code>m$predict_at(list())</code>. In Python, pass an empty dict. A trailing <code>TRUE</code> in R, or <code>last_draw_only=True</code> in Python, returns one prediction from the latest draw even when the history is kept. In R this switch is positional, so pass it as the second argument. Samplers generated before 1.1, and some bundled examples, accept only the one-argument form.</p>
+        <p>You can also supply only some of the inputs. Prediction then goes as far as the model&rsquo;s declared graph allows and stops there. Every quantity it can reach is returned. A quantity it cannot reach is left out of the result, and the call does not fail because of it. Some inputs describe the same observations, for example a design matrix and the group of each row. If you replace one of them and leave another out, the one you left out no longer lines up with the new rows. Everything that depends on it is then left out as well. <code>get_dag()</code> lists these groups under <code>data_input_groups</code>.</p>
+        <pre class="api__sig">R       m$predict_at(list(X = X_new))                  # one row per recorded draw
+        m$predict_at(list(X = X_new), TRUE)            # latest draw only
+        m$predict_at()                                 # at the training data
+Python  m.predict_at({"X": X_new.ravel(order="F")})
+        m.predict_at({"X": X_new.ravel(order="F")}, last_draw_only=True)
+        m.predict_at({})</pre>
 
         <h3 id="get_dag">get_dag</h3>
-        <p>The model&rsquo;s dependency graph as data (a named list of edges). <code>ai4bayescode_plot_dag()</code> reads this to draw the figure.</p>
+        <p>The model&rsquo;s dependency graph as data. In R it is a named list with six fields: <code>gibbs_reads</code>, <code>gibbs_invalidates</code>, <code>predict_edges</code>, <code>context_edges</code>, <code>data_inputs</code> and <code>data_input_groups</code>. In Python it is an object with the same fields as attributes, and <code>dag["data_inputs"]</code> works too. <code>predict_edges</code> is the graph that <code>predict_at</code> follows. <code>data_inputs</code> lists the inputs you can replace when you predict. <code>data_input_groups</code> is new in 1.1. It lists the groups of inputs that describe the same observations, such as a design matrix and the group of each row. <code>ai4bayescode_plot_dag()</code> reads this to draw the figure.</p>
         <pre class="api__sig">R       m$get_dag()
 Python  m.get_dag()</pre>
 
         <h3 id="readapt">readapt_NUTS</h3>
-        <p>Re-tune the NUTS step size for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. The mass matrix is carried through unchanged, it is not adapted here. <code>max_tree_depth</code> caps the tree-doubling depth per iteration, and <code>target_accept</code> overrides the block&rsquo;s target acceptance rate for this readaptation. In both, <code>-1</code> means leave the block&rsquo;s own setting alone. Python fills those defaults in for you. R does not, so pass at least the first three arguments in order. This method exists only on models that contain a NUTS block.</p>
+        <p>Re-tune the NUTS step size for <code>n</code> iterations <em>without</em> advancing the chain. With <code>reset = FALSE</code> (the default) it continues adapting from the current state. With <code>reset = TRUE</code> it reinitializes dual-averaging and adapts from scratch. Continuing is what you want for online learning, where new data arrives and you keep refining. Resetting is for when the target geometry has changed and the old tuning no longer fits. The mass matrix is carried through unchanged, it is not adapted here. <code>max_tree_depth</code> caps the tree-doubling depth during these iterations only. <code>target_accept</code> sets a new target acceptance rate, and that target stays in force for the <code>step</code> and <code>readapt_NUTS</code> calls that follow. For either argument, <code>-1</code> leaves the block&rsquo;s own setting alone. Python fills those defaults in for you. R does not, so pass at least the first three arguments in order. This method exists only on models that contain a NUTS block.</p>
         <pre class="api__sig">R       m$readapt_NUTS(n, reset, max_tree_depth)
         m$readapt_NUTS(n, reset, max_tree_depth, target_accept)
 Python  m.readapt_NUTS(n, reset=False, max_tree_depth=-1, target_accept=-1.0)</pre>
@@ -337,9 +348,11 @@ Python  AI4BayesCode.new_frozen(module_class, *args, fixed=None, quiet_freeze=Tr
         <p>These helpers sit between the two layers: they take what a sampler produces, its history and its structure, and turn it into convergence diagnostics and figures. They ship with the package, so a generated runner calls the same functions by name.</p>
 
         <h3>ai4bayescode_diagnose</h3>
-        <p>From <code>get_history()</code>: a summary table (R-hat, bulk / tail ESS) plus a trace, autocorrelation, and density plot. The one call to sanity-check a run.</p>
+        <p>Pass the history from <code>get_history()</code>, or pass the model itself and it reads the history for you. It returns a summary table (R-hat, bulk / tail ESS) plus a trace, autocorrelation, and density plot. The one call to sanity-check a run. The history includes the burn-in, so pass the burn-in length as <code>n_burn</code> to drop it.</p>
         <pre class="api__sig">R       ai4bayescode_diagnose(hist, n_burn = 0, plot = TRUE, order_components = FALSE)
-Python  AI4BayesCode.diagnose(hist, n_burn=0, plot=True, order_components=False)</pre>
+        ai4bayescode_diagnose(m, n_burn = 5000)
+Python  AI4BayesCode.diagnose(hist, n_burn=0, plot=True, order_components=False)
+        AI4BayesCode.diagnose(m, n_burn=5000)</pre>
 
         <h3 id="plot_dag">ai4bayescode_plot_dag</h3>
         <p>Draw the model as a plate DAG straight from the sampler, reading its <code>get_dag()</code> under the hood. In R, leave <code>out_path</code> empty to draw to the active device, or pass a path to write a PNG. The Python helper always writes a PNG and returns its path, using a temporary directory when <code>out_path</code> is omitted. The plotting arguments follow each language&rsquo;s own convention.</p>
@@ -350,8 +363,9 @@ Python  AI4BayesCode.plot_dag(model, *, out_path=None, title=None, figsize=(12, 
 
         <h3 id="run_chains">ai4bayescode_run_chains</h3>
         <p>Run several independent chains in parallel and collect them, for cross-chain R-hat and ESS. The first argument is a function that builds a fresh sampler from a seed.</p>
-        <pre class="api__sig">R       ai4bayescode_run_chains(function(seed) new(MyModel, y, X, as.integer(seed), TRUE),
-                                n_chains = 4, n_burn = 5000, n_keep = 5000)
+        <pre class="api__sig">R       ai4bayescode_run_chains(
+          function(seed) new(MyModel, y, X, rng_seed = as.integer(seed), keep_history = TRUE),
+          n_chains = 4, n_burn = 5000, n_keep = 5000)
 Python  AI4BayesCode.run_chains(lambda s: mod.MyModel(y, X, rng_seed=s, keep_history=True),
                                 n_chains=4, n_burn=5000, n_keep=5000)</pre>
 
