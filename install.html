@@ -4,17 +4,42 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Install · AI4BayesCode</title>
-  <meta name="description" content="Install AI4BayesCode as a skill for a coding agent (Claude Code, Codex, Cursor, …), or as an R / Python package." />
+  <meta name="description" content="Install AI4BayesCode in two steps: the skill for your coding agent (Claude Code, Codex, Cursor, …), which generates samplers, then the R or Python package, which runs them." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/style.css" />
   <style>
-    .toggle { display:inline-flex; gap:.5rem; margin-top:1.5rem; }
-    .toggle-panel.is-hidden { display:none; }
     .install__note { max-width:44rem; margin-top:1.25rem; }
     .install__note code { font-family:'IBM Plex Mono',monospace; font-size:.85em; }
+
+    /* two-step overview under the page title */
+    .steps { display:grid; grid-template-columns:1fr auto 1fr; gap:.85rem; align-items:stretch; max-width:52rem; margin-top:1.75rem; }
+    .steps__card { display:block; background:rgb(var(--panel)); border:1px solid rgb(var(--rule)); border-left:3px solid rgb(var(--accent)); border-radius:12px; padding:1.1rem 1.25rem; transition:border-color .2s ease, box-shadow .2s ease; }
+    .steps__card:hover { border-color:rgb(var(--accent) / .6); box-shadow:0 8px 30px -12px rgb(var(--accent) / .25); }
+    .steps__label { font-family:'Inter',sans-serif; text-transform:uppercase; letter-spacing:.22em; font-size:.68rem; font-weight:600; color:rgb(var(--accent)); }
+    .steps__title { font-family:'Lora',Georgia,serif; font-weight:600; font-size:1.15rem; color:rgb(var(--ink)); margin:.3rem 0 .35rem; }
+    .steps__text { margin:0; font-size:.93rem; line-height:1.55; color:rgb(var(--ink-soft)); }
+    .steps__arrow { align-self:center; font-size:1.5rem; color:rgb(var(--ink-faint)); }
+
+    /* heading of each step section */
+    .step__head { display:flex; align-items:center; gap:1rem; }
+    .step__num { flex:none; display:inline-flex; align-items:center; justify-content:center; width:2.6rem; height:2.6rem; border-radius:50%; background:rgb(var(--accent)); color:#fff; font-family:'Lora',Georgia,serif; font-weight:700; font-size:1.25rem; }
+    .step__head h3 { margin:.15rem 0 0; }
+
+    .install--two { grid-template-columns:repeat(2, 1fr); }
+    /* let long command lines scroll inside their card instead of widening the page */
+    .install__card { min-width:0; }
+    .install pre { overflow-x:auto; }
+
+    @media (max-width: 900px) {
+      .install--two { grid-template-columns:1fr; }
+    }
+    @media (max-width: 700px) {
+      .steps { grid-template-columns:1fr; }
+      .steps__arrow { transform:rotate(90deg); justify-self:center; }
+    }
   </style>
 </head>
 <body>
@@ -44,30 +69,41 @@
 
 <!-- ===== INSTALL ===== -->
 <header class="container">
-  <section class="section">
+  <section class="section" style="padding-bottom:1.5rem;">
     <p class="eyebrow">Installation</p>
     <h2 class="mt-1">Get AI4BayesCode running.</h2>
-    <p class="subtitle mt-1" style="max-width:44rem;">Two ways to use AI4BayesCode:</p>
-
-    <ul class="subtitle" style="max-width:44rem; list-style:disc; padding-left:1.35rem; margin-top:.6rem;">
-      <li style="margin-bottom:.65rem;"><strong>Coding agent</strong> (Claude Code, Cursor, Codex): where samplers are created. Describe your model in plain language and it generates the sampler, or designs a new block when none fits. It runs on your existing coding agent subscription.</li>
-      <li><strong>R / Python package</strong>: where generated samplers are used. It provides the functions you call to load a sampler, run the chains, and check convergence from R or Python. It can also generate samplers, but with less support. It uses an API key instead of a subscription.</li>
-    </ul>
-
-    <p class="subtitle install__note" style="max-width:44rem; border-left:3px solid rgb(var(--accent) / .55); padding-left:1rem;">
-      <strong>New here?</strong> Install both. Generate your sampler with a coding agent, then run it with the R or Python package.
+    <p class="subtitle mt-1" style="max-width:44rem;">
+      Two steps: install the skill in your coding agent, where samplers are generated, then
+      install the R or Python package, where you run them.
     </p>
 
-    <div class="toggle" style="margin-top:1.75rem;">
-      <button class="btn btn--primary toggle__btn" data-target="llm">Coding agent</button>
-      <button class="btn toggle__btn" data-target="pkg">R / Python package</button>
+    <div class="steps">
+      <a class="steps__card" href="#step-1" data-cat="param">
+        <div class="steps__label">Step 1 · Generate</div>
+        <div class="steps__title">Coding agent skill</div>
+        <p class="steps__text">Describe your model in plain language. The agent writes the sampler and validates it, or designs a new block when none fits. Runs on your coding agent subscription.</p>
+      </a>
+      <div class="steps__arrow" aria-hidden="true">&rarr;</div>
+      <a class="steps__card" href="#step-2" data-cat="semi">
+        <div class="steps__label">Step 2 · Run</div>
+        <div class="steps__title">R or Python package</div>
+        <p class="steps__text">Load the generated sampler, run the chains, and check convergence from R or Python.</p>
+      </a>
     </div>
   </section>
 </header>
 
-<!-- ===== LLM PANEL ===== -->
-<section class="section toggle-panel" data-panel="llm">
+<!-- ===== STEP 1: CODING AGENT ===== -->
+<section class="section" id="step-1" data-cat="param" style="padding-top:2.5rem;">
   <div class="container">
+    <div class="step__head">
+      <span class="step__num">1</span>
+      <div>
+        <p class="eyebrow" style="margin:0;">Step 1 · Generate</p>
+        <h3>Install the skill in your coding agent</h3>
+      </div>
+    </div>
+
     <p class="subtitle install__note" style="font-style:italic;">
       AI4BayesCode runs through a <strong>coding agent</strong>, for example
       <strong>Claude Code</strong>, <strong>Cursor</strong>, or <strong>Codex</strong>. A
@@ -115,13 +151,7 @@ then: &lt;your model description&gt;</pre>
     </div>
 
     <p class="subtitle install__note">
-      <strong>With the R or Python package installed,</strong> the sampler the agent writes
-      finds the AI4BayesCode library on its own, so you never have to point it at a folder
-      by hand.
-    </p>
-
-    <p class="subtitle install__note">
-      <strong>After install</strong>, launch it. Use the slash command in Claude Code / Codex,
+      <strong>Then launch it.</strong> Use the slash command in Claude Code / Codex,
       or tell any other coding agent to <em>"Read AI4BayesCode/start.md first"</em>. It first
       asks what you want to
       do: <strong>generate a sampler</strong> (compose existing blocks for your model) or
@@ -134,34 +164,108 @@ then: &lt;your model description&gt;</pre>
 <span class="com"># then choose "generate a sampler", and describe the model:</span>
 y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
     <p class="subtitle install__note">
-      The block-design flow is the other path, for building a new sampling primitive when
-      no existing block fits. It runs only in a coding agent, not in the R or Python
-      package. Pure-C++ users need a C++17 compiler and the Armadillo
-      linear-algebra library, with BLAS and LAPACK. The bundled
-      <code>include/</code> headers are the rest of the install.
+      The agent writes the sampler as a <code>.cpp</code> file, validates it, and hands it
+      back. You run it in Step 2. The block-design flow is the other path, for building a new
+      sampling primitive when no existing block fits. It runs only in a coding agent.
     </p>
   </div>
 </section>
 
-<!-- ===== R / PYTHON PANEL ===== -->
-<section class="section toggle-panel is-hidden" data-panel="pkg">
+<hr class="divider" />
+
+<!-- ===== STEP 2: R / PYTHON PACKAGE ===== -->
+<section class="section" id="step-2" data-cat="semi">
   <div class="container">
+    <div class="step__head">
+      <span class="step__num">2</span>
+      <div>
+        <p class="eyebrow" style="margin:0;">Step 2 · Run</p>
+        <h3>Install the R or Python package</h3>
+      </div>
+    </div>
+
     <p class="subtitle install__note">
-      The same library ships as installable <strong>R</strong> and <strong>Python</strong>
-      packages, self-contained (C++ headers + skill corpus travel inside). Describe the
-      model in plain text and <code>generate()</code> writes and validates the sampler.
+      The package loads the sampler the agent wrote, runs the chains, and checks convergence.
+      It ships self-contained, with the C++ headers inside, so the sampler finds the
+      AI4BayesCode library on its own and you never have to point it at a folder by hand.
     </p>
 
-    <div class="install mt-3">
+    <div class="install install--two mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">R</div>
 <pre><span class="com"># needs a C++17 compiler + Rcpp, RcppArmadillo</span>
 remotes::install_github(
   <span class="lit">"zjg540066169/AI4BayesCode"</span>, subdir = <span class="lit">"r-pkg"</span>)
-<span class="com"># optional packages: httr2 for generate(), posterior and bayesplot for the</span>
-<span class="com"># diagnostics, igraph for plot_dag(), jsonlite for contributed blocks</span>
-install.packages(c(<span class="lit">"httr2"</span>, <span class="lit">"posterior"</span>, <span class="lit">"bayesplot"</span>,
-                   <span class="lit">"igraph"</span>, <span class="lit">"jsonlite"</span>))
+<span class="com"># optional: posterior and bayesplot for the diagnostics,</span>
+<span class="com"># igraph for plot_dag(), jsonlite for contributed blocks</span>
+install.packages(c(<span class="lit">"posterior"</span>, <span class="lit">"bayesplot"</span>, <span class="lit">"igraph"</span>, <span class="lit">"jsonlite"</span>))
+
+<span class="com"># then run the sampler the agent wrote:</span>
+library(AI4BayesCode)
+ai4bayescode_source(<span class="lit">"./generated/MyModel.cpp"</span>)   <span class="com"># compile + load</span>
+ai4bayescode_doc(MyModel)   <span class="com"># what does the constructor want?</span>
+runs &lt;- ai4bayescode_run_chains(
+  function(seed) new(MyModel, y, X, rng_seed = as.integer(seed),
+                     keep_history = TRUE),
+  n_chains = 4, n_burn = 5000, n_keep = 5000)
+ai4bayescode_rhat_summary(runs)   <span class="com"># cross-chain R-hat and ESS</span></pre>
+      </div>
+
+      <div class="install__card" data-cat="semi">
+        <div class="install__lang">Python</div>
+<pre><span class="com"># Python &gt;= 3.11, a C++17 compiler, and the Armadillo headers:</span>
+<span class="com">#   macOS: brew install armadillo</span>
+<span class="com">#   Debian / Ubuntu: apt-get install libarmadillo-dev</span>
+pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.git#subdirectory=python"</span>
+
+<span class="com"># then, in Python, run the sampler the agent wrote:</span>
+import AI4BayesCode
+mod = AI4BayesCode.source(<span class="lit">"./generated/MyModel.cpp"</span>)   <span class="com"># compile + load</span>
+AI4BayesCode.doc(mod.MyModel)   <span class="com"># what does the constructor want?</span>
+runs = AI4BayesCode.run_chains(
+    lambda s: mod.MyModel(y, X, rng_seed=s, keep_history=True),
+    n_chains=4, n_burn=5000, n_keep=5000)
+AI4BayesCode.rhat_summary(runs)   <span class="com"># cross-chain R-hat and ESS</span></pre>
+      </div>
+    </div>
+
+    <p class="subtitle install__note">
+      Replace <code>MyModel</code> with the class name of your sampler and <code>y, X</code>
+      with its data arguments; <code>ai4bayescode_doc()</code> / <code>AI4BayesCode.doc()</code>
+      prints both. To try the package before generating anything, load a built-in example:
+      <code>ai4bayescode_example("GaussianLocationScale")</code>. The
+      <a class="accent" href="tutorial-generate-and-run.html">tutorial</a> walks through a full
+      run, and the <a class="accent" href="api.html">API</a> page lists every function.
+    </p>
+
+    <p class="subtitle install__note">
+      Beyond the built-in blocks, you can also use <strong>contributed blocks</strong> made by other
+      users, which work just like built-in ones. See the
+      <a class="accent" href="blocks.html#contrib">Blocks</a> page for the catalogue and how to
+      install them.
+    </p>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ===== OTHER OPTIONS ===== -->
+<section class="section" id="other-options">
+  <div class="container">
+    <p class="eyebrow">Other options</p>
+    <h3 class="mt-1">Generate from R or Python, without a coding agent</h3>
+
+    <p class="subtitle install__note">
+      The package from Step 2 can also generate a sampler itself, in place of Step 1. This
+      route has less support than the coding agent: it has no block-design flow, and it calls
+      the LLM with an API key billed per call instead of your subscription.
+    </p>
+
+    <div class="install install--two mt-3">
+      <div class="install__card" data-cat="param">
+        <div class="install__lang">R</div>
+<pre><span class="com"># httr2 is needed for generate()</span>
+install.packages(<span class="lit">"httr2"</span>)
 
 library(AI4BayesCode)
 ai4bayescode_set_key(<span class="lit">"sk-ant-..."</span>)   <span class="com"># replace "sk-ant-..." with your own API key</span>
@@ -175,14 +279,7 @@ ai4bayescode_generate(
 
       <div class="install__card" data-cat="semi">
         <div class="install__lang">Python</div>
-<pre><span class="com"># Python &gt;= 3.11, a C++17 compiler, and the Armadillo headers:</span>
-<span class="com">#   macOS: brew install armadillo</span>
-<span class="com">#   Debian / Ubuntu: apt-get install libarmadillo-dev</span>
-pip install anthropic   <span class="com"># the LLM client that generate() calls</span>
-pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.git#subdirectory=python"</span>
-
-<span class="com"># then, in Python:</span>
-import AI4BayesCode
+<pre>import AI4BayesCode
 AI4BayesCode.set_key(<span class="lit">"sk-ant-..."</span>)   <span class="com"># replace "sk-ant-..." with your own API key</span>
 AI4BayesCode.generate(
     <span class="lit">"y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2"</span>)
@@ -205,23 +302,17 @@ AI4BayesCode.generate(
       <code>provider="openai"</code> to <code>set_key()</code>. Then choose an OpenAI model with
       the <code>LLM</code> argument of <code>generate()</code>. The function
       <code>ai4bayescode_models()</code> (R) / <code>AI4BayesCode.models()</code> (Python) lists the
-      supported models. Or run a built-in example:
-      <code>ai4bayescode_example("GaussianLocationScale")</code>.
+      supported models.
+    </p>
+    <p class="subtitle install__note">
+      <code>generate()</code> saves the sampler as a <code>.cpp</code> file. From there, run it
+      exactly as in <a class="accent" href="#step-2">Step 2</a>.
     </p>
 
+    <h3 class="mt-3">Standalone C++</h3>
     <p class="subtitle install__note">
-      <code>generate()</code> saves the sampler as a <code>.cpp</code> file. Load it with
-      <code>ai4bayescode_source()</code> / <code>AI4BayesCode.source()</code>, which compiles
-      against the bundled library, with no paths to configure, then run
-      <code>ai4bayescode_doc()</code> / <code>AI4BayesCode.doc()</code> to print a usage card:
-      what the sampler takes as input and how to call it.
-    </p>
-
-    <p class="subtitle install__note">
-      Beyond the built-in blocks, you can also use <strong>contributed blocks</strong> made by other
-      users, which work just like built-in ones. See the
-      <a class="accent" href="blocks.html#contrib">Blocks</a> page for the catalogue and how to
-      install them.
+      Pure-C++ users need a C++17 compiler and the Armadillo linear-algebra library, with BLAS
+      and LAPACK. The bundled <code>include/</code> headers are the rest of the install.
     </p>
   </div>
 </section>
@@ -241,20 +332,6 @@ AI4BayesCode.generate(
     </div>
   </div>
 </footer>
-
-<script>
-  document.querySelectorAll('.toggle__btn').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var target = b.getAttribute('data-target');
-      document.querySelectorAll('.toggle__btn').forEach(function (x) {
-        x.classList.toggle('btn--primary', x === b);
-      });
-      document.querySelectorAll('.toggle-panel').forEach(function (p) {
-        p.classList.toggle('is-hidden', p.getAttribute('data-panel') !== target);
-      });
-    });
-  });
-</script>
 
 </body>
 </html>

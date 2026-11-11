@@ -13,6 +13,9 @@ Description: Samples the continuous latent state path x_{1:T} of a univariate
  Gibbs) with a bootstrap proposal and optional ancestor sampling (PGAS), which
  leaves the latent-path full conditional invariant for any particle count
  N >= 2. The stochastic-volatility log-volatility path is the worked example.
+ Andrieu, Doucet and Holenstein (2010)
+ <doi:10.1111/j.1467-9868.2009.00736.x>; Lindsten, Jordan and Schon (2014),
+ JMLR 15:2145-2184.
 Author: Alex Ziyu Jiang
 Maintainer: Alex Ziyu Jiang
 License: GPL-3.0-or-later
