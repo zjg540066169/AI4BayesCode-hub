@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>What &ldquo;stateful&rdquo; means · AI4BayesCode</title>
-  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode. It explains what a stateful block is, and why it lets blocks built separately run together as one sampler without reinitializing. Worked examples are coming soon." />
+  <meta name="description" content="A plain-language tutorial on statefulness in AI4BayesCode. It explains what a stateful block is, why it lets blocks built separately run together as one sampler without reinitializing, and works through a Bayesian meta-regression with a BART regression function." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,6 +26,10 @@
     .tut-say code { font-family: 'IBM Plex Mono', monospace; }
     .tut-code { max-width: 52rem; margin: .7rem 0 0; background: rgb(var(--sunk)); border: 1px solid rgb(var(--rule)); border-radius: 12px; padding: 1.1rem 1.3rem; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: .84rem; line-height: 1.65; color: rgb(var(--ink)); white-space: pre; overflow-x: auto; }
     .tut-code .c { color: rgb(var(--ink-faint)); font-style: italic; }
+    .tut-prose h3 { margin-top: 2rem; font-size: 1.25rem; }
+    .tut-fig { max-width: 52rem; margin: 1.6rem 0 0; }
+    .tut-fig img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid rgb(var(--rule)); border-radius: 12px; padding: .9rem; }
+    .tut-fig figcaption { margin-top: .6rem; font-size: .9rem; line-height: 1.55; color: rgb(var(--ink-faint)); max-width: 46rem; }
   </style>
 </head>
 <body>
@@ -77,7 +81,80 @@
       <p>The first arrow is <code>set_current</code>, the second is <code>step</code>. Because every block works this way, blocks built separately drop into one larger sampler and keep running, instead of reinitializing from scratch.</p>
     </div>
 
-    <p class="tut-say" style="max-width:46rem;margin-top:2rem;">Worked examples are coming soon.</p>
+    <div class="tut-prose">
+      <h2>Worked example: Bayesian meta-regression</h2>
+      <p>A meta-regression combines effect estimates from \(K\) studies. Study \(i\) reports an effect \(y_i\) with a known variance \(s_i^2\), and \(X_i\) holds its study-level covariates. The model is</p>
+      <p>\[ y_i \mid f_\phi, \omega, X_i, s_i^2 \;\sim\; \mathcal{N}\!\left(f_\phi(X_i),\; \omega^2 + s_i^2\right), \qquad \omega \sim \mathcal{C}^{+}(0, 1), \]</p>
+      <p>where \(\omega^2\) is the between-study variance and \(f_\phi\) is a regression function with parameters \(\phi\). The function \(f_\phi\) can be any regression model, including a newly developed one that has no meta-regression implementation of its own.</p>
+      <p>The variance \(\omega^2 + s_i^2\) differs across studies, so a standard regression sampler cannot fit this form directly. Introducing a latent effect \(\mu_i\) for each study gives an equivalent model:</p>
+      <p>\[ y_i \mid \mu_i, s_i^2 \;\sim\; \mathcal{N}(\mu_i,\, s_i^2), \qquad \mu_i \mid f_\phi, \omega, X_i \;\sim\; \mathcal{N}\!\left(f_\phi(X_i),\, \omega^2\right). \]</p>
+      <p>Now \(\mu_i\) follows an ordinary regression with a single residual variance \(\omega^2\), which is the form a regression sampler expects. Panel (a) of the figure below shows the model as a DAG.</p>
+
+      <h3>Why the regression block has to be stateful</h3>
+      <p>Each MCMC iteration has two parts. First, draw each latent effect from its conditional distribution, which is normal:</p>
+      <p>\[ \mu_i \mid y_i, f_\phi, \omega \;\sim\; \mathcal{N}\!\left(v_i\Big(\tfrac{y_i}{s_i^2} + \tfrac{f_\phi(X_i)}{\omega^2}\Big),\; v_i\right), \qquad v_i = \Big(\tfrac{1}{s_i^2} + \tfrac{1}{\omega^2}\Big)^{-1}. \]</p>
+      <p>Second, update \(\phi\) and \(\omega\) by fitting the regression with \(\mu_i^{(t)}\) as the working response and \(X_i\) as the predictors. The response of this regression changes on every iteration.</p>
+      <p>A standard regression sampler cannot accept the new response without being reinitialized, so it would start a new sampling run each iteration instead of continuing from its current state. When \(f_\phi\) is BART, the state is the tree ensemble, and each tree is updated conditional on the current fit of the others. Reinitializing replaces that ensemble with a new starting one, so even the first tree update conditions on the starting ensemble rather than the current fit.</p>
+      <p>A stateful block keeps its trees. At iteration \(t\) it receives \(\mu_i^{(t)}\) through <code>set_current</code>, updates \(\phi\) and \(\omega\) through <code>step</code>, and returns \(f_\phi(X_i)\) and \(\omega\) through <code>get_current</code> for the next draw of \(\mu_i\).</p>
+    </div>
+
+    <p class="tut-step">In R</p>
+    <p class="tut-say">Here \(f_\phi\) is BART, through the built-in <code>BartNoise</code> sampler. It fits \(\mu_i \sim \mathcal{N}(f(X_i), \sigma^2)\), so its \(\sigma\) is \(\omega\). The outer loop draws \(\mu_i\), and the BART sampler updates the trees and \(\omega\).</p>
+<pre class="tut-code">library(AI4BayesCode)
+ai4bayescode_example("BartNoise")        <span class="c"># BART regression: mu ~ N(f(X), sigma^2)</span>
+
+<span class="c"># simulated meta-analysis: K studies with known within-study variances s2</span>
+set.seed(1)
+K  &lt;- 80
+X  &lt;- matrix(runif(K * 2), K, 2)
+f  &lt;- sin(pi * X[, 1]) + X[, 2]          <span class="c"># true regression function</span>
+mu &lt;- f + rnorm(K, 0, 0.3)               <span class="c"># true study effects, omega = 0.3</span>
+s2 &lt;- runif(K, 0.02, 0.2)                <span class="c"># known within-study variances</span>
+y  &lt;- rnorm(K, mu, sqrt(s2))             <span class="c"># observed effects</span>
+
+<span class="c"># the phi block: BART, started with the observed effects as its response</span>
+phi &lt;- new(BartNoise, X, y, ntrees = 50L, rng_seed = 1L)
+
+n_iter &lt;- 6000
+omega  &lt;- numeric(n_iter)
+f_draw &lt;- matrix(NA, n_iter, K)
+for (t in 1:n_iter) {
+  cur &lt;- phi$get_current()               <span class="c"># f(X_i) and omega from the last step</span>
+  f_t &lt;- drop(cur$f_bart)
+  w2  &lt;- drop(cur$sigma)^2
+
+  <span class="c"># mu_i | y_i, f(X_i), omega</span>
+  v    &lt;- 1 / (1 / s2 + 1 / w2)
+  mu_t &lt;- rnorm(K, v * (y / s2 + f_t / w2), sqrt(v))
+
+  phi$set_current(list(y = mu_t))        <span class="c"># new working response, trees kept</span>
+  phi$step()                             <span class="c"># one sweep of the trees, then omega</span>
+
+  cur &lt;- phi$get_current()
+  omega[t]    &lt;- drop(cur$sigma)
+  f_draw[t, ] &lt;- drop(cur$f_bart)
+}
+
+keep &lt;- 3001:n_iter
+quantile(omega[keep], c(0.05, 0.5, 0.95))   <span class="c"># between-study SD</span>
+cor(colMeans(f_draw[keep, ]), f)            <span class="c"># fitted vs true regression function</span></pre>
+    <p class="tut-say">The BART sampler is never rebuilt inside the loop. It was written for a standalone regression, and the three calls are all it takes to place it inside the meta-regression. In this sketch \(\omega\) takes <code>BartNoise</code>&rsquo;s default prior on \(\sigma\), the calibrated inverse-gamma prior of BART, rather than the half-Cauchy prior above. To use the half-Cauchy prior, describe the regression with that prior and generate its sampler.</p>
+
+    <div class="tut-prose">
+      <h2>Prediction from the model DAG</h2>
+      <p>Every sampler AI4BayesCode generates keeps the DAG of its model, as in panel (a). The DAG records which quantities are observed, which are latent or parameters, and which depend on which. <code>predict_at</code> uses it to decide what can be predicted from the inputs you give it.</p>
+      <p>Prediction starts from the nodes with no parents, including any new inputs you supply. A node becomes predictable once all of its parents are known, whether from fitted parameters, from your inputs, or from nodes already predicted. Repeating this step carries the prediction down the DAG.</p>
+    </div>
+
+    <figure class="tut-fig">
+      <img src="assets/meta_regression_dag.svg" alt="Three DAGs for the meta-regression. (a) The fitted model: X_i and phi point to f_phi(X_i); f_phi(X_i) and omega point to mu_i; mu_i and s_i^2 point to y_i. (b) Prediction given X_new and s^2_new: f_phi(X_new), mu_new and y_new are predicted. (c) Prediction given X_new only: f_phi(X_new) and mu_new are predicted, y_new is not." loading="lazy" />
+      <figcaption>Prediction DAGs for the meta-regression. (a) The fitted model. (b) Prediction given \(X_{new}\) and \(s^2_{new}\). (c) Prediction given \(X_{new}\) only. Gray nodes are observed, white nodes are latent variables or parameters inferred from the fitted model, and blue nodes are predicted. Solid arrows are dependencies in the fitted model; dotted arrows show how the prediction propagates.</figcaption>
+    </figure>
+
+    <div class="tut-prose">
+      <p>In panel (b), both \(X_{new}\) and \(s^2_{new}\) are given, so the prediction runs from \(f_\phi(X_{new})\) to \(\mu_{new}\) and then to \(y_{new}\). In panel (c), only \(X_{new}\) is given. The prediction still reaches \(f_\phi(X_{new})\) and \(\mu_{new}\), but it stops before \(y_{new}\), because \(s^2_{new}\) is unknown. Given only \(s^2_{new}\), nothing can be predicted.</p>
+      <p>The same rule covers prediction with no new inputs at all, such as density estimation: the prediction starts from the parameter nodes alone and runs through the whole DAG. When the sampler keeps its history, <code>predict_at</code> returns a prediction for every retained draw; otherwise it uses the current draw only.</p>
+    </div>
 
     <p style="max-width:44rem;margin-top:2.5rem;">
       <a class="btn" href="tutorial.html">&larr; All tutorials</a>
