@@ -71,6 +71,7 @@
         <li><a href="#list_skills">list_skills</a></li>
         <li><a href="#version">version</a></li>
         <li><a href="#stream_check">stream_check</a></li>
+        <li><a href="#install_skill">install_skill</a></li>
       </ul>
 
       <div class="api__nav-group">Contributed blocks</div>
@@ -231,6 +232,19 @@ Python  AI4BayesCode.version()</pre>
           effort = NULL, progress = TRUE)
 Python  AI4BayesCode.stream_check(LLM="claude-opus-4-8", API_key=None,
           effort=None, progress=True)</pre>
+
+        <h3 id="install_skill">ai4bayescode_install_skill</h3>
+        <p>Install the AI4BayesCode skill for Claude Code and Codex without git, the same way on Windows, macOS, and Linux. It downloads the skill from GitHub into <code>~/.claude/skills/AI4BayesCode</code> for Claude Code (<code>$CLAUDE_CONFIG_DIR/skills/AI4BayesCode</code> when that variable is set) and into <code>~/.agents/skills/AI4BayesCode</code> for Codex. On Windows, <code>~</code> is your profile folder. Run it again to update. A folder there that does not hold the skill is never touched, and neither is a git checkout of the skill unless you pass <code>force</code>.</p>
+        <pre class="api__sig">R       ai4bayescode_install_skill(agent = c("claude", "codex"), ref = "main",
+                           quiet = FALSE, force = FALSE)
+Python  AI4BayesCode.install_skill(agent=("claude", "codex"), ref="main",
+                           quiet=False, force=False)</pre>
+        <dl class="api__params">
+          <dt>agent</dt> <dd><code>"claude"</code>, <code>"codex"</code>, or both. Both by default.</dd>
+          <dt>ref</dt>   <dd>The branch or tag to install. <code>"main"</code> by default.</dd>
+          <dt>quiet</dt> <dd>Skip the progress messages. Off by default.</dd>
+          <dt>force</dt> <dd>Also replace a git checkout of the skill, which loses any changes made in it. Off by default.</dd>
+        </dl>
       </article>
 
       <article class="api__section" id="available_blocks">

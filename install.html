@@ -208,9 +208,10 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
     <p class="subtitle install__note">
       <strong>On Windows</strong>, R needs
       <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>
-      for your R version. Python needs the same Rtools, or
+      for your R version. Python needs Rtools44 or newer, or
       <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>
-      with its gcc, armadillo, and openblas64 packages.
+      with its
+      <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/tree/main/python#system-requirements" target="_blank" rel="noopener">gcc, armadillo, and openblas64 packages</a>.
     </p>
 
     <div class="install install--two mt-3">
@@ -242,6 +243,8 @@ ai4bayescode_rhat_summary(runs)   <span class="com"># cross-chain R-hat and ESS<
 <span class="com">#   Debian / Ubuntu: apt-get install libarmadillo-dev</span>
 <span class="com">#   Windows: Rtools, or MSYS2 (see above)</span>
 pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.git#subdirectory=python"</span>
+<span class="com"># or, without git:</span>
+pip install <span class="lit">"https://github.com/zjg540066169/AI4BayesCode/archive/refs/heads/main.zip#subdirectory=python"</span>
 
 <span class="com"># then, in Python, run the sampler the agent wrote:</span>
 import AI4BayesCode
