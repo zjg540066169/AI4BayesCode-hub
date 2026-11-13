@@ -118,21 +118,15 @@
     <div class="install mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">Claude Code</div>
-<pre><span class="com"># install</span>
-git clone --depth 1 https://github.com/zjg540066169/AI4BayesCode.git <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span>
-
-<span class="com"># update for new version</span>
-git -C <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span> pull --ff-only</pre>
+<pre style="white-space:pre-wrap; overflow-wrap:anywhere;"><span class="com"># install, or update for new version</span>
+git init -q <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span>; git -C <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span> pull -q --ff-only https://github.com/zjg540066169/AI4BayesCode.git main</pre>
         <p class="install__note" style="margin-top:.75rem;">Restart Claude Code, then type <code>/AI4BayesCode</code>.</p>
       </div>
 
       <div class="install__card" data-cat="semi">
         <div class="install__lang">Codex</div>
-<pre><span class="com"># install</span>
-git clone --depth 1 https://github.com/zjg540066169/AI4BayesCode.git <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span>
-
-<span class="com"># update for new version</span>
-git -C <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span> pull --ff-only</pre>
+<pre style="white-space:pre-wrap; overflow-wrap:anywhere;"><span class="com"># install, or update for new version</span>
+git init -q <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span>; git -C <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span> pull -q --ff-only https://github.com/zjg540066169/AI4BayesCode.git main</pre>
         <p class="install__note" style="margin-top:.75rem;">Restart Codex, then type <code>/Ai4bayescode</code> <span class="muted">(Codex lowercases the skill name, so only the first letter is capitalized)</span>.</p>
       </div>
 
@@ -149,11 +143,11 @@ then: &lt;your model description&gt;</pre>
     </div>
 
     <p class="subtitle install__note">
-      These commands are the same on macOS, Linux, and Windows, and they need
+      The command is the same on macOS, Linux, and Windows, and it needs
       <a class="accent" href="https://git-scm.com/downloads" target="_blank" rel="noopener">git</a>.
-      On Windows, run them in PowerShell. They do not work in Command Prompt. If you use
-      Claude Code or Codex inside WSL, run them inside WSL. If the update line reports an
-      error, delete the folder and run the install line again.
+      On Windows, run it in PowerShell. It does not work in Command Prompt. If you use
+      Claude Code or Codex inside WSL, run it inside WSL. If it reports an error, delete the
+      folder and run it again.
     </p>
     <p class="subtitle install__note">
       <strong>No git, or using Command Prompt?</strong> Install the R or Python package from
