@@ -106,6 +106,7 @@ p code, li code {
   border-radius: 3px;
   font-size: .85em;
   color: rgb(var(--ink));
+  overflow-wrap: break-word;
 }
 
 /* ----- layout ----- */
@@ -618,7 +619,7 @@ a.hero__meta-item:hover strong {
 /* ----- API page ----- */
 .api {
   display: grid;
-  grid-template-columns: 14rem 1fr;
+  grid-template-columns: 14rem minmax(0, 1fr);
   gap: 3rem;
 }
 .api__nav {
@@ -662,6 +663,7 @@ a.hero__meta-item:hover strong {
   margin: 2.25rem 0 .85rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgb(var(--rule));
+  overflow-wrap: break-word;
 }
 .api__section h3:first-of-type { padding-top: 0; border-top: 0; }
 .api__section p {
@@ -804,15 +806,23 @@ a.tut-link:hover .tut-link__arrow { color: rgb(var(--accent)); }
   .example__side--prompt { border-right: 0; border-bottom: 1px solid rgb(var(--rule)); }
   .install { grid-template-columns: 1fr; }
   .author-grid { grid-template-columns: 1fr; }
-  .api { grid-template-columns: 1fr; }
+  .api { grid-template-columns: minmax(0, 1fr); }
   .api__nav { position: static; }
   .hero { padding: 4rem 0 3rem; }
   .section { padding: 3.5rem 0; }
 }
-@media (max-width: 620px) {
+/* the nav links need about 790px at full size and 690px when compact */
+@media (max-width: 820px) {
   .site-nav__links a { padding: .5rem .55rem; font-size: .85rem; }
-  .brand__sub { display: none; }
+}
+@media (max-width: 720px) {
   .hide-on-small { display: none; }
+}
+@media (max-width: 620px) {
+  .brand__sub { display: none; }
+  .site-nav__inner { height: auto; min-height: 4rem; flex-wrap: wrap; row-gap: 0; padding-top: .6rem; padding-bottom: .35rem; }
+  .site-nav__links { flex-wrap: wrap; gap: .1rem; margin-left: -.35rem; }
+  .site-nav__links a { padding: .5rem .35rem; }
 }
 
 /* clickable feature taglines (homepage hero) */

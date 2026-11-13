@@ -19,7 +19,7 @@
     .tut-prose h2 { margin-top: 2.75rem; }
     .tut-prose p { font-family: 'Lora', Georgia, serif; font-size: 1.08rem; line-height: 1.65; color: rgb(var(--ink-soft)); margin: 1rem 0 0; }
     .tut-prose code { font-family: 'IBM Plex Mono', monospace; }
-    .tut-prose .katex-display { text-align: left; margin: .9rem 0 .2rem; }
+    .tut-prose .katex-display { text-align: left; margin: .7rem 0 0; padding: .2rem 0; overflow-x: auto; overflow-y: hidden; }
     .tut-prose .katex { font-size: 1.02em; }
     .tut-step { max-width: 52rem; margin: 2.4rem 0 .2rem; font-family: 'Inter', sans-serif; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 600; color: rgb(var(--accent)); }
     .tut-say { max-width: 46rem; margin: .5rem 0 0; font-family: 'Lora', Georgia, serif; font-size: 1.04rem; line-height: 1.6; color: rgb(var(--ink-soft)); }
@@ -148,12 +148,12 @@ cor(colMeans(f_draw[keep, ]), f)            <span class="c"># fitted vs true reg
 
     <figure class="tut-fig">
       <img src="assets/meta_regression_dag.svg" alt="Three DAGs for the meta-regression. (a) The fitted model: X_i and phi point to f_phi(X_i); f_phi(X_i) and omega point to mu_i; mu_i and s_i^2 point to y_i. (b) Prediction given X_new and s^2_new: f_phi(X_new), mu_new and y_new are predicted. (c) Prediction given X_new only: f_phi(X_new) and mu_new are predicted, y_new is not." loading="lazy" />
-      <figcaption>Prediction DAGs for the meta-regression. (a) The fitted model. (b) Prediction given \(X_{new}\) and \(s^2_{new}\). (c) Prediction given \(X_{new}\) only. Gray nodes are observed, white nodes are latent variables or parameters inferred from the fitted model, and blue nodes are predicted. Solid arrows are dependencies in the fitted model; dotted arrows show how the prediction propagates.</figcaption>
+      <figcaption>Prediction DAGs for the meta-regression. (a) The fitted model. (b) Prediction given \(X_{new}\) and \(s^2_{new}\). (c) Prediction given \(X_{new}\) only. Gray nodes are observed, white nodes are latent variables or parameters inferred from the fitted model, and blue nodes are predicted. Solid arrows are dependencies in the fitted model. Dotted arrows show how the prediction propagates.</figcaption>
     </figure>
 
     <div class="tut-prose">
       <p>In panel (b), both \(X_{new}\) and \(s^2_{new}\) are given, so the prediction runs from \(f_\phi(X_{new})\) to \(\mu_{new}\) and then to \(y_{new}\). In panel (c), only \(X_{new}\) is given. The prediction still reaches \(f_\phi(X_{new})\) and \(\mu_{new}\), but it stops before \(y_{new}\), because \(s^2_{new}\) is unknown. Given only \(s^2_{new}\), nothing can be predicted.</p>
-      <p>The same rule covers prediction with no new inputs at all, such as density estimation: the prediction starts from the parameter nodes alone and runs through the whole DAG. When the sampler keeps its history, <code>predict_at</code> returns a prediction for every retained draw; otherwise it uses the current draw only.</p>
+      <p>The same rule covers prediction with no new inputs at all, such as density estimation: the prediction starts from the parameter nodes alone and runs through the whole DAG. When the sampler keeps its history, <code>predict_at</code> returns a prediction for every retained draw. Otherwise it uses the current draw only.</p>
     </div>
 
     <p style="max-width:44rem;margin-top:2.5rem;">

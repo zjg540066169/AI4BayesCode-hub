@@ -175,8 +175,8 @@ Python  AI4BayesCode.generate(model_description=None, *, classname=None, LLM=Non
         <dl class="api__params">
           <dt>model_description</dt> <dd>Plain-language model spec (text, or a path to a <code>.txt</code>).</dd>
           <dt>classname</dt>         <dd>C++ class name for the generated sampler. Asked interactively if unset, otherwise derived from the description.</dd>
-          <dt>LLM, effort</dt>       <dd>Which model writes the sampler, and how hard it thinks. Left unset (<code>NULL</code>/<code>None</code>) they are asked interactively; see <code>ai4bayescode_models()</code>.</dd>
-          <dt>backend</dt>           <dd>Target runtime: <code>"R"</code>, <code>"Python"</code>, or <code>"both"</code> &mdash; one dual-module <code>.cpp</code> usable from both (the default when unset). Asked interactively if unset.</dd>
+          <dt>LLM, effort</dt>       <dd>Which model writes the sampler, and how hard it thinks. Left unset (<code>NULL</code>/<code>None</code>) they are asked interactively. To see the choices, run <code>ai4bayescode_models()</code>.</dd>
+          <dt>backend</dt>           <dd>Target runtime: <code>"R"</code>, <code>"Python"</code>, or <code>"both"</code>, which builds one dual-module <code>.cpp</code> usable from both and is the default when unset. Asked interactively if unset.</dd>
           <dt>output_path</dt>       <dd>Where the generated <code>.cpp</code> is written (default <code>./generated/</code>).</dd>
           <dt>max_attempts</dt>      <dd>Validate-then-repair budget (default 5). Asked interactively if unset.</dd>
           <dt>API_key</dt>           <dd>Provider key for this call. Optional if you used <code>ai4bayescode_set_key</code>.</dd>
