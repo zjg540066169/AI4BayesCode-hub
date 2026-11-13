@@ -198,19 +198,22 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
       AI4BayesCode library on its own and you never have to point it at a folder by hand.
     </p>
     <p class="subtitle install__note">
-      <strong>On Windows</strong>, R needs
-      <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>
-      for your R version. Python needs Rtools44 or newer, or
-      <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>
-      with its
-      <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/tree/main/python#system-requirements" target="_blank" rel="noopener">gcc, armadillo, and openblas64 packages</a>.
+      <strong>On Windows</strong>, both packages compile the sampler on your computer, so they
+      need a C++ compiler. Install
+      <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>,
+      which works for both. For R, pick the Rtools that matches your R version, for example
+      Rtools45 for R 4.5. For Python, Rtools44 or newer works, and you do not need to install
+      R. If you already use
+      <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>,
+      its <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/tree/main/python#system-requirements" target="_blank" rel="noopener">gcc, armadillo, and openblas64 packages</a>
+      also work for Python.
     </p>
 
     <div class="install install--two mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">R</div>
 <pre><span class="com"># needs a C++17 compiler + Rcpp, RcppArmadillo</span>
-<span class="com"># (on Windows: Rtools for your R version)</span>
+<span class="com"># (on Windows: the Rtools that matches your R version)</span>
 remotes::install_github(
   <span class="lit">"zjg540066169/AI4BayesCode"</span>, subdir = <span class="lit">"r-pkg"</span>)
 <span class="com"># optional: posterior and bayesplot for the diagnostics,</span>
