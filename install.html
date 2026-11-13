@@ -198,16 +198,25 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
       AI4BayesCode library on its own and you never have to point it at a folder by hand.
     </p>
     <p class="subtitle install__note">
-      <strong>On Windows</strong>, both packages compile the sampler on your computer, so they
-      need a C++ compiler. Install
-      <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>,
-      which works for both. For R, pick the Rtools that matches your R version, for example
-      Rtools45 for R 4.5. For Python, Rtools44 or newer works, and you do not need to install
-      R. If you already use
-      <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>,
-      its <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/tree/main/python#system-requirements" target="_blank" rel="noopener">gcc, armadillo, and openblas64 packages</a>
-      also work for Python.
+      <strong>On Windows</strong>, install these tools before the package. Both packages
+      compile the sampler on your computer, and Rtools provides the C++ compiler for that.
     </p>
+    <ul class="subtitle install__note">
+      <li><strong>For R:</strong>
+        <a class="accent" href="https://cran.r-project.org/bin/windows/base/" target="_blank" rel="noopener">R</a>,
+        and the
+        <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>
+        that matches your R version, for example Rtools45 for R 4.5.</li>
+      <li><strong>For Python:</strong>
+        <a class="accent" href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener">Python</a>
+        3.11 or newer, and
+        <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools44</a>
+        or newer. You do not need R. If you already use
+        <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>,
+        you can use its
+        <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/tree/main/python#system-requirements" target="_blank" rel="noopener">gcc, armadillo, and openblas64 packages</a>
+        instead of Rtools.</li>
+    </ul>
 
     <div class="install install--two mt-3">
       <div class="install__card" data-cat="param">
