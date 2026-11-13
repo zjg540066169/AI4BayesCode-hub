@@ -14,8 +14,8 @@
     .install__note { max-width:44rem; margin-top:1.25rem; }
     .install__note code { font-family:'IBM Plex Mono',monospace; font-size:.85em; }
 
-    /* two-step overview under the page title */
-    .steps { display:grid; grid-template-columns:1fr auto 1fr; gap:.85rem; align-items:stretch; max-width:52rem; margin-top:1.75rem; }
+    /* step overview under the page title */
+    .steps { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:.85rem; align-items:stretch; max-width:66rem; margin-top:1.75rem; }
     .steps__card { display:block; background:rgb(var(--panel)); border:1px solid rgb(var(--rule)); border-left:3px solid rgb(var(--accent)); border-radius:12px; padding:1.1rem 1.25rem; transition:border-color .2s ease, box-shadow .2s ease; }
     .steps__card:hover { border-color:rgb(var(--accent) / .6); box-shadow:0 8px 30px -12px rgb(var(--accent) / .25); }
     .steps__label { font-family:'Inter',sans-serif; text-transform:uppercase; letter-spacing:.22em; font-size:.68rem; font-weight:600; color:rgb(var(--accent)); }
@@ -73,11 +73,18 @@
     <p class="eyebrow">Installation</p>
     <h2 class="mt-1">Get AI4BayesCode running.</h2>
     <p class="subtitle mt-1" style="max-width:44rem;">
-      Two steps: install the skill in your coding agent, where samplers are generated, then
-      install the R or Python package, where you run them.
+      First check that your computer can compile C++. Then two steps: install the skill in
+      your coding agent, where samplers are generated, then install the R or Python package,
+      where you run them.
     </p>
 
     <div class="steps">
+      <a class="steps__card" href="#step-0" data-cat="emp">
+        <div class="steps__label">Step 0 · Check</div>
+        <div class="steps__title">C++ compiler</div>
+        <p class="steps__text">Make sure your computer can compile C++. A few lines of R or Python tell you, before you install anything else.</p>
+      </a>
+      <div class="steps__arrow" aria-hidden="true">&rarr;</div>
       <a class="steps__card" href="#step-1" data-cat="param">
         <div class="steps__label">Step 1 · Generate</div>
         <div class="steps__title">Coding agent skill</div>
@@ -92,6 +99,71 @@
     </div>
   </section>
 </header>
+
+<!-- ===== STEP 0: C++ COMPILER CHECK ===== -->
+<section class="section" id="step-0" data-cat="emp" style="padding-top:2.5rem;">
+  <div class="container">
+    <div class="step__head">
+      <span class="step__num">0</span>
+      <div>
+        <p class="eyebrow" style="margin:0;">Step 0 · Check</p>
+        <h3>Check that your computer can compile C++</h3>
+      </div>
+    </div>
+
+    <p class="subtitle install__note">
+      AI4BayesCode turns each sampler into C++ and compiles it on your computer, so it needs a
+      working C++ compiler. Run the check below in R or in Python, whichever you plan to use.
+      It does not need AI4BayesCode.
+    </p>
+
+    <div class="install mt-3" style="grid-template-columns:1fr;">
+      <div class="install__card" data-cat="param">
+        <div class="install__lang">R</div>
+<pre>install.packages(<span class="lit">"Rcpp"</span>, repos = <span class="lit">"https://cloud.r-project.org"</span>)
+Rcpp::evalCpp(<span class="lit">"1 + 1"</span>)   <span class="com"># prints [1] 2 if the compiler works</span></pre>
+      </div>
+
+      <div class="install__card" data-cat="semi">
+        <div class="install__lang">Python</div>
+<pre>import glob, os, shutil, subprocess, tempfile
+windows = (sorted(glob.glob(<span class="lit">"C:/rtools4[4-9]/x86_64-w64-mingw32.static.posix/bin/g++.exe"</span>), reverse=True)
+           + glob.glob(<span class="lit">"C:/msys64/ucrt64/bin/g++.exe"</span>))
+cxx = (windows + [None])[0] if os.name == <span class="lit">"nt"</span> else (os.environ.get(<span class="lit">"CXX"</span>) or shutil.which(<span class="lit">"clang++"</span>) or shutil.which(<span class="lit">"g++"</span>))
+src = os.path.join(tempfile.mkdtemp(), <span class="lit">"check.cpp"</span>)
+exe = src[:-4] + <span class="lit">".exe"</span>
+_ = open(src, <span class="lit">"w"</span>).write(<span class="lit">"#include &lt;iostream&gt;\nint main() { std::cout &lt;&lt; 1 + 1 &lt;&lt; std::endl; }\n"</span>)
+env = dict(os.environ, PATH=os.path.dirname(cxx) + os.pathsep + os.environ[<span class="lit">"PATH"</span>]) if cxx else None
+ok = bool(cxx) and subprocess.run([cxx, <span class="lit">"-std=c++17"</span>, src, <span class="lit">"-o"</span>, exe], env=env, capture_output=True).returncode == 0
+print((subprocess.run([exe], capture_output=True, text=True, env=env).stdout.strip() if ok else <span class="lit">""</span>) or <span class="lit">"No working C++ compiler found"</span>)
+<span class="com"># prints 2 if the compiler works</span></pre>
+      </div>
+    </div>
+
+    <div class="subtitle install__note">
+      <p style="margin:0;">
+        If it prints 2, go on to Step 1. If it shows an error or "No working C++ compiler
+        found", install a C++ compiler and run the check again:
+      </p>
+      <ul style="margin:.35rem 0 0;">
+        <li><strong>macOS:</strong> Xcode Command Line Tools. In Terminal, run
+          <code>xcode-select --install</code>.</li>
+        <li><strong>Linux:</strong> g++. On Debian or Ubuntu, run
+          <code>sudo apt-get install build-essential</code>.</li>
+        <li><strong>Windows, for R:</strong> the
+          <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>
+          that matches your R version, for example Rtools45 for R 4.5.</li>
+        <li><strong>Windows, for Python:</strong>
+          <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools44</a>
+          or newer. You do not need R. If you already use
+          <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>,
+          you can use its
+          <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/tree/main/python#system-requirements" target="_blank" rel="noopener">gcc, armadillo, and openblas64 packages</a>
+          instead.</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
 <!-- ===== STEP 1: CODING AGENT ===== -->
 <section class="section" id="step-1" data-cat="param" style="padding-top:2.5rem;">
@@ -197,28 +269,6 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
       It ships self-contained, with the C++ headers inside, so the sampler finds the
       AI4BayesCode library on its own and you never have to point it at a folder by hand.
     </p>
-    <div class="subtitle install__note">
-      <p style="margin:0;">
-        <strong>On Windows</strong>, both packages compile the sampler on your computer with the
-        C++ compiler that comes with Rtools. Install these first:
-      </p>
-      <ul style="margin:.35rem 0 0;">
-        <li><strong>For R on Windows:</strong>
-          <a class="accent" href="https://cran.r-project.org/bin/windows/base/" target="_blank" rel="noopener">R</a>,
-          and the
-          <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>
-          that matches your R version, for example Rtools45 for R 4.5.</li>
-        <li><strong>For Python on Windows:</strong>
-          <a class="accent" href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener">Python</a>
-          3.11 or newer, and
-          <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools44</a>
-          or newer. You do not need R. If you already use
-          <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>,
-          you can use its
-          <a class="accent" href="https://github.com/zjg540066169/AI4BayesCode/tree/main/python#system-requirements" target="_blank" rel="noopener">gcc, armadillo, and openblas64 packages</a>
-          instead of Rtools.</li>
-      </ul>
-    </div>
 
     <div class="install install--two mt-3">
       <div class="install__card" data-cat="param">
@@ -247,7 +297,7 @@ ai4bayescode_rhat_summary(runs)   <span class="com"># cross-chain R-hat and ESS<
 <pre><span class="com"># Python &gt;= 3.11, a C++17 compiler, and the Armadillo headers:</span>
 <span class="com">#   macOS: brew install armadillo</span>
 <span class="com">#   Debian / Ubuntu: apt-get install libarmadillo-dev</span>
-<span class="com">#   Windows: Rtools, or MSYS2 (see above)</span>
+<span class="com">#   Windows: Rtools, or MSYS2 (see Step 0)</span>
 pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.git#subdirectory=python"</span>
 <span class="com"># or, without git:</span>
 pip install <span class="lit">"https://github.com/zjg540066169/AI4BayesCode/archive/refs/heads/main.zip#subdirectory=python"</span>
