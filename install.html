@@ -118,23 +118,21 @@
     <div class="install mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">Claude Code</div>
-<pre><span class="com"># clone, copy in, then delete the clone (re-run to update)</span>
-git clone https://github.com/zjg540066169/AI4BayesCode.git
-cd AI4BayesCode
-mkdir -p ~/.claude/skills
-rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.claude/skills/AI4BayesCode/
-cd .. &amp;&amp; rm -rf AI4BayesCode</pre>
-        <p class="install__note" style="margin-top:.75rem;">Reload Claude Code, then type <code>/AI4BayesCode</code>.</p>
+<pre><span class="com"># install</span>
+git clone --depth 1 https://github.com/zjg540066169/AI4BayesCode.git <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span>
+
+<span class="com"># update later</span>
+git -C <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span> pull --ff-only</pre>
+        <p class="install__note" style="margin-top:.75rem;">Restart Claude Code, then type <code>/AI4BayesCode</code>.</p>
       </div>
 
       <div class="install__card" data-cat="semi">
         <div class="install__lang">Codex</div>
-<pre><span class="com"># clone, copy in, then delete the clone (re-run to update)</span>
-git clone https://github.com/zjg540066169/AI4BayesCode.git
-cd AI4BayesCode
-mkdir -p ~/.codex/skills
-rsync -a --delete --exclude <span class="lit">'.git/'</span> ./ ~/.codex/skills/AI4BayesCode/
-cd .. &amp;&amp; rm -rf AI4BayesCode</pre>
+<pre><span class="com"># install</span>
+git clone --depth 1 https://github.com/zjg540066169/AI4BayesCode.git <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span>
+
+<span class="com"># update later</span>
+git -C <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span> pull --ff-only</pre>
         <p class="install__note" style="margin-top:.75rem;">Restart Codex, then type <code>/Ai4bayescode</code> <span class="muted">(Codex lowercases the skill name, so only the first letter is capitalized)</span>.</p>
       </div>
 
@@ -149,6 +147,30 @@ then: &lt;your model description&gt;</pre>
         <p class="install__note" style="margin-top:.75rem;">No slash command needed. Cursor, Windsurf, Cline, aider, or any coding agent (one with local-file &amp; code access) launches by reading <code>start.md</code>, which routes you to generate-vs-design and loads the rest on demand.</p>
       </div>
     </div>
+
+    <p class="subtitle install__note">
+      These commands are the same on macOS, Linux, and Windows, and they need
+      <a class="accent" href="https://git-scm.com/downloads" target="_blank" rel="noopener">git</a>.
+      On Windows, run them in PowerShell. They do not work in Command Prompt. If you use
+      Claude Code or Codex inside WSL, run them inside WSL. If the update line reports an
+      error, delete the folder and run the install line again.
+    </p>
+    <p class="subtitle install__note">
+      <strong>No git, or using Command Prompt?</strong> Install the R or Python package from
+      <a class="accent" href="#step-2">Step 2</a> first. Then one call installs the skill for
+      both Claude Code and Codex, the same way on every system. Run it again to update.
+    </p>
+<pre class="code-block"><span class="com"># in R</span>
+AI4BayesCode::ai4bayescode_install_skill()
+
+<span class="com"># in Python</span>
+import AI4BayesCode
+AI4BayesCode.install_skill()</pre>
+    <p class="subtitle install__note">
+      If you installed AI4BayesCode with the earlier instructions, delete the old
+      <code>AI4BayesCode</code> folder before you install. Codex users should also delete the
+      old copy in <code>.codex/skills</code>, or Codex will show the skill twice.
+    </p>
 
     <p class="subtitle install__note">
       <strong>Then launch it.</strong> Use the slash command in Claude Code / Codex,
@@ -189,11 +211,19 @@ y ~ N(Xbeta, sigma^2) with Jeffreys prior p(sigma^2) propto 1/sigma^2</pre>
       It ships self-contained, with the C++ headers inside, so the sampler finds the
       AI4BayesCode library on its own and you never have to point it at a folder by hand.
     </p>
+    <p class="subtitle install__note">
+      <strong>On Windows</strong>, R needs
+      <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>
+      for your R version. Python needs the same Rtools, or
+      <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>
+      with its gcc, armadillo, and openblas64 packages.
+    </p>
 
     <div class="install install--two mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">R</div>
 <pre><span class="com"># needs a C++17 compiler + Rcpp, RcppArmadillo</span>
+<span class="com"># (on Windows: Rtools for your R version)</span>
 remotes::install_github(
   <span class="lit">"zjg540066169/AI4BayesCode"</span>, subdir = <span class="lit">"r-pkg"</span>)
 <span class="com"># optional: posterior and bayesplot for the diagnostics,</span>
@@ -216,6 +246,7 @@ ai4bayescode_rhat_summary(runs)   <span class="com"># cross-chain R-hat and ESS<
 <pre><span class="com"># Python &gt;= 3.11, a C++17 compiler, and the Armadillo headers:</span>
 <span class="com">#   macOS: brew install armadillo</span>
 <span class="com">#   Debian / Ubuntu: apt-get install libarmadillo-dev</span>
+<span class="com">#   Windows: Rtools, or MSYS2 (see above)</span>
 pip install <span class="lit">"git+https://github.com/zjg540066169/AI4BayesCode.git#subdirectory=python"</span>
 
 <span class="com"># then, in Python, run the sampler the agent wrote:</span>
