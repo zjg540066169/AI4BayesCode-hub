@@ -29,9 +29,13 @@
     .step__head h3 { margin:.15rem 0 0; }
 
     .install--two { grid-template-columns:repeat(2, 1fr); }
+    /* Step 1 shows one agent per row, so each install command fits on one line */
+    .install--one { grid-template-columns:1fr; }
     /* let long command lines scroll inside their card instead of widening the page */
     .install__card { min-width:0; }
     .install pre { overflow-x:auto; }
+    /* Step 1 boxes wrap long commands and indent the wrapped part, so it does not look like a new command */
+    #step-1 .install pre { white-space:pre-wrap; overflow-wrap:anywhere; text-indent:2ch hanging each-line; }
     /* Step 1 comments must not look like part of the command when they wrap */
     #step-1 .install pre .com { color:rgb(var(--ink-faint)); font-style:italic; }
 
@@ -167,39 +171,35 @@
       launch it and describe your model.
     </p>
 
-    <div class="install mt-3">
+    <div class="install install--one mt-3">
       <div class="install__card" data-cat="param">
         <div class="install__lang">Claude Code</div>
-<pre style="white-space:pre-wrap; overflow-wrap:anywhere;"><span class="com"># install, or update for new version.
-# On Windows, use PowerShell.
-</span>git init -q <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span>; git -C <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span> pull -q --ff-only https://github.com/zjg540066169/AI4BayesCode.git main</pre>
+<pre>git init -q <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span>
+git -C <span class="lit">"$HOME/.claude/skills/AI4BayesCode"</span> pull -q --ff-only https://github.com/zjg540066169/AI4BayesCode.git main
+<span class="com"># Restart Claude Code after installation.</span></pre>
         <p class="install__note" style="margin-top:.75rem;">Restart Claude Code, then type <code>/AI4BayesCode</code>.</p>
       </div>
 
       <div class="install__card" data-cat="semi">
         <div class="install__lang">Codex</div>
-<pre style="white-space:pre-wrap; overflow-wrap:anywhere;"><span class="com"># install, or update for new version.
-# On Windows, use PowerShell.
-</span>git init -q <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span>; git -C <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span> pull -q --ff-only https://github.com/zjg540066169/AI4BayesCode.git main</pre>
+<pre>git init -q <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span>
+git -C <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span> pull -q --ff-only https://github.com/zjg540066169/AI4BayesCode.git main
+<span class="com"># Restart Codex after installation.</span></pre>
         <p class="install__note" style="margin-top:.75rem;">Restart Codex, then type <code>/Ai4bayescode</code> <span class="muted">(Codex lowercases the skill name, so only the first letter is capitalized)</span>.</p>
       </div>
 
       <div class="install__card" data-cat="emp">
         <div class="install__lang">Other coding agent</div>
-<pre><span class="com"># clone the repo (no skills dir needed)</span>
-git clone https://github.com/zjg540066169/AI4BayesCode.git
-
-<span class="com"># then tell your coding agent:</span>
-Read AI4BayesCode/start.md first,
-then: &lt;your model description&gt;</pre>
+<pre>git clone https://github.com/zjg540066169/AI4BayesCode.git</pre>
         <p class="install__note" style="margin-top:.75rem;">No slash command needed. Cursor, Windsurf, Cline, aider, or any coding agent (one with local-file &amp; code access) launches by reading <code>start.md</code>, which routes you to generate-vs-design and loads the rest on demand.</p>
       </div>
     </div>
 
     <p class="subtitle install__note">
-      The command is the same on macOS, Linux, and Windows, and it needs
+      The commands are the same on macOS, Linux, and Windows, and they need
       <a class="accent" href="https://git-scm.com/downloads" target="_blank" rel="noopener">git</a>.
-      If it reports an error, delete the folder and run it again.
+      To update the skill for Claude Code or Codex, run the same commands again.
+      If they report an error, delete the folder and run them again.
     </p>
     <p class="subtitle install__note">
       If you installed AI4BayesCode with the earlier instructions, delete the old
