@@ -303,7 +303,7 @@
   <div class="container">
     <p class="subtitle" style="max-width:46rem;">
       Every built-in block ships with AI4BayesCode. Search the grid, then open a block for its
-      full description and a reference example.
+      full description and, when the block has one, a reference example.
     </p>
     <input id="core-search" class="bsearch" type="search" placeholder="Search built-in blocks..." aria-label="Search built-in blocks" />
     <div id="core-sort" class="bsort">
@@ -353,8 +353,9 @@
       scratch. AI4BayesCode has a guided block-design flow that covers the whole
       process. In this flow, the agent asks you questions, and your answers specify what the new block
       should sample. The agent then writes the implementation of the new block, its tests,
-      its documentation, and a runnable reference example, and assembles
-      them into one bundle ready to submit.
+      and its documentation. By default, it also writes a runnable reference example.
+      This example is optional, and you can skip it when the agent asks. The agent
+      assembles these files into one bundle ready to submit.
     </p>
     <p class="subtitle mt-1" style="max-width:46rem;">
       To start, launch AI4BayesCode in a coding agent (the <code>/AI4BayesCode</code>
@@ -370,11 +371,11 @@
     </p>
     <pre class="code-block" style="max-width:42rem;"><span class="com"># the block folder produced by the block-design flow</span>
 my_block/
-  manifest.dcf          <span class="com"># required: name, description, when to use</span>
+  manifest.dcf          <span class="com"># required: name, description, when to use, and other metadata</span>
   my_block.hpp          <span class="com"># required: the block itself</span>
   skills/my_block.md    <span class="com"># required: the skill file for the block</span>
   test_my_block.cpp     <span class="com"># required: a passing library test</span>
-  examples/Model.cpp    <span class="com"># required: a runnable C++ reference example</span>
+  examples/Model.cpp    <span class="com"># optional: a runnable C++ reference example</span>
   vendor/               <span class="com"># optional: vendored third-party code</span></pre>
 
     <h2 class="mt-3" style="font-size:1.25rem;">Upload a block</h2>
