@@ -126,14 +126,14 @@
     <div class="subtitle install__note">
       <p style="margin:0;">If you do not have one yet, we recommend:</p>
       <ul style="margin:.35rem 0 0;">
-        <li><strong>macOS:</strong> Xcode Command Line Tools. In Terminal, run
+        <li>macOS: Xcode Command Line Tools. In Terminal, run
           <code>xcode-select --install</code>.</li>
-        <li><strong>Linux:</strong> g++. On Debian or Ubuntu, run
+        <li>Linux: g++. On Debian or Ubuntu, run
           <code>sudo apt-get install build-essential</code>.</li>
-        <li><strong>Windows, for R:</strong> the
+        <li>Windows, for R: the
           <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools</a>
           that matches your R version, for example Rtools45 for R 4.5.</li>
-        <li><strong>Windows, for Python:</strong>
+        <li>Windows, for Python:
           <a class="accent" href="https://cran.r-project.org/bin/windows/Rtools/" target="_blank" rel="noopener">Rtools44</a>
           or newer. You do not need R. If you already use
           <a class="accent" href="https://www.msys2.org" target="_blank" rel="noopener">MSYS2</a>,
@@ -157,9 +157,9 @@
     </div>
 
     <p class="subtitle install__note" style="font-style:italic;">
-      AI4BayesCode runs through a <strong>coding agent</strong>, for example
-      <strong>Claude Code</strong>, <strong>Cursor</strong>, or <strong>Codex</strong>. A
-      chat-only LLM like <strong>ChatGPT</strong> can&rsquo;t be used, because the agent must
+      AI4BayesCode runs through a coding agent, for example
+      Claude Code, Cursor, or Codex. A
+      chat-only LLM like ChatGPT can&rsquo;t be used, because the agent must
       work with files on your computer and run code to validate the sampler it builds.
     </p>
     <p class="subtitle install__note" style="font-style:italic;">
@@ -208,12 +208,12 @@ git -C <span class="lit">"$HOME/.agents/skills/AI4BayesCode"</span> pull -q --ff
     </p>
 
     <p class="subtitle install__note">
-      <strong>Then launch it.</strong> Use the slash command in Claude Code / Codex,
+      Then launch it. Use the slash command in Claude Code / Codex,
       or tell any other coding agent to <em>"Read AI4BayesCode/start.md first"</em>. The agent first
       asks what you want to
-      do: <strong>generate a sampler</strong> (compose existing blocks for your model) or
-      <strong>design a new block</strong> (build a new block for the library). Choose
-      <strong>generate a sampler</strong>, then describe your model in natural language,
+      do: &ldquo;generate a sampler&rdquo; (compose existing blocks for your model) or
+      &ldquo;design a new block&rdquo; (build a new block for the library). Choose
+      &ldquo;generate a sampler&rdquo;, then describe your model in natural language,
       using plain typeable text (spell Greek out: <code>beta</code>, <code>sigma</code>):
     </p>
 <pre class="code-block"><span class="com"># Claude Code: /AI4BayesCode    ·    Codex: /Ai4bayescode</span>
@@ -300,7 +300,7 @@ AI4BayesCode.rhat_summary(runs)   <span class="com"># cross-chain R-hat and ESS<
     </p>
 
     <p class="subtitle install__note">
-      Beyond the built-in blocks, you can also use <strong>contributed blocks</strong> made by other
+      Beyond the built-in blocks, you can also use contributed blocks made by other
       users, which work the same way as built-in ones. See the
       <a class="accent" href="blocks.html#contrib">Blocks</a> page for the catalog and how to
       install them.

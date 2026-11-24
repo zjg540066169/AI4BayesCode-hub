@@ -20,7 +20,6 @@
     .checks[open] > summary::before { content:'\2212\00a0\00a0'; }
     .checks__list { margin:0; padding:.1rem 1.6rem 1.3rem 2.9rem; font-size:.9rem; }
     .checks__list li { margin:.55rem 0; line-height:1.5; color:rgb(var(--ink-soft)); }
-    .checks__list li strong { color:rgb(var(--ink)); font-weight:600; }
   </style>
 </head>
 <body>
@@ -159,32 +158,32 @@
     <details class="checks">
       <summary>Show the 26 semantic checks</summary>
       <ol class="checks__list">
-        <li><strong>Distribution parameterization.</strong> Every distribution is annotated with its exact parameterization and mean.</li>
-        <li><strong>Sequential update.</strong> Vector Gibbs updates write each component back before the next one is drawn. Drawing them all at once is allowed only when the components do not depend on each other.</li>
-        <li><strong>Dead parameters.</strong> Every parameter has a block that samples it, and nothing is sampled and then left unused.</li>
-        <li><strong>Regression intercept / offset.</strong> The regression mean includes the intercept and any offset.</li>
-        <li><strong>Jacobian handling.</strong> Constrained NUTS parameters get their change-of-variable term from the library&rsquo;s constraint transforms, never from an AI-written line in the model code.</li>
-        <li><strong>DAG consistency.</strong> The prediction DAG matches how the code computes things, and every value the prediction step reads can be reached from that DAG.</li>
-        <li><strong>Dependency declaration.</strong> Each block declares the conditioning quantities it reads.</li>
-        <li><strong>Rcpp API correctness.</strong> The R interface is used correctly, covering matrix layout, list handling, and how errors are raised. Two of those rules exist because the same file is also compiled for Python, so one wrapper serves both languages.</li>
-        <li><strong>Numerical stability.</strong> Log-sum-exp, clamping, and overflow guards are in place.</li>
-        <li><strong>State mutation in predict_at().</strong> Posterior prediction does not alter the chain&rsquo;s state.</li>
-        <li><strong>Joint NUTS block extra audit.</strong> Extra checks run when a joint NUTS block is used.</li>
-        <li><strong>Gradient verification via autodiff.</strong> AI-written gradients are checked against automatic differentiation.</li>
-        <li><strong>RNG separation.</strong> Sampling and prediction draw from separate random streams.</li>
-        <li><strong>Bijection-consistency AD check.</strong> Custom trans-dimensional maps are probed at a set of test points. A round trip through each map has to return the starting value, the Jacobian has to stay non-singular, and the forward and reverse steps have to be consistent with each other.</li>
-        <li><strong>Library parity test.</strong> Gibbs and other specialized blocks are tested by drawing many samples and confirming the mean and variance match the distribution the block is supposed to be drawing from.</li>
-        <li><strong>Inline Gibbs-exception justification.</strong> Every closed-form Gibbs step has a short comment, in plain words, on why that step is exact for this model. The comment is written for whoever reads the file, so it never cites check numbers or file paths.</li>
-        <li><strong>No AI-written Gibbs outside whitelist.</strong> AI-written Gibbs updates are used only in whitelisted cases.</li>
-        <li><strong>Dense metric justification + pilot scaling.</strong> A dense NUTS metric is justified and pilot-scaled.</li>
-        <li><strong>Vectorized gradient computation.</strong> Gradients use BLAS-friendly matrix operations.</li>
-        <li><strong>No per-step warmup in NUTS blocks.</strong> The sampler never re-warms inside a recording step.</li>
-        <li><strong>VI block contract conformance.</strong> Variational blocks conform to the required interface.</li>
-        <li><strong>VI optimizer is RAABBVI.</strong> Variational blocks use the RAABBVI optimizer.</li>
-        <li><strong>readapt_NUTS() state-preservation.</strong> Every sampler with a NUTS block provides re-tuning. Re-tuning leaves the chain state unchanged and draws from its own random stream.</li>
-        <li><strong>Joint-NUTS pathology pre-flight.</strong> Funnel models are written in the non-centered form, because the centered form leads to poor mixing under NUTS. Each parameter&rsquo;s constraint matches the support declared in the model, and the joint density reads every parameter that the joint NUTS block declares.</li>
-        <li><strong>Trans-dimensional / Dirac-spike RJMCMC.</strong> Models where a coefficient can be exactly zero, and models where the number of parameters can change, are sampled with reversible jump instead of a fixed-size sampler. One way of getting this wrong leaves every runtime check passing while the exact zeros disappear, which is why it is caught by reading the code.</li>
-        <li><strong>Kernel-control conformance.</strong> The controls that hold part of a model fixed while the rest is still sampled are present and behave safely. Freezing a name that does not exist, or a block that cannot be frozen, raises an error, and you are warned if you re-freeze something already frozen or leave a stale derived value behind.</li>
+        <li>Distribution parameterization. Every distribution is annotated with its exact parameterization and mean.</li>
+        <li>Sequential update. Vector Gibbs updates write each component back before the next one is drawn. Drawing them all at once is allowed only when the components do not depend on each other.</li>
+        <li>Dead parameters. Every parameter has a block that samples it, and nothing is sampled and then left unused.</li>
+        <li>Regression intercept / offset. The regression mean includes the intercept and any offset.</li>
+        <li>Jacobian handling. Constrained NUTS parameters get their change-of-variable term from the library&rsquo;s constraint transforms, never from an AI-written line in the model code.</li>
+        <li>DAG consistency. The prediction DAG matches how the code computes things, and every value the prediction step reads can be reached from that DAG.</li>
+        <li>Dependency declaration. Each block declares the conditioning quantities it reads.</li>
+        <li>Rcpp API correctness. The R interface is used correctly, covering matrix layout, list handling, and how errors are raised. Two of those rules exist because the same file is also compiled for Python, so one wrapper serves both languages.</li>
+        <li>Numerical stability. Log-sum-exp, clamping, and overflow guards are in place.</li>
+        <li>State mutation in predict_at(). Posterior prediction does not alter the chain&rsquo;s state.</li>
+        <li>Joint NUTS block extra audit. Extra checks run when a joint NUTS block is used.</li>
+        <li>Gradient verification via autodiff. AI-written gradients are checked against automatic differentiation.</li>
+        <li>RNG separation. Sampling and prediction draw from separate random streams.</li>
+        <li>Bijection-consistency AD check. Custom trans-dimensional maps are probed at a set of test points. A round trip through each map has to return the starting value, the Jacobian has to stay non-singular, and the forward and reverse steps have to be consistent with each other.</li>
+        <li>Library parity test. Gibbs and other specialized blocks are tested by drawing many samples and confirming the mean and variance match the distribution the block is supposed to be drawing from.</li>
+        <li>Inline Gibbs-exception justification. Every closed-form Gibbs step has a short comment, in plain words, on why that step is exact for this model. The comment is written for whoever reads the file, so it never cites check numbers or file paths.</li>
+        <li>No AI-written Gibbs outside whitelist. AI-written Gibbs updates are used only in whitelisted cases.</li>
+        <li>Dense metric justification + pilot scaling. A dense NUTS metric is justified and pilot-scaled.</li>
+        <li>Vectorized gradient computation. Gradients use BLAS-friendly matrix operations.</li>
+        <li>No per-step warmup in NUTS blocks. The sampler never re-warms inside a recording step.</li>
+        <li>VI block contract conformance. Variational blocks conform to the required interface.</li>
+        <li>VI optimizer is RAABBVI. Variational blocks use the RAABBVI optimizer.</li>
+        <li>readapt_NUTS() state-preservation. Every sampler with a NUTS block provides re-tuning. Re-tuning leaves the chain state unchanged and draws from its own random stream.</li>
+        <li>Joint-NUTS pathology pre-flight. Funnel models are written in the non-centered form, because the centered form leads to poor mixing under NUTS. Each parameter&rsquo;s constraint matches the support declared in the model, and the joint density reads every parameter that the joint NUTS block declares.</li>
+        <li>Trans-dimensional / Dirac-spike RJMCMC. Models where a coefficient can be exactly zero, and models where the number of parameters can change, are sampled with reversible jump instead of a fixed-size sampler. One way of getting this wrong leaves every runtime check passing while the exact zeros disappear, which is why it is caught by reading the code.</li>
+        <li>Kernel-control conformance. The controls that hold part of a model fixed while the rest is still sampled are present and behave safely. Freezing a name that does not exist, or a block that cannot be frozen, raises an error, and you are warned if you re-freeze something already frozen or leave a stale derived value behind.</li>
       </ol>
     </details>
 

@@ -13,6 +13,8 @@ Readability matters most. The reader should understand what each thing does, so 
 into the copy. Give the main point and leave the details to the section that covers them. A bullet in
 a summary list is one sentence.
 
+Do not use bold in body text. Bold is kept only for a warning, such as "Deprecated." on the API page.
+
 ## One concept, one term
 
 Use the term in the table for each concept, word for word, on every page. Do not vary terms for
