@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Blocks · AI4BayesCode</title>
-  <meta name="description" content="AI4BayesCode builds every sampler from pre-validated built-in blocks. The three-tier architecture, the built-in catalog, community contributions, and block design." />
+  <meta name="description" content="AI4BayesCode builds every sampler from pre-validated built-in blocks. This page covers the three-tier architecture, the catalog of built-in blocks, the contributed blocks, and the block-design flow." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -148,7 +148,7 @@
 
 <header class="container">
   <section class="hero" style="padding-bottom:1.25rem;">
-    <p class="eyebrow hero__eyebrow">Building blocks</p>
+    <p class="eyebrow hero__eyebrow">Built-in and contributed blocks</p>
     <h1 class="hero__title">Blocks.</h1>
     <p class="hero__lede">
       AI4BayesCode builds every sampler by composing pre-validated built-in blocks.
@@ -157,7 +157,7 @@
 
     <div class="subtabs">
       <button class="subtab is-active" data-target="arch">Three-tier architecture</button>
-      <button class="subtab" data-target="core">Core blocks</button>
+      <button class="subtab" data-target="core">Built-in blocks</button>
       <button class="subtab" data-target="contrib">Contributed blocks</button>
       <button class="subtab" data-target="upload">Block upload</button>
     </div>
@@ -169,19 +169,21 @@
   <div class="container">
 
     <p class="subtitle" style="max-width:46rem;">
-      AI4BayesCode never asks the AI to write a sampler from scratch. Every sampler is
-      composed from pre-validated built-in blocks, so the AI only decomposes the described
-      model into modular units and picks a built-in block for each unit.
+      In direct LLM generation, the LLM writes the whole sampler from scratch. In AI4BayesCode,
+      by contrast, every sampler is composed from pre-validated built-in blocks. The AI agent
+      therefore only decomposes the parsed model into modular blocks and assigns each modular
+      block to a built-in block.
     </p>
 
     <p class="subtitle mt-1" style="max-width:46rem;">
-      The three tiers separate the model from the math. The <strong>wrapper</strong>
-      decomposes the parsed model into modular units (a parameter or a small group of them)
+      The three tiers separate model-specific sampling strategies from the numerical
+      sampling algorithms. The <strong>wrapper tier</strong>
+      decomposes the parsed model into modular blocks (a parameter or a small group of them)
       and assembles the result into runnable
-      code. The <strong>block tier</strong> maps each unit to a built-in block and is the
-      unit of sampling. The <strong>kernel tier</strong> provides the generic, reusable
-      algorithms the blocks call. Because the AI only works at the block tier, the
-      generated code stays reliable.
+      code. The <strong>block tier</strong> holds the built-in blocks, the units of sampling. At this
+      tier, the agent assigns each modular block to a built-in block. The <strong>kernel tier</strong> provides the generic, reusable
+      algorithms the blocks call. Because the agent works only across the wrapper and block
+      tiers and does not implement these algorithms, the generated code is more reliable.
     </p>
 
     <figure class="tier-fig">
@@ -215,12 +217,12 @@
 
         <!-- B: block (emphasized) -->
         <text x="38" y="222" style="fill:rgb(var(--accent));font-size:14px;font-weight:700">Tier B &middot; Block</text>
-        <text x="38" y="240" style="fill:rgb(var(--ink));font-size:11px">Pre-validated built-in sampling blocks: NUTS, Gibbs, RJMCMC,</text>
+        <text x="38" y="240" style="fill:rgb(var(--ink));font-size:11px">Pre-validated built-in blocks: NUTS, Gibbs, RJMCMC,</text>
         <text x="38" y="256" style="fill:rgb(var(--ink));font-size:11px">BART, and more. The unit of sampling.</text>
 
         <!-- C: kernel -->
         <text x="38" y="332" style="fill:rgb(var(--ink));font-size:13.5px;font-weight:700">Tier C &middot; Kernel</text>
-        <text x="38" y="350" style="fill:rgb(var(--ink-soft));font-size:11px">Numerical engines with existing implementations, such as NUTS</text>
+        <text x="38" y="350" style="fill:rgb(var(--ink-soft));font-size:11px">Numerical sampling algorithms with existing implementations, such as NUTS</text>
         <text x="38" y="366" style="fill:rgb(var(--ink-soft));font-size:11px">built on mcmclib, shared across blocks.</text>
 
         <!-- E: examples -->
@@ -248,15 +250,16 @@
         <line x1="574" y1="236" x2="536" y2="244" style="stroke:rgb(var(--ink));stroke-width:1.3;stroke-dasharray:4 3" marker-end="url(#ah)"></line>
         <text x="544" y="262" style="fill:rgb(var(--ink-faint));font-size:9px">compose of</text>
       </svg>
-      <figcaption>The three-tier architecture. Tier B, the block tier, is the unit of sampling.</figcaption>
+      <figcaption>The three-tier architecture. Tier B, the block tier, holds the built-in blocks, the units of sampling.</figcaption>
     </figure>
 
     <p class="eyebrow mt-3">An example</p>
     <h2 class="mt-1" style="font-size:1.25rem;">Spike-and-slab regression with a Laplace slab.</h2>
     <p class="subtitle mt-1" style="max-width:46rem;">
-      A model that is awkward for a single gradient-based sampler. The Dirac spike forces
-      exact zeros through discrete indicators, and the Laplace slab resists marginalization.
-      AI4BayesCode splits it across built-in blocks.
+      This model is awkward for a single gradient-based sampler. The Dirac spike forces
+      exact zeros through discrete indicators. With the Laplace slab, the coefficients cannot
+      be integrated out in closed form. AI4BayesCode decomposes the model into modular blocks
+      and assigns each modular block to a built-in block.
     </p>
 
     <div class="examples mt-3">
@@ -279,7 +282,7 @@
         </div>
         <div class="example__side example__side--code">
           <p class="example__label">Block assignment</p>
-<pre class="code-block"><span class="com"># each unit maps to a built-in block</span>
+<pre class="code-block"><span class="com"># each modular block maps to a built-in block</span>
 (β, γ)  ->  <span class="fn">rjmcmc_block</span>      <span class="com"># coupled, trans-dim</span>
 (σ, b)  ->  <span class="fn">joint_nuts_block</span>  <span class="com"># the scales, via NUTS</span>
 π       ->  <span class="fn">beta_gibbs_block</span>  <span class="com"># conjugate Beta</span></pre>
@@ -288,21 +291,21 @@
     </div>
 
     <p class="subtitle mt-1" style="max-width:46rem;">
-      Each block calls a kernel-tier engine. The <code>joint_nuts_block</code> runs NUTS built on
+      Each block calls a numerical sampling algorithm in the kernel tier. The <code>joint_nuts_block</code> runs NUTS built on
       kernels vendored from <a class="accent" href="https://mcmclib.readthedocs.io/en/latest/" target="_blank" rel="noopener">mcmclib</a>, a C++ MCMC library.
     </p>
 
   </div>
 </section>
 
-<!-- ===== PANEL: CORE BLOCKS ===== -->
+<!-- ===== PANEL: BUILT-IN BLOCKS ===== -->
 <section class="section subpanel is-hidden" data-panel="core" style="padding-top:1.5rem;">
   <div class="container">
     <p class="subtitle" style="max-width:46rem;">
       Every built-in block ships with AI4BayesCode. Search the grid, then open a block for its
       full description and a reference example.
     </p>
-    <input id="core-search" class="bsearch" type="search" placeholder="Search core blocks..." aria-label="Search core blocks" />
+    <input id="core-search" class="bsearch" type="search" placeholder="Search built-in blocks..." aria-label="Search built-in blocks" />
     <div id="core-sort" class="bsort">
       <span class="bsort__label">Sort</span>
       <button class="bsort__btn is-active" type="button" data-sort="group">By function</button>
@@ -316,8 +319,8 @@
 <section class="section subpanel is-hidden" data-panel="contrib" style="padding-top:1.5rem;">
   <div class="container">
     <p class="subtitle" style="max-width:46rem;">
-      No system can ship every sampler a model might need. AI4BayesCode is extensible: you can
-      contribute your own block, and download and install any block here into your own copy. To
+      No system can ship every block a model might require. AI4BayesCode is extensible: you can
+      contribute your own block, and download and install any block here into your per-user library. To
       design and submit one, see the <a class="accent" href="#upload">Block upload</a> tab.
     </p>
 
@@ -329,7 +332,7 @@
         <code>ai4bayescode_install_block("&lt;name&gt;")</code>, and remove it with
         <code>ai4bayescode_remove_block("&lt;name&gt;")</code>. The Python module mirrors each name
         under <code>AI4BayesCode.</code> (for example <code>AI4BayesCode.install_block("&lt;name&gt;")</code>).
-        Once installed, a block works like a built-in one. Or just ask a coding agent to install a block by name.
+        Once installed, a block works like a built-in one. You can also ask a coding agent to install a block by name.
       </p>
     </div>
 
@@ -347,36 +350,37 @@
   <div class="container">
     <p class="subtitle" style="max-width:46rem;">
       You can build and contribute your own block. You do not have to write it from
-      scratch. AI4BayesCode has a guided block-design flow that walks you through the whole
-      process. It helps you pin down what the new block should sample, then writes the
-      implementation, its tests, its documentation, and a runnable example, and assembles
+      scratch. AI4BayesCode has a guided block-design flow that covers the whole
+      process. In this flow, the agent asks you questions, and your answers specify what the new block
+      should sample. The agent then writes the implementation of the new block, its tests,
+      its documentation, and a runnable reference example, and assembles
       them into one bundle ready to submit.
     </p>
     <p class="subtitle mt-1" style="max-width:46rem;">
       To start, launch AI4BayesCode in a coding agent (the <code>/AI4BayesCode</code>
       command, or read <code>start.md</code>) and choose <strong>design a new block</strong>
-      instead of generate a sampler. Block design runs in the coding-agent path only. The R
+      instead of generate a sampler. The block-design flow runs only in a coding agent. The R
       and Python packages do not include it.
     </p>
     <p class="subtitle mt-1" style="max-width:46rem;">
-      When the design flow finishes, your block is one self-contained folder that looks
+      When the block-design flow finishes, your block is one self-contained folder that looks
       roughly like this. To submit it, zip the whole folder into a single <code>.zip</code>
-      and upload it below. One naming rule: the block name cannot match any existing core
+      and upload it below. One naming rule applies: the block name cannot match any existing built-in
       or contributed block.
     </p>
-    <pre class="code-block" style="max-width:42rem;"><span class="com"># the block folder produced by the design flow</span>
+    <pre class="code-block" style="max-width:42rem;"><span class="com"># the block folder produced by the block-design flow</span>
 my_block/
   manifest.dcf          <span class="com"># required: name, description, when to use</span>
   my_block.hpp          <span class="com"># required: the block itself</span>
-  skills/my_block.md    <span class="com"># required: the AI skill</span>
+  skills/my_block.md    <span class="com"># required: the skill file for the block</span>
   test_my_block.cpp     <span class="com"># required: a passing library test</span>
-  examples/Model.cpp    <span class="com"># required: a runnable C++ demo</span>
+  examples/Model.cpp    <span class="com"># required: a runnable C++ reference example</span>
   vendor/               <span class="com"># optional: vendored third-party code</span></pre>
 
     <h2 class="mt-3" style="font-size:1.25rem;">Upload a block</h2>
     <p class="subtitle mt-1" style="max-width:46rem;">
-      Drop your <code>.zip</code> below. We check it right here in your browser, then you
-      submit it for review as a GitHub issue. Once accepted, it appears under
+      Drop your <code>.zip</code> below. This page checks it in your browser, then you
+      submit it for review as a GitHub issue. Once accepted, the block appears under
       Contributed blocks.
     </p>
 
@@ -463,7 +467,7 @@ my_block/
     if (!f) return;
     out.className = 'dz-out';
     if (!/\.zip$/i.test(f.name)) { out.innerHTML = '<p class="dz-status bad">✗ Please drop a .zip file.</p>'; return; }
-    if (typeof JSZip === 'undefined') { out.innerHTML = '<p class="dz-status">Zip reader still loading, try again in a moment.</p>'; return; }
+    if (typeof JSZip === 'undefined') { out.innerHTML = '<p class="dz-status">The zip reader is still loading. Try again in a moment.</p>'; return; }
     out.innerHTML = '<p class="dz-status">Reading ' + esc(f.name) + ' ...</p>';
     JSZip.loadAsync(f).then(function (zip) {
       var paths = Object.keys(zip.files);
@@ -506,7 +510,7 @@ my_block/
     }
     if (allOk) {
       html += '<button class="btn btn--primary" id="dz-submit">Submit for review</button>' +
-        '<p class="dz-preview" id="dz-submit-note" style="margin:.75rem 0 0;">One click. We commit your bundle and open a review issue for you, no manual upload.</p>';
+        '<p class="dz-preview" id="dz-submit-note" style="margin:.75rem 0 0;">When you click Submit for review, the submission service commits your bundle and opens a review issue for you. You do not have to upload anything to GitHub by hand.</p>';
     } else {
       html += '<p class="dz-preview">Add the missing files and zip the whole folder again. The folder name and the <code>Block:</code> field in <code>manifest.dcf</code> must match.</p>';
     }
@@ -536,7 +540,7 @@ my_block/
         if (res.ok && res.j && res.j.issueUrl) {
           btn.outerHTML = '<a class="btn btn--primary" href="' + res.j.issueUrl +
             '" target="_blank" rel="noopener">✓ Submitted. View issue #' + res.j.issueNumber + '</a>';
-          if (note) note.textContent = 'Thanks. Your bundle is in for review.';
+          if (note) note.textContent = 'Thank you. Your bundle has been submitted for review.';
         } else {
           btn.disabled = false; btn.textContent = 'Submit for review';
           var msg = (res.j && res.j.error) ? res.j.error : 'Submission failed.';
@@ -568,7 +572,7 @@ my_block/
   </div>
 </div>
 
-<!-- ===== block catalogue engine ===== -->
+<!-- ===== block catalog engine ===== -->
 <script>
 (function () {
   var OWNER = 'zjg540066169', LIBREPO = 'AI4BayesCode', HUBREPO = 'AI4BayesCode-hub';
@@ -609,7 +613,7 @@ my_block/
   function installHTML(name){
     return '<div class="bc-install"><h4>Install this block</h4>'
       + '<div class="bc-way"><p class="bc-way-label">R / Python package</p>'
-      + '<pre class="code-block"><span class="com"># downloads from the hub registry into the fixed store ~/.AI4BayesCode/blocks_download/</span>\n'
+      + '<pre class="code-block"><span class="com"># downloads from the hub registry into the fixed per-user library ~/.AI4BayesCode/blocks_download/</span>\n'
       + '<span class="fn">ai4bayescode_install_block</span>(<span class="lit">"' + esc(name) + '"</span>)   <span class="com"># R</span>\n'
       + '<span class="ty">AI4BayesCode</span>.<span class="fn">install_block</span>(<span class="lit">"' + esc(name) + '"</span>)   <span class="com"># Python</span></pre></div>'
       + '<div class="bc-way"><p class="bc-way-label">Coding agent</p>'
@@ -641,8 +645,8 @@ my_block/
       if (b.EngineKind) tags.push('<span class="bc-tag">' + esc(b.EngineKind.toUpperCase()) + '</span>');
       if (b.License)    tags.push('<span class="bc-tag">' + esc(b.License) + '</span>');
     } else {
-      tags = ['<span class="bc-tag is-kind">Core</span>',
-              '<span class="bc-tag">' + (b.kind === 'utility' ? 'Utility' : 'Sampling') + '</span>'];
+      tags = ['<span class="bc-tag is-kind">Built-in</span>',
+              '<span class="bc-tag">' + (b.kind === 'utility' ? 'Helper' : 'Sampling') + '</span>'];
     }
     var h = '<div class="bc-top"><span class="bc-name">' + esc(b.name) + '</span>'
           + '<div class="bc-tags">' + tags.join('') + '</div></div>';
@@ -664,8 +668,8 @@ my_block/
 
     if (contrib && (b.Skill || b.ValidationSkill)) {
       h += '<div class="bskills">'
-        + (b.Skill ? '<button class="btn" type="button" data-skill="' + esc(b.Skill) + '">View skill</button>' : '')
-        + (b.ValidationSkill ? '<button class="btn" type="button" data-skill="' + esc(b.ValidationSkill) + '">View validation skill</button>' : '')
+        + (b.Skill ? '<button class="btn" type="button" data-skill="' + esc(b.Skill) + '">View skill file</button>' : '')
+        + (b.ValidationSkill ? '<button class="btn" type="button" data-skill="' + esc(b.ValidationSkill) + '">View validation skill file</button>' : '')
         + '</div><div class="bskilltext is-hidden"><pre class="code-block" id="bskill-pre"></pre></div>';
     }
 
@@ -817,7 +821,7 @@ my_block/
         });
       })
       .catch(function () {
-        contribGrid.innerHTML = '<p class="bgrid__empty">Could not load the registry automatically. '
+        contribGrid.innerHTML = '<p class="bgrid__empty">Could not load the hub registry automatically. '
           + '<a class="accent" href="https://github.com/' + OWNER + '/' + HUBREPO + '/tree/main/registry" target="_blank" rel="noopener">Browse it on GitHub</a>.</p>';
       });
   }

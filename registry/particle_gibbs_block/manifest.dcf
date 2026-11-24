@@ -7,14 +7,14 @@ Description: Samples the continuous latent state path x_{1:T} of a univariate
  y_t | x_t ~ g(.|x_t), where the transition f or emission g is nonlinear or
  non-Gaussian and admits no closed-form (Kalman/FFBS) conditional. Model
  structure is supplied through four callbacks (initial draw, transition draw,
- emission log-weight, transition log-density); the dynamics parameters theta and
- the observations are read from the block_context each sweep and are sampled by
- sibling blocks. Sampling uses conditional sequential Monte Carlo (Particle
+ emission log-weight, transition log-density). The dynamics parameters theta and
+ the observations are read from the block_context at each iteration, and theta is sampled
+ by other blocks. Sampling uses conditional sequential Monte Carlo (Particle
  Gibbs) with a bootstrap proposal and optional ancestor sampling (PGAS), which
  leaves the latent-path full conditional invariant for any particle count
- N >= 2. The stochastic-volatility log-volatility path is the worked example.
+ N >= 2. The stochastic-volatility log-volatility path is the reference example.
  Andrieu, Doucet and Holenstein (2010)
- <doi:10.1111/j.1467-9868.2009.00736.x>; Lindsten, Jordan and Schon (2014),
+ <doi:10.1111/j.1467-9868.2009.00736.x>. Lindsten, Jordan and Schon (2014),
  JMLR 15:2145-2184.
 Author: Alex Ziyu Jiang
 Maintainer: Alex Ziyu Jiang
@@ -29,6 +29,6 @@ Tests: test_particle_gibbs_block.cpp
 Depends: core (>= 1.0)
 Example: examples/StochasticVolatility.cpp
 ValidationSkill: skills/particle_gibbs_block_validation.md
-ChecksApplicable: BL1, BL2 (core #1-#26: none triggered by mechanism --
- gradient-free, fixed-dim, no constraint transform)
+ChecksApplicable: BL1, BL2 (core #1-#26: none triggered by mechanism, because
+ the block is gradient-free, fixed-dim, and has no constraint transform)
 KernelTier: none

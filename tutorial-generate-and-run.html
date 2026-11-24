@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Generate a sampler and run it · AI4BayesCode</title>
-  <meta name="description" content="Video tutorial: turn a plain-language Bayesian model into a validated MCMC sampler, then load it in R, run chains, and work with the posterior." />
+  <meta name="description" content="Video tutorial: turn a natural-language model description into a validated Bayesian MCMC sampler, then load it in R, run chains, and work with the posterior." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -37,7 +37,7 @@
     <p class="eyebrow hero__eyebrow"><a href="tutorial.html" class="accent">Tutorials</a> &nbsp;/&nbsp; Getting started</p>
     <h1 class="hero__title" style="font-size:clamp(2.2rem,4.5vw,3.2rem);margin-bottom:1rem;">Generate a sampler and run it.</h1>
     <p class="hero__lede">
-      Watch AI4BayesCode turn a plain-language model into a validated sampler, then load it in R
+      Watch AI4BayesCode turn a natural-language model description into a validated sampler, then load it in R
       and work with the posterior.
     </p>
   </section>
@@ -49,31 +49,31 @@
   <div class="container" style="max-width:60rem;">
 
     <div class="video-frame">
-      <iframe src="https://www.youtube.com/embed/ezqRi8zbfaQ" title="AI4BayesCode demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/ezqRi8zbfaQ" title="Generate a sampler and run it" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
     </div>
     <p style="max-width:44rem;margin-top:1.5rem;font-family:'Lora',Georgia,serif;font-size:1.08rem;line-height:1.6;color:rgb(var(--ink-soft));">
-      You describe the model in natural language, and AI4BayesCode parses it, completes any missing
-      priors, decomposes it into blocks, assigns each block to a built-in sampler, and validates the
-      generated code before handing it back.
+      You describe your model in natural language. AI4BayesCode parses it, completes any missing
+      priors, decomposes it into modular blocks, and assigns each modular block to a built-in block.
+      The system then validates the generated code before returning it.
     </p>
     <p style="max-width:44rem;margin-top:1.25rem;padding:.9rem 1.15rem;border-left:3px solid rgb(var(--accent));background:rgb(var(--accent) / .05);border-radius:0 8px 8px 0;font-size:.96rem;line-height:1.6;color:rgb(var(--ink-soft));">
       <strong style="color:rgb(var(--ink));font-weight:600;">How you start it.</strong>
       AI4BayesCode runs on a general coding agent. To follow along
-      locally, open the AI4BayesCode folder and let the agent read the <code>start.md</code> skill,
-      as in the video above. If you have already installed it in Claude Code or Codex, skip the local
+      locally, open the AI4BayesCode folder and let the coding agent read the <code>start.md</code> skill file,
+      as in the video above. If you have already installed the AI4BayesCode skill in Claude Code or Codex, skip the local
       folder and launch it directly with <code>/AI4BayesCode</code> (or <code>/Ai4bayescode</code>).
     </p>
 
     <p style="max-width:44rem;margin-top:1.5rem;font-family:'Lora',Georgia,serif;font-size:1.08rem;line-height:1.6;color:rgb(var(--ink-soft));">
-      With the sampler generated, you source it in R, run several chains, read the R-hat and ESS
-      diagnostics, and pull out the posterior. Set up the tools first on the
+      With the sampler generated, you source it in R, run several chains, read the R-hat and effective sample size (ESS)
+      diagnostics, and extract the posterior draws. Set up the tools first on the
       <a class="accent" href="install.html">Install</a> page, and see the
       <a class="accent" href="api.html">API</a> for every function shown here.
     </p>
 
     <p style="margin-top:2rem;">
       <a class="btn" href="tutorial.html">&larr; All tutorials</a>
-      <a class="btn" href="tutorial-block-design.html">Next: design a block</a>
+      <a class="btn" href="tutorial-block-design.html">Next: design a new block</a>
     </p>
   </div>
 </section>

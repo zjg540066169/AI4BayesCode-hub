@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Validation · AI4BayesCode</title>
-  <meta name="description" content="AI4BayesCode validates generated samplers in two stages: pre-generation confirms the model is the one you meant, post-generation checks the sampler compiles, reads correctly, and recovers the right posterior." />
+  <meta name="description" content="AI4BayesCode validates generated samplers in two stages: pre-generation validation confirms that the parsed model matches the intended model, and post-generation validation checks that the sampler compiles, reads correctly, and recovers the right posterior." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -50,12 +50,12 @@
     <h1 class="hero__title">Validation.</h1>
     <p class="hero__lede">
       A generated sampler is only useful if it is correct. AI4BayesCode validates in two
-      stages. Before any code is written it confirms the model is the one you meant. After,
+      stages. Before any code is written it confirms that the parsed model matches the intended model. After,
       it checks that the sampler compiles, reads correctly, and recovers the right posterior.
     </p>
     <p class="hero__lede" style="margin-top:1rem; font-size:1.02rem; color:rgb(var(--ink-soft));">
-      No automated check catches every bug. Validation raises the floor, and because
-      AI4BayesCode runs inside a coding agent, you can keep digging after the sampler is generated.
+      No automated check catches every bug. Validation improves the reliability of generated samplers, and because
+      AI4BayesCode runs inside a coding agent, you can continue to check the sampler after it is generated.
     </p>
   </section>
 </header>
@@ -66,27 +66,27 @@
 <section class="section">
   <div class="container">
     <p class="eyebrow">Stage 1</p>
-    <h2 class="mt-1">Before generation: get the model right.</h2>
+    <h2 class="mt-1">Pre-generation validation: get the model right.</h2>
     <p class="subtitle mt-1" style="max-width:46rem;">
-      Most errors start in the model, not the code. Before generating anything, AI4BayesCode
-      makes the parsed model explicit and asks you to confirm it. The review is always shown,
-      never offered as an optional extra, and nothing is generated until you sign off. Every
-      check that comes later verifies the code against what the system understood your model to
-      be, so this is the one point where a misread model can still be caught.
+      Most errors start in the model. Before generating anything, AI4BayesCode
+      makes the parsed model explicit and asks you to confirm it. This step is called user verification.
+      In the coding agent, it always takes place and cannot be skipped. Nothing is generated until you confirm. Every
+      check that comes later verifies the code against the parsed model, so pre-generation
+      validation is the one point where an incorrectly parsed model can still be caught.
     </p>
 
     <div class="features-v mt-3">
       <article class="feature-v" data-cat="param">
         <h3 class="feature-v__tagline">Prior completion.</h3>
-        <p class="feature-v__desc">Priors you already wrote are used exactly as you wrote them, and the system does not ask about them again. If your description already gives every prior, it asks no questions about priors and moves straight to the final sign-off described below. For the priors that are missing it asks one parameter at a time, and it offers clear options. You can take a default weakly-informative prior, ask for a prior built from the published literature, fix the parameter to a known value, or supply your own. For the literature option it searches the literature, shows you the sources it used, and offers a tighter version and a wider one, defaulting to the wider one. If you named a distribution but not its numbers, you can also leave those numbers adjustable so you can change them later without regenerating the code. Nothing is left implicit.</p>
+        <p class="feature-v__desc">Priors you already wrote are used exactly as you wrote them, and the system does not ask about them again. If your natural-language model description already gives every prior, the system asks no questions about priors and moves straight to the final confirmation in user verification, described below. For the priors that are missing it asks one parameter at a time, and it offers clear options. You can take a default weakly-informative prior, ask for a prior built from the published literature, fix the parameter to a known value, or supply your own. For the literature option the system searches the literature, shows you the sources it used, and offers a tighter version and a wider one, defaulting to the wider one. If you named a distribution but not its numbers, you can also leave those numbers adjustable so you can change them later without regenerating the code. Nothing is left implicit.</p>
       </article>
       <article class="feature-v" data-cat="semi">
-        <h3 class="feature-v__tagline">You confirm the model.</h3>
-        <p class="feature-v__desc">You see the model twice. The moment you describe it, the system writes it back as formulas and asks whether it read you correctly, before it asks you anything else. Once the priors are settled it shows the full picture again for a final sign-off, in three views: the model formulas, which are the likelihood and priors it parsed, a diagram of the model showing how each quantity produces the next, and a summary table of every parameter with its prior and the sampler that will handle it. The table is where the sampling plan is proposed, and you can ask for a different sampler on any parameter right there. Whenever you ask for a change, the whole review is redrawn, so you are always confirming something you can actually see. You can also ask to see it again at any point before generation starts. When something is ambiguous, such as two parameterizations of the same distribution, it asks before continuing.</p>
+        <h3 class="feature-v__tagline">User verification.</h3>
+        <p class="feature-v__desc">You see the model twice. The moment you describe it, the system writes the model back as formulas and asks whether it parsed your model description correctly, before it asks you anything else. Once the priors are settled it shows the complete parsed model again for your final confirmation, in three views. The first is the model formulas, which are the likelihood and priors the system parsed. The second is a directed acyclic graph (DAG) of model dependencies, showing how each quantity produces the next. The third is a summary table of every parameter with its prior and the sampling block that will handle it. The table is where the block assignment is proposed, and you can ask for a different sampling block on any parameter right there. Whenever you ask for a change, all three views are redrawn, so you are always confirming something you can see. You can also ask to see the parsed model again at any point before generation starts. When something is ambiguous, such as two parameterizations of the same distribution, the system asks before continuing.</p>
       </article>
       <article class="feature-v" data-cat="emp">
         <h3 class="feature-v__tagline">Papers work as input.</h3>
-        <p class="feature-v__desc">You can hand over a paper instead of typing out a model. The system reads it, writes back the model it found, and asks you to confirm before anything is generated. Extraction can misread a paper, so this check matters even more here than it does for a model you typed yourself. If the paper defines several models, it lists them first and you choose which ones to build, and each one becomes its own sampler.</p>
+        <p class="feature-v__desc">You can hand over a paper instead of writing a model description. The system reads the paper, writes back the parsed model, and asks you to confirm before anything is generated. Parsing a paper can introduce errors, so user verification matters even more here than it does for a model description you wrote yourself. If the paper defines several models, the system lists them first and you choose which ones to build, and each one becomes its own sampler.</p>
       </article>
     </div>
   </div>
@@ -98,44 +98,44 @@
 <section class="section">
   <div class="container">
     <p class="eyebrow">Stage 2</p>
-    <h2 class="mt-1">After generation: check the sampler.</h2>
+    <h2 class="mt-1">Post-generation validation: check the sampler.</h2>
     <p class="subtitle mt-1" style="max-width:46rem;">
-      Once the sampler is written, it runs a three-layer pipeline, cheapest first. If a layer
-      fails, the system revises the code from the accumulated feedback and tries again. You set
+      Once the sampler is written, the system runs a three-level pipeline, cheapest first. If a level
+      fails, the AI agent revises the code from the accumulated feedback and validates it again. You set
       the maximum number of attempts before generation starts, and the default is five. When the
-      only problem is that the chains have not settled yet, they are re-run five times longer
+      only problem is that the chains have not converged yet or mix poorly, they are re-run five times longer
       first, and that longer run does not use up an attempt.
     </p>
 
     <div class="feature-grid mt-3">
       <article class="feature" data-cat="param">
-        <h3>1 &middot; Syntax</h3>
-        <p>The generated C++ has to compile. The compiler does this for free. If it does not build, the system fixes the code and retries.</p>
+        <h3>1 &middot; Syntax validation</h3>
+        <p>The generated C++ has to compile. The compiler performs this check. If the build fails, the agent revises the code and validates it again.</p>
       </article>
       <article class="feature" data-cat="semi">
-        <h3>2 &middot; Semantic</h3>
-        <p>Twenty-six checks for bugs that compile and run but still give a wrong posterior: distribution parameterization, dimension mismatch, Jacobian handling, dependency consistency, update logic, gradient correctness, and more. Most of them are done by reading the generated code. A few go further and compile and run a small test program while the sampler is being generated, including the one that checks hand-written gradients against automatic differentiation. Two of them, re-adaptation safety and the freeze controls, cannot be settled by reading the code alone. Their behavior is confirmed in the runtime smoke test, which calls those methods directly.</p>
+        <h3>2 &middot; Semantic validation</h3>
+        <p>Semantic validation consists of twenty-six checks for bugs that compile and run but still give a wrong posterior: distribution parameterization, dimension mismatch, Jacobian handling, dependency consistency, update logic, gradient correctness, and more. Most of them are done by reading the generated code. A few go further and compile and run a small test program while the sampler is being generated, including the one that checks AI-written gradients against automatic differentiation. Two of them, readapt_NUTS() state-preservation and kernel-control conformance, cannot be settled by reading the code alone. The behavior of readapt_NUTS() and the freeze controls is confirmed in the runtime smoke test, which calls those methods directly.</p>
       </article>
       <article class="feature" data-cat="emp">
-        <h3>3 &middot; Runtime</h3>
-        <p>The sampler is run on data simulated under the target model. All three runtime checks run on the same pair of chains, and every draw is kept so the later checks can reuse them. They run in order, and a failure stops the ones after it. First a short smoke test of about ten steps. It calls every method the sampler offers at least once, and a single failed check fails the whole smoke test. It catches crashes, non-finite values, prediction that quietly changes the chain state, and prediction that breaks once part of the model is held fixed. Then the real run, 4000 burn-in draws and 4000 kept draws in each of the two chains, with R-hat and ESS to ask whether the sampler converges. Then a posterior check on those same chains, where the Bayesian p-values decide whether it converged to the right posterior. PSIS-LOO is reported next to them as a diagnostic, and it never fails the sampler on its own.</p>
+        <h3>3 &middot; Runtime validation</h3>
+        <p>The sampler is run on data simulated under the target model. The three runtime checks run in order, and a failure stops the ones after it. The first is a short smoke test of about ten iterations. It calls every method of the sampler at least once, and a single failed check fails the whole smoke test. It catches crashes, non-finite values, prediction that changes the chain state, and prediction that breaks once part of the model is held fixed. The second is the real run of two chains, each with 4000 burn-in iterations and 4000 posterior draws. R-hat and effective sample size (ESS) diagnostics are used to check whether the sampler converges. Every draw is kept, so the third check can reuse the same pair of chains. The third is a posterior predictive check, and its Bayesian p-values are used to test whether the sampler converged to the right posterior. PSIS-LOO is reported next to them as a diagnostic, and it never fails the sampler on its own.</p>
       </article>
     </div>
 
     <p class="subtitle" style="max-width:46rem; margin-top:1.5rem;">
       The smoke test also checks the sampler the way you will use it. The sampler has to build
-      from the data alone. Every other argument needs a default value, unless it is a modeling
+      from the data alone. Every other argument must have a default value, unless it is a modeling
       choice with no sensible default. Arguments passed by name, in any order, have to reach the
       right place, and a misspelled name has to stop with an error instead of being ignored. Every
-      data input can be replaced from outside, and the new value has to survive the next step.
+      data input can be replaced from outside, and the new value has to remain in place after the next step.
     </p>
 
     <p class="subtitle" style="max-width:46rem; margin-top:1.5rem;">
-      Prediction is held to the same standard. When you predict with new values for only some
-      of the inputs, the sampler has to return every output the prediction graph can still reach.
-      It must not return anything more, because an extra output means a missing input was quietly
-      filled in from the training data. When every draw is kept, prediction can also be asked to
-      use the latest draw only, and the smoke test checks both forms. One last check applies only
+      The same standard applies to prediction. When you predict with new values for only some
+      of the inputs, the sampler has to return every output that is still reachable in the prediction DAG.
+      It must not return anything more, because an extra output means a missing input was
+      filled in from the training data. When every draw is kept, prediction can also be set to
+      use the current draw only, and the smoke test checks both forms. One last check applies only
       to models with differential equations. When the equations are linear and their coefficients
       do not change over time, the sampler has to use the library&rsquo;s exact solution. A
       step-by-step numerical solver fails the check there, because its small numerical errors
@@ -144,64 +144,64 @@
 
     <p class="subtitle" style="max-width:46rem; margin-top:1.5rem;">
       Some models are fitted with variational blocks instead of MCMC chains, in whole or in part.
-      R-hat does not apply to those blocks, so the runtime layer measures how close the fitted
+      R-hat does not apply to those blocks, so runtime validation measures how close the fitted
       approximation is to the true posterior and grades it as pass, caution, or fail. When a model
       uses both kinds of block, both checks run and both have to pass.
     </p>
 
     <p class="subtitle" style="max-width:46rem; margin-top:1.5rem;">
-      Validation never judges a sampler by comparing it with a frequentist fit, because a
+      Validation never evaluates a sampler by comparing it with a frequentist fit, because a
       maximum-likelihood estimate is not a posterior. Comparing it with another package or
       another sampler is discouraged as well. That package may use different priors, and then
-      the comparison says nothing about whether this sampler is correct.
+      the comparison cannot show whether this sampler is correct.
     </p>
 
     <details class="checks">
       <summary>Show the 26 semantic checks</summary>
       <ol class="checks__list">
         <li><strong>Distribution parameterization.</strong> Every distribution is annotated with its exact parameterization and mean.</li>
-        <li><strong>Parallel vs sequential update.</strong> Vector Gibbs updates write each component back before the next one is drawn. Drawing them all at once is allowed only when the components do not depend on each other.</li>
-        <li><strong>Dead parameters.</strong> Every parameter has a block that actually samples it, and nothing is sampled and then left unused.</li>
-        <li><strong>Missing intercept or offset.</strong> The regression mean includes the intercept and any offset.</li>
-        <li><strong>Jacobian handling.</strong> Constrained NUTS parameters get their change-of-variable term from the library wrapper, never from a hand-written line in the model code.</li>
-        <li><strong>DAG consistency.</strong> The prediction graph matches how the code actually computes things, and every value the prediction step reads can be reached from that graph.</li>
-        <li><strong>Dependency declaration.</strong> Each block declares the inputs it reads.</li>
-        <li><strong>Binding correctness.</strong> The R interface is used correctly, covering matrix layout, list handling, and how errors are raised. Two of those rules exist because the same file is also compiled for Python, so one wrapper serves both languages.</li>
+        <li><strong>Sequential update.</strong> Vector Gibbs updates write each component back before the next one is drawn. Drawing them all at once is allowed only when the components do not depend on each other.</li>
+        <li><strong>Dead parameters.</strong> Every parameter has a block that samples it, and nothing is sampled and then left unused.</li>
+        <li><strong>Regression intercept / offset.</strong> The regression mean includes the intercept and any offset.</li>
+        <li><strong>Jacobian handling.</strong> Constrained NUTS parameters get their change-of-variable term from the library&rsquo;s constraint transforms, never from an AI-written line in the model code.</li>
+        <li><strong>DAG consistency.</strong> The prediction DAG matches how the code computes things, and every value the prediction step reads can be reached from that DAG.</li>
+        <li><strong>Dependency declaration.</strong> Each block declares the conditioning quantities it reads.</li>
+        <li><strong>Rcpp API correctness.</strong> The R interface is used correctly, covering matrix layout, list handling, and how errors are raised. Two of those rules exist because the same file is also compiled for Python, so one wrapper serves both languages.</li>
         <li><strong>Numerical stability.</strong> Log-sum-exp, clamping, and overflow guards are in place.</li>
-        <li><strong>State mutation in prediction.</strong> Posterior prediction does not alter the chain&rsquo;s state.</li>
-        <li><strong>Joint-NUTS audit.</strong> Extra checks when a joint NUTS block is used.</li>
-        <li><strong>Gradient verification.</strong> Hand-written gradients are checked against automatic differentiation.</li>
+        <li><strong>State mutation in predict_at().</strong> Posterior prediction does not alter the chain&rsquo;s state.</li>
+        <li><strong>Joint NUTS block extra audit.</strong> Extra checks run when a joint NUTS block is used.</li>
+        <li><strong>Gradient verification via autodiff.</strong> AI-written gradients are checked against automatic differentiation.</li>
         <li><strong>RNG separation.</strong> Sampling and prediction draw from separate random streams.</li>
-        <li><strong>Bijection sanity.</strong> Custom trans-dimensional maps are probed at a set of test points. They have to come back to the value they started from, never go flat or fold over, and have forward and reverse steps that agree with each other.</li>
-        <li><strong>Library parity.</strong> Gibbs and other specialized blocks are tested by drawing many samples and confirming the mean and variance match the distribution the block is supposed to be drawing from.</li>
-        <li><strong>Plain-language sampling note.</strong> Every closed-form Gibbs step carries a short comment saying in plain words why that step is exact for this model. The note is written for whoever reads the file, so it never cites check numbers or file paths.</li>
-        <li><strong>No ad-hoc Gibbs.</strong> No hand-written Gibbs outside the approved set.</li>
-        <li><strong>Dense-metric justification.</strong> A dense NUTS metric is justified and pilot-scaled.</li>
-        <li><strong>Vectorized gradients.</strong> Gradients use BLAS-friendly matrix operations.</li>
-        <li><strong>No per-step warmup.</strong> The sampler never re-warms inside a recording step.</li>
-        <li><strong>VI block contract.</strong> Variational blocks conform to the required interface.</li>
-        <li><strong>VI optimizer.</strong> Variational blocks use the RAABBVI optimizer.</li>
-        <li><strong>Re-adaptation safety.</strong> Every model with a NUTS kernel offers re-tuning. Re-tuning leaves the chain exactly as it found it and draws from its own random stream.</li>
-        <li><strong>Joint-NUTS pre-flight.</strong> Funnel models are written in the non-centered form, which is the version that does not get stuck. Each parameter&rsquo;s constraint matches the range the model gave it, and the joint density actually reads every parameter it declares.</li>
-        <li><strong>Trans-dimensional models use RJMCMC.</strong> Models where a coefficient can be exactly zero, and models where the number of parameters can change, are sampled with reversible jump instead of a fixed-size sampler. One way of getting this wrong leaves every runtime check looking clean while the exact zeros quietly disappear, which is why it is caught by reading the code.</li>
-        <li><strong>Freeze controls.</strong> The controls that hold part of a model fixed while the rest keeps sampling are present and behave safely. Freezing a name that does not exist, or a block that cannot be frozen, is refused outright, and you are warned if you re-freeze something already frozen or leave a stale derived value behind.</li>
+        <li><strong>Bijection-consistency AD check.</strong> Custom trans-dimensional maps are probed at a set of test points. A round trip through each map has to return the starting value, the Jacobian has to stay non-singular, and the forward and reverse steps have to be consistent with each other.</li>
+        <li><strong>Library parity test.</strong> Gibbs and other specialized blocks are tested by drawing many samples and confirming the mean and variance match the distribution the block is supposed to be drawing from.</li>
+        <li><strong>Inline Gibbs-exception justification.</strong> Every closed-form Gibbs step has a short comment, in plain words, on why that step is exact for this model. The comment is written for whoever reads the file, so it never cites check numbers or file paths.</li>
+        <li><strong>No AI-written Gibbs outside whitelist.</strong> AI-written Gibbs updates are used only in whitelisted cases.</li>
+        <li><strong>Dense metric justification + pilot scaling.</strong> A dense NUTS metric is justified and pilot-scaled.</li>
+        <li><strong>Vectorized gradient computation.</strong> Gradients use BLAS-friendly matrix operations.</li>
+        <li><strong>No per-step warmup in NUTS blocks.</strong> The sampler never re-warms inside a recording step.</li>
+        <li><strong>VI block contract conformance.</strong> Variational blocks conform to the required interface.</li>
+        <li><strong>VI optimizer is RAABBVI.</strong> Variational blocks use the RAABBVI optimizer.</li>
+        <li><strong>readapt_NUTS() state-preservation.</strong> Every sampler with a NUTS block provides re-tuning. Re-tuning leaves the chain state unchanged and draws from its own random stream.</li>
+        <li><strong>Joint-NUTS pathology pre-flight.</strong> Funnel models are written in the non-centered form, because the centered form leads to poor mixing under NUTS. Each parameter&rsquo;s constraint matches the support declared in the model, and the joint density reads every parameter that the joint NUTS block declares.</li>
+        <li><strong>Trans-dimensional / Dirac-spike RJMCMC.</strong> Models where a coefficient can be exactly zero, and models where the number of parameters can change, are sampled with reversible jump instead of a fixed-size sampler. One way of getting this wrong leaves every runtime check passing while the exact zeros disappear, which is why it is caught by reading the code.</li>
+        <li><strong>Kernel-control conformance.</strong> The controls that hold part of a model fixed while the rest is still sampled are present and behave safely. Freezing a name that does not exist, or a block that cannot be frozen, raises an error, and you are warned if you re-freeze something already frozen or leave a stale derived value behind.</li>
       </ol>
     </details>
 
     <p class="subtitle" style="max-width:46rem; margin-top:1.5rem;">
-      These twenty-six are the checks that come with the library itself. A contributed block
-      brings its own checks as well, and those run in addition to these whenever your sampler
+      These twenty-six checks come with the library itself. A contributed block
+      includes its own checks as well, and those run in addition to these whenever your sampler
       uses that block.
     </p>
 
     <p class="subtitle" style="max-width:46rem; margin-top:2rem;">
-      The two stages work together: the first makes sure the right model is being fit, and the
-      second makes sure the sampler fits it correctly.
+      The two stages complement each other: the first checks that the intended model is being fit, and the
+      second checks that the sampler fits it correctly.
     </p>
     <p class="subtitle" style="max-width:46rem; margin-top:1rem;">
       Even so, no validation catches every bug. That is why AI4BayesCode runs inside a coding
       agent: when the sampler is generated, the conversation does not end. You can keep going and
-      ask the agent to probe edge cases, read through the code with you, and hunt down anything
+      ask the agent to probe edge cases, read through the code with you, and search for anything
       the automated checks missed.
     </p>
   </div>

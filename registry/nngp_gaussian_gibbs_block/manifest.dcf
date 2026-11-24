@@ -11,10 +11,10 @@ Description: Fits Bayesian Gaussian spatial regression with a Nearest-Neighbor
  dense n-by-n GP covariance with a sparse neighbor-based approximation, scaling
  Gaussian-process spatial modeling to large point-referenced datasets. The effects w
  (block sparse-Cholesky draw), coefficients beta and nugget tau^2 are sampled by
- conjugate Gibbs steps; the partial sill sigma^2 and decay phi are updated jointly (a
+ conjugate Gibbs steps. The partial sill sigma^2 and decay phi are updated jointly (a
  sigma^2-marginalized slice on phi then a conjugate sigma^2 draw), and an exact
  parameter-expansion level shift improves intercept mixing. Datta, Banerjee, Finley
- and Gelfand (2016) <doi:10.1080/01621459.2015.1044091>; Finley et al. (2019)
+ and Gelfand (2016) <doi:10.1080/01621459.2015.1044091>. Finley et al. (2019)
  <doi:10.1080/10618600.2018.1537924>.
 Author: Jungang Zou
 License: GPL-3.0-or-later
