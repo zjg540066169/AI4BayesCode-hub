@@ -35,13 +35,25 @@
   <section class="hero" style="padding-bottom:1.5rem;">
     <p class="eyebrow hero__eyebrow">Reference</p>
     <h1 class="hero__title">API documentation.</h1>
-    <p class="hero__lede">
-      AI4BayesCode has two layers. You call the <strong>package functions</strong> to turn a
-      natural-language model description into a compiled sampler. The compiled sampler exposes a small
-      <strong>stateful interface</strong> you call to run the chain and read it back.
-      A third set of functions, the <strong>diagnostic functions</strong>, turns a sampler&rsquo;s
-      output into diagnostics and a directed acyclic graph (DAG). The same names work from R and Python.
-    </p>
+    <div class="hero__lede">
+      <p>The functions of the AI4BayesCode R and Python packages can be broadly classified into three classes:</p>
+      <ul class="hero__list">
+        <li><strong>Package functions.</strong> They compile and load samplers, including the reference
+          examples, and install contributed blocks. They also include <code>ai4bayescode_generate</code>,
+          which calls an LLM through its API to generate a sampler from a natural-language model
+          description. This function requires an API key from your LLM provider. You can use it without a
+          coding agent, but the experience is not as good as in a coding agent with the AI4BayesCode skill.</li>
+        <li><strong>Stateful interface.</strong> A compiled sampler retains its internal state between calls.
+          You call <code>step</code> to run the chain, <code>get_current</code> to read the current draw, and
+          <code>set_current</code> to pass new data or parameter values into the sampler. Other methods
+          include <code>get_history</code> for the recorded draws and <code>predict_at</code> for posterior
+          predictive draws.</li>
+        <li><strong>Diagnostic functions.</strong> They run several chains in parallel, turn a
+          sampler&rsquo;s output into convergence diagnostics, and draw the model&rsquo;s directed acyclic
+          graph (DAG).</li>
+      </ul>
+      <p>The same names work from R and Python.</p>
+    </div>
   </section>
 </header>
 

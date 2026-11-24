@@ -242,6 +242,9 @@ p code, li code {
   max-width: 44rem;
   margin: 0 0 2rem;
 }
+.hero__lede > p { margin: 0; }
+.hero__list { margin: .75rem 0; padding-left: 1.3rem; }
+.hero__list li { margin: .6rem 0; }
 .hero__cta {
   display: flex;
   gap: .65rem;

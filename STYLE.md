@@ -52,7 +52,8 @@ style, and do not use one word for two different concepts.
 | Agent instructions | the skill, skill files | AI skill |
 | People | you (the reader), users (people in general), contributors (block authors), we (the maintainers only) | |
 
-"model" always means the Bayesian model. "layer" is used only for the two layers of the API page.
+"model" always means the Bayesian model. "layer" is not used. The API page sorts the functions
+into three classes: package functions, the stateful interface, and diagnostic functions.
 "sweep" stays only for a pass inside one block's algorithm, such as a Gibbs or backfitting sweep.
 "level" alone names a level of post-generation validation. The LLM setting is always "effort level".
 In the catalog, "a standalone nuts_block" means a nuts_block used on its own, outside `joint_nuts_block`.
