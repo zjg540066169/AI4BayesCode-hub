@@ -7,6 +7,12 @@ Descriptions to Validated Modular Stateful Bayesian Samplers". Apply them when y
 The catalog was generated from the library and then edited by hand. If you regenerate it,
 apply these rules to the new text. Otherwise the edits are lost.
 
+## Readability first
+
+Readability matters most. The reader should understand what each thing does, so do not pile details
+into the copy. Give the main point and leave the details to the section that covers them. A bullet in
+a summary list is one sentence.
+
 ## One concept, one term
 
 Use the term in the table for each concept, word for word, on every page. Do not vary terms for
@@ -94,7 +100,7 @@ Common replacements:
 - Start a sentence with "This" or "These" only when a noun follows.
 - Expand ESS and DAG at their first use in running prose on each page.
 - Hedge claims that can fail with can, may, typically or currently.
-- Do not over-compress. Two or three short full sentences read better than one long stacked sentence.
+- Do not over-compress, and do not pile on details. Two or three short full sentences read better than one long stacked sentence.
   Keep concrete nouns and precise statistical vocabulary.
 - Never change code, identifiers, argument names, file names or URLs for style. Comments in code
   examples follow the same rules as prose.
